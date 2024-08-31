@@ -1,4 +1,4 @@
-"""Installation script for the 'arc_lab' python package."""
+"""Installation script for the 'humarconoid' python package."""
 
 import os
 import toml
@@ -18,8 +18,8 @@ INSTALL_REQUIRES = [
 
 # Installation operation
 setup(
-    name="arc_lab",
-    packages=["arc_lab"],
+    name="humarconoid",
+    packages=["humarconoid"],
     author=EXTENSION_TOML_DATA["package"]["author"],
     maintainer=EXTENSION_TOML_DATA["package"]["maintainer"],
     url=EXTENSION_TOML_DATA["package"]["repository"],
@@ -35,7 +35,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Isaac Sim :: 2023.1.1",
         "Isaac Sim :: 4.0.0",
-        "Isaac Sim :: 4.1.0",
     ],
     zip_safe=False,
 )

@@ -21,7 +21,7 @@ keywords = ["extension", "ARC", "humanoid", "RL", "isaaclab"]
 # NOTE: Add additional dependencies here
 
 [[python.module]]
-name = "arc_lab"
+name = "humarconoid"
 
 [isaaclab_settings]
 # TODO: Uncomment and list any apt dependencies here.

@@ -3,7 +3,7 @@ import omni.isaac.lab.sim as sim_utils
 from omni.isaac.lab.actuators import ImplicitActuatorCfg
 from omni.isaac.lab.assets.articulation import ArticulationCfg
 
-from arc_lab.robots import ISAACLAB_ASSETS_EXT_DIR
+from humarconoid.robots import ISAACLAB_ASSETS_EXT_DIR
 
 G1_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
