@@ -13,17 +13,8 @@ from omni.isaac.lab.utils import configclass
 ##
 # Pre-defined configs
 ##
-from humarconoid.robots.G1.g1 import G1_CFG
+from humarconoid.robots import G1_CFG
 
-
-# @configclass
-# class G1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
-#     def __post_init__(self):
-#         # post init of parent
-#         super().__post_init__()
-#         # switch robot to G1
-#         self.scene.robot = G1_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-#         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/base"
 
 @configclass
 class G1Rewards(RewardsCfg):
