@@ -2,3 +2,7 @@
 *.egg-info
 logs/
 *.usda
+.idea
+.vscode
+.flake8
+
