@@ -1,11 +1,11 @@
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.utils import configclass
 
-from .rough_env_cfg import KIMANOIDRoughEnvCfg
+from .rough_env_cfg import KimanoidRoughEnvCfg
 
 
 @configclass
-class KIMANOIDFlatEnvCfg(KIMANOIDRoughEnvCfg):
+class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
@@ -28,7 +28,7 @@ class KIMANOIDFlatEnvCfg(KIMANOIDRoughEnvCfg):
         self.rewards.feet_air_time.params["threshold"] = 0.4
         self.rewards.dof_torques_l2.weight = -2.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*LJ[1-4]"]
+            "robot", joint_names=[".*LJ[1-7]"]
         )
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
@@ -36,7 +36,7 @@ class KIMANOIDFlatEnvCfg(KIMANOIDRoughEnvCfg):
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
 
-class KIMANOIDFlatEnvCfg_PLAY(KIMANOIDFlatEnvCfg):
+class KimanoidFlatEnvCfg_PLAY(KimanoidFlatEnvCfg):
     def __post_init__(self) -> None:
         # post init of parent
         super().__post_init__()

@@ -37,14 +37,17 @@ KIMANOID_CFG = ArticulationCfg(
             enabled_self_collisions=True, solver_position_iteration_count=8, solver_velocity_iteration_count=4
         ),
     ),
+    
     init_state=ArticulationCfg.InitialStateCfg(
-        pos=(0.0, 0.0, 0.8),
+        pos=(0.0, 0.0, 0.85),
         joint_pos={
             ".*": 0.0,
         },
         joint_vel={".*": 0.0},
     ),
+    
     soft_joint_pos_limit_factor=0.9,
+    
     actuators={
         "legs": ImplicitActuatorCfg(
             joint_names_expr=[
@@ -66,6 +69,7 @@ KIMANOID_CFG = ArticulationCfg(
                 "RLJ[1-4]": 0.01,
             },
         ),
+        
         "feet": ImplicitActuatorCfg(
             effort_limit=20,
             joint_names_expr=["LLJ[5-7]", "RLJ[5-7]"],
@@ -73,13 +77,14 @@ KIMANOID_CFG = ArticulationCfg(
             damping=2.0,
             armature=0.01,
         ),
+        
         "torso": ImplicitActuatorCfg(
             effort_limit=20,
-            joint_names_expr=["BWJ[1-3]"],
+            joint_names_expr=["WJ[1-3]"],
             stiffness=20.0, ## 0
             damping=2.0,
             armature=0.01,
         )
     },
 )
-"""Configuration for the KIST Humanoid3 robot."""
+"""Configuration for the KIST Humanoid3 (Kimanoid) robot."""

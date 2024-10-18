@@ -17,18 +17,25 @@ from humarconoid.robots import KIMANOID_CFG
 
 
 @configclass
-class KIMANOIDRewards(RewardsCfg):
+class KimanoidRewardsCfg(RewardsCfg):
     """Reward terms for the MDP."""
 
+    # 1. [Penalty] Termination
     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-200.0)
+    
+    # 2. [Reward] Tracking of Linear velocity Commands (xy axes)
     track_lin_vel_xy_exp = RewTerm(
         func=mdp.track_lin_vel_xy_yaw_frame_exp,
         weight=1.0,
         params={"command_name": "base_velocity", "std": 0.5},
     )
+    
+    # 3. [Reward] Tracking of Angular Velocity Commands (yaw)
     track_ang_vel_z_exp = RewTerm(
         func=mdp.track_ang_vel_z_world_exp, weight=2.0, params={"command_name": "base_velocity", "std": 0.5}
     )
+    
+    # 4. [Reward] Feet Air Time
     feet_air_time = RewTerm(
         func=mdp.feet_air_time_positive_biped,
         weight=0.25,
@@ -38,6 +45,8 @@ class KIMANOIDRewards(RewardsCfg):
             "threshold": 0.4,
         },
     )
+    
+    # 5. [Penalty] Feet Slide
     feet_slide = RewTerm(
         func=mdp.feet_slide,
         weight=-0.1,
@@ -47,34 +56,38 @@ class KIMANOIDRewards(RewardsCfg):
         },
     )
 
-    # Penalize ankle joint limits
+    # 6. [Penalty] Feet Joint Limits
     dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-1.0,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[5-7]"])},
     )
-    # Penalize deviation from default of the joints that are not essential for locomotion
-    # joint_deviation_hip = RewTerm(
-    #     func=mdp.joint_deviation_l1,
-    #     weight=-0.1,
-    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-3]"])},
-    # )
+    
+    # 7. [Penalty] Deviation from default of the joints that are not essential for locomotion
+    joint_deviation_hip = RewTerm(
+        func=mdp.joint_deviation_l1,
+        weight=-0.1,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
+    )
 
 
 @configclass
 class TerminationsCfg:
     """Termination terms for the MDP."""
 
+    # 1. Time Out
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
+    
+    # 2. Base Link Contact
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="kimanoid"), "threshold": 1.0},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="Body_Waist3"), "threshold": 1.0},
     )
 
 
 @configclass
-class KIMANOIDRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
-    rewards: KIMANOIDRewards = KIMANOIDRewards()
+class KimanoidRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+    rewards: KimanoidRewardsCfg = KimanoidRewardsCfg()
     terminations: TerminationsCfg = TerminationsCfg()
 
     def __post_init__(self):
@@ -122,7 +135,7 @@ class KIMANOIDRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
 
 @configclass
-class KIMANOIDRoughEnvCfg_PLAY(KIMANOIDRoughEnvCfg):
+class KimanoidRoughEnvCfg_PLAY(KimanoidRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()

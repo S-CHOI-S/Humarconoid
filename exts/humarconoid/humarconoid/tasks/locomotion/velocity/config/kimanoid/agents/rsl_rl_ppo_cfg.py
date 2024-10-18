@@ -7,7 +7,7 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 
 
 @configclass
-class KIMANOIDRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
+class KimanoidRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
     max_iterations = 3000
     save_interval = 50
@@ -36,11 +36,11 @@ class KIMANOIDRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
 
 
 @configclass
-class KIMANOIDFlatPPORunnerCfg(KIMANOIDRoughPPORunnerCfg):
+class KimanoidFlatPPORunnerCfg(KimanoidRoughPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.max_iterations = 300
+        self.max_iterations = 3000
         self.experiment_name = "kimanoid_flat"
         self.policy.actor_hidden_dims = [128, 128, 128]
         self.policy.critic_hidden_dims = [128, 128, 128]
