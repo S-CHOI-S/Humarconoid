@@ -13,7 +13,6 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.KimanoidFlatEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidFlatPPORunnerCfg",
-        "sb3_cfg_entry_point": f"{agents.__name__}:sb3_ppo_cfg.yaml",
     },
 )
 

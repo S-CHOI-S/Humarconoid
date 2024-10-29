@@ -2,8 +2,8 @@ from omni.isaac.lab.managers import RewardTermCfg as RewTerm
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
 
-import humarconoid.tasks.locomotion.velocity.mdp as mdp
-from humarconoid.tasks.locomotion.velocity.velocity_env_cfg import (
+import humarconoid.tasks.kimanoid.velocity.mdp as mdp
+from humarconoid.tasks.kimanoid.velocity.velocity_env_cfg import (
     LocomotionVelocityRoughEnvCfg,
     RewardsCfg,
 )
@@ -14,7 +14,18 @@ from omni.isaac.lab.utils import configclass
 # Pre-defined configs
 ##
 from humarconoid.robots import KIMANOID_CFG
+from humarconoid.tasks.utils import set_joint_mapping as KIMANOID_JNT_CFG
 
+joint_cfg = KIMANOID_JNT_CFG.load_from_yaml('kimanoid')
+print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
+print("\tjoint_order:", joint_cfg["joint_order"])
+print("\tsorted_joint:", joint_cfg["sorted_joint"])
+print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
+joint_mapping = KIMANOID_JNT_CFG.joint_mapping(joint_cfg["joint_order"], joint_cfg["sorted_joint"])
+# Output the mapping
+print("Joint Index Mapping:")
+for joint, indices in joint_mapping.items():
+    print(f"{joint}: joint_order_index={indices['joint_order_index']}, sorted_joint_index={indices['sorted_joint_index']}")
 
 @configclass
 class KimanoidRewardsCfg(RewardsCfg):

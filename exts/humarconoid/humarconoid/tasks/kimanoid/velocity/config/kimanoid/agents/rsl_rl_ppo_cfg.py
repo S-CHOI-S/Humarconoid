@@ -9,7 +9,7 @@ from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import (
 @configclass
 class KimanoidRoughPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
-    max_iterations = 3000
+    max_iterations = 100000
     save_interval = 50
     experiment_name = "kimanoid_rough"
     empirical_normalization = False

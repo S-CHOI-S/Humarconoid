@@ -68,15 +68,22 @@ def main():
     while simulation_app.is_running():
         with torch.inference_mode():
             # reset
-            if count % 200 == 0:
+            if count % 2000 == 0:
                 count = 0
                 env.reset()
                 
             # apply actions to the robot
-            efforts = torch.rand_like(env.action_manager.action) * 2
-            # efforts = torch.zeros_like(env.action_manager.action)
+            # efforts = torch.rand_like(env.action_manager.action) * 2
+            efforts = torch.zeros_like(env.action_manager.action) * 2
+            efforts[0][9] = 1
+            efforts[0][10] = -1
 
             obs, rew, terminated, truncated, info = env.step(efforts)
+            print("=============================================")
+            print(efforts[0][9])
+            # print(obs[0])
+
+            print("obs_position:\t", obs['policy'][0])
 
             count += 1
             
