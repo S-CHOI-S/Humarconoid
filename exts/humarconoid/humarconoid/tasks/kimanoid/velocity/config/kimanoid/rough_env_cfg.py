@@ -17,15 +17,15 @@ from humarconoid.robots import KIMANOID_CFG
 from humarconoid.tasks.utils import set_joint_mapping as KIMANOID_JNT_CFG
 
 joint_cfg = KIMANOID_JNT_CFG.load_from_yaml('kimanoid')
-print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
-print("\tjoint_order:", joint_cfg["joint_order"])
-print("\tsorted_joint:", joint_cfg["sorted_joint"])
-print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
-joint_mapping = KIMANOID_JNT_CFG.joint_mapping(joint_cfg["joint_order"], joint_cfg["sorted_joint"])
-# Output the mapping
-print("Joint Index Mapping:")
-for joint, indices in joint_mapping.items():
-    print(f"{joint}: joint_order_index={indices['joint_order_index']}, sorted_joint_index={indices['sorted_joint_index']}")
+# print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
+# print("\tjoint_order:", joint_cfg["joint_order"])
+# print("\tsorted_joint:", joint_cfg["sorted_joint"])
+# print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
+# joint_mapping = KIMANOID_JNT_CFG.joint_mapping(joint_cfg["joint_order"], joint_cfg["sorted_joint"])
+# # Output the mapping
+# print("Joint Index Mapping:")
+# for joint, indices in joint_mapping.items():
+#     print(f"{joint}: joint_order_index={indices['original_index']}, sorted_joint_index={indices['sorted_index']}")
 
 @configclass
 class KimanoidRewardsCfg(RewardsCfg):
@@ -92,7 +92,7 @@ class TerminationsCfg:
     # 2. Base Link Contact
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="Body_Waist3"), "threshold": 1.0},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Body_Waist3", "kimanoid"]), "threshold": 1.0},
     )
 
 

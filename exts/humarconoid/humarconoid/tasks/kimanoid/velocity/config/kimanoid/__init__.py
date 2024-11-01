@@ -1,10 +1,30 @@
 import gymnasium as gym
 
-from . import agents, flat_env_cfg, rough_env_cfg
+from . import agents, flat_env_cfg, rough_env_cfg, stand_env_cfg
 
 ##
 # Register Gym environments.
 ##
+
+gym.register(
+    id="Kimanoid-Stand",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": stand_env_cfg.KimanoidStandEnvCfg,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidStandPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Kimanoid-Stand-Play",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": stand_env_cfg.KimanoidStandEnvCfg_PLAY,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidStandPPORunnerCfg",
+    },
+)
 
 gym.register(
     id="Kimanoid-Flat",

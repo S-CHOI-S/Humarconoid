@@ -77,14 +77,15 @@ def main():
             efforts = torch.zeros_like(env.action_manager.action) * 2
             efforts[0][9] = 1
             efforts[0][10] = -1
+            
+            # print("Shape of asset.data.root_state_w:", env.scene["robot"].root_state_w.shape)
+
+            # print(env.scene["robot"].body_ids)
 
             obs, rew, terminated, truncated, info = env.step(efforts)
-            print("=============================================")
-            print(efforts[0][9])
-            # print(obs[0])
-
-            print("obs_position:\t", obs['policy'][0])
-
+            # print("=============================================")
+            # print(efforts[0][9])
+            
             count += 1
             
     # close the simulator

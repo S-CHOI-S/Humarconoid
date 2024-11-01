@@ -9,6 +9,8 @@ from omni.isaac.lab.utils.math import quat_rotate_inverse, yaw_quat
 
 if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedRLEnv
+    
+from humarconoid.tasks.utils.tools import backlash
 
 
 def feet_air_time(
@@ -93,3 +95,14 @@ def track_ang_vel_z_world_exp(
     asset = env.scene[asset_cfg.name]
     ang_vel_error = torch.square(env.command_manager.get_command(command_name)[:, 2] - asset.data.root_ang_vel_w[:, 2])
     return torch.exp(-ang_vel_error / std**2)
+
+def distance_btw_body(
+    env, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), backlash_threshold: float = 0.2
+) -> torch.Tensor:
+    asset = env.scene[asset_cfg.name]
+    distance = torch.linalg.norm(asset.data.body_state_w[:, 14] - asset.data.body_state_w[:, 15])
+
+    if distance < backlash_threshold:
+        distance = torch.tensor(0.0)
+
+    return distance
