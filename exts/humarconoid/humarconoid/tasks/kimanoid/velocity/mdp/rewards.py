@@ -97,7 +97,7 @@ def track_ang_vel_z_world_exp(
     return torch.exp(-ang_vel_error / std**2)
 
 def distance_btw_body(
-    env, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), backlash_threshold: float = 0.2
+    env, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), backlash_threshold: float = 3
 ) -> torch.Tensor:
     asset = env.scene[asset_cfg.name]
     distance = torch.linalg.norm(asset.data.body_state_w[:, 14] - asset.data.body_state_w[:, 15])

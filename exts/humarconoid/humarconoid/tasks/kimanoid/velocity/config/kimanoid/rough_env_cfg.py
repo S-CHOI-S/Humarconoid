@@ -49,7 +49,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     # 4. [Reward] Feet Air Time
     feet_air_time = RewTerm(
         func=mdp.feet_air_time_positive_biped,
-        weight=0.25,
+        weight=0.5,
         params={
             "command_name": "base_velocity",
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg[6-7]"),
@@ -60,7 +60,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     # 5. [Penalty] Feet Slide
     feet_slide = RewTerm(
         func=mdp.feet_slide,
-        weight=-0.1,
+        weight=-0.25,
         params={
             "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg[6-7]"),
             "asset_cfg": SceneEntityCfg("robot", body_names=".*_Leg[6-7]"),
@@ -77,7 +77,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     # 7. [Penalty] Deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
-        weight=-0.1,
+        weight=-0.5,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
     )
 
@@ -92,7 +92,7 @@ class TerminationsCfg:
     # 2. Base Link Contact
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Body_Waist3", "kimanoid"]), "threshold": 1.0},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Body_Waist3"]), "threshold": 1.0},
     )
 
 
