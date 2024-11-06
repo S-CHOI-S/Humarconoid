@@ -68,17 +68,38 @@ class KimanoidRewardsCfg(RewardsCfg):
     )
 
     # 6. [Penalty] Feet Joint Limits
-    dof_pos_limits = RewTerm(
+    dof_pos_limits_feet = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-1.0,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[5-7]"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-7]", "WJ[1-3]"])},
     )
     
-    # 7. [Penalty] Deviation from default of the joints that are not essential for locomotion
-    joint_deviation_hip = RewTerm(
+    # 7. [Penalty] Leg Joint Limits
+    # dof_pos_limits_leg = RewTerm(
+    #     func=mdp.joint_pos_limits,
+    #     weight=-1.0,
+    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-4]"])},
+    # )
+    
+    # # 8. [Penalty] Torso Joint Limits
+    # dof_pos_limits_torso = RewTerm(
+    #     func=mdp.joint_pos_limits,
+    #     weight=-1.0,
+    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
+    # )
+    
+    # 9. [Penalty] Deviation from default of the joints that are not essential for locomotion
+    joint_deviation_torso = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.5,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
+    )
+    
+    # 10. [Penalty] Deviation from default of the joints that are not essential for locomotion
+    joint_deviation_hip = RewTerm(
+        func=mdp.joint_deviation_l1,
+        weight=-0.01,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-2]"])},
     )
 
 

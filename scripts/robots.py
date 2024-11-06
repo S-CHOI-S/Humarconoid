@@ -75,12 +75,13 @@ def main():
             # apply actions to the robot
             # efforts = torch.rand_like(env.action_manager.action) * 2
             efforts = torch.zeros_like(env.action_manager.action) * 2
-            efforts[0][9] = 1
-            efforts[0][10] = -1
+            efforts[0][9] = 6
+            efforts[0][10] = -6
             
             # print("Shape of asset.data.root_state_w:", env.scene["robot"].root_state_w.shape)
 
             distance = torch.linalg.norm(env.scene["robot"].data.body_state_w[:, 14] - env.scene["robot"].data.body_state_w[:, 15])
+            print(env.scene["robot"].data.joint_names)
 
             if distance < 0.2:
                 distance = torch.tensor(0.0)

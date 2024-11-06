@@ -78,6 +78,7 @@ def main():
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
     # wrap around environment for rsl-rl
+    mb_env = env
     env = RslRlVecEnvWrapper(env)
 
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
@@ -102,8 +103,15 @@ def main():
         with torch.inference_mode():
             # agent stepping
             actions = policy(obs)
+            # actions[:,9] = 3.734696626663208
+            # actions[:,10] = -4.678939342498779
+            # print("-------------------------------------------------------")
+            print(f"joint_name: {mb_env.scene['robot'].data.joint_names[0]}, {mb_env.scene['robot'].data.joint_names[3]}, {mb_env.scene['robot'].data.joint_names[6]}")
+            print(f"joint_limit: {mb_env.scene['robot'].data.default_joint_limits[0]}, {mb_env.scene['robot'].data.default_joint_limits[3]}, {mb_env.scene['robot'].data.default_joint_limits[6]}")
+            print(f"action[0],[3],[6],[9],[11],[13],[15]:\n {actions[0][0]}, {actions[0][3]}, {actions[0][6]}, {actions[0][9]}, {actions[0][11]}, {actions[0][13]}, {actions[0][15]}")
             # env stepping
             obs, _, _, _ = env.step(actions)
+            
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video

@@ -96,6 +96,11 @@ def track_ang_vel_z_world_exp(
     ang_vel_error = torch.square(env.command_manager.get_command(command_name)[:, 2] - asset.data.root_ang_vel_w[:, 2])
     return torch.exp(-ang_vel_error / std**2)
 
+
+#########################################################################################
+## CUSTOM REWARDS
+#########################################################################################
+
 def distance_btw_body(
     env, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), backlash_threshold: float = 3
 ) -> torch.Tensor:
@@ -106,3 +111,43 @@ def distance_btw_body(
         distance = torch.tensor(0.0)
 
     return distance
+
+def heel_toe_air_time(
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg
+) -> torch.Tensor:
+    """Reward long steps taken by the feet using L2-kernel.
+
+    This function rewards the agent for taking steps that are longer than a threshold. This helps ensure
+    that the robot lifts its feet off the ground and takes steps. The reward is computed as the sum of
+    the time for which the feet are in the air.
+
+    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
+    """
+    # extract the used quantities (to enable type-hinting)
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    # compute the reward
+    first_air_time_all = contact_sensor.compute_first_air(env.step_dt)[:, sensor_cfg1.body_ids]
+    first_air_time = torch.max(first_air_time_all, dim=1).values
+    last_air_time_all = contact_sensor.data.last_air_time[:, sensor_cfg1.body_ids]
+    last_air_time = torch.min(last_air_time_all, dim=1).values
+    reward1 = last_air_time * first_air_time
+    
+    # extract the used quantities (to enable type-hinting)
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    # compute the reward
+    first_air_time_all = contact_sensor.compute_first_air(env.step_dt)[:, sensor_cfg2.body_ids]
+    first_air_time = torch.max(first_air_time_all, dim=1).values
+    last_air_time_all = contact_sensor.data.last_air_time[:, sensor_cfg2.body_ids]
+    last_air_time = torch.min(last_air_time_all, dim=1).values
+    reward2 = last_air_time * first_air_time
+    
+    reward = reward1 + reward2
+    
+    # no reward for zero command
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward
+
+def heel_heeltoe_toe_seq(
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg, threshold: float
+) -> torch.Tensor:
+    pass
