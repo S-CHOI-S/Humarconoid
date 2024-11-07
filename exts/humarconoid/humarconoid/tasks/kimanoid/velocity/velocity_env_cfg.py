@@ -250,9 +250,7 @@ class RewardsCfg:
     )
     # -- optional penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
-    dof_pos_limits_feet = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
-    dof_pos_limits_leg = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
-    dof_pos_limits_torso = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
+    dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
     distance_btw_toes = RewTerm(func=mdp.distance_btw_body, weight=-0.0001)
     heel_toe_air_time = RewTerm(
         func=mdp.heel_toe_air_time,

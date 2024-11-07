@@ -67,8 +67,8 @@ class KimanoidRewardsCfg(RewardsCfg):
         },
     )
 
-    # 6. [Penalty] Feet Joint Limits
-    dof_pos_limits_feet = RewTerm(
+    # 6. [Penalty] Joint Limits
+    dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-1.0,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-7]", "WJ[1-3]"])},
