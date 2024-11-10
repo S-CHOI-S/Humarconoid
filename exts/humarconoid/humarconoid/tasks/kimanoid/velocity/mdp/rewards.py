@@ -58,6 +58,7 @@ def feet_air_time_positive_biped(
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     return reward
     
+    
 def feet_slide(env, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """Penalize feet sliding.
 
@@ -143,6 +144,42 @@ def heel_toe_air_time(
     
     reward = reward1 + reward2
     
+    # no reward for zero command
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward
+
+def heel_toe_air_time_positive_biped(
+    env: ManagerBasedRLEnv, command_name: str, threshold: float, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg
+) -> torch.Tensor:
+    """Reward long steps taken by the feet for bipeds.
+
+    This function rewards the agent for taking steps up to a specified threshold and also keep one foot at
+    a time in the air.
+
+    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
+    """
+    contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    # compute the reward    
+    air_time1 = contact_sensor1.data.current_air_time[:, sensor_cfg1.body_ids]
+    contact_time1 = contact_sensor1.data.current_contact_time[:, sensor_cfg1.body_ids]
+    left_in_contact = torch.max(contact_time1, dim=1).values
+    left_air_time = torch.min(air_time1, dim=1).values
+    
+    air_time2 = contact_sensor2.data.current_air_time[:, sensor_cfg2.body_ids]
+    contact_time2 = contact_sensor2.data.current_contact_time[:, sensor_cfg2.body_ids]
+    right_in_contact = torch.max(contact_time2, dim=1).values
+    right_air_time = torch.min(air_time2, dim=1).values
+    
+    contact_time = torch.stack([left_in_contact, right_in_contact], dim=1)
+    air_time = torch.stack([left_air_time, right_air_time], dim=1)
+
+    in_contact = contact_time > 0.0
+    
+    in_mode_time = torch.where(in_contact, contact_time, air_time)
+    single_stance = torch.sum(in_contact.int(), dim=1) == 1
+    reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
+    reward = torch.clamp(reward, max=threshold)
     # no reward for zero command
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     return reward

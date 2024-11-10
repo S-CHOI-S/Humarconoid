@@ -101,6 +101,18 @@ class KimanoidRewardsCfg(RewardsCfg):
         weight=-0.01,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-2]"])},
     )
+    
+    # 11. [Reward] Heel-Toe Air Time
+    heel_toe_air_time = RewTerm(
+        func=mdp.heel_toe_air_time_positive_biped,
+        weight=0.125,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
+            "command_name": "base_velocity",
+            "threshold": 0.4,
+        },
+    )
 
 
 @configclass
@@ -148,7 +160,7 @@ class KimanoidRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         # Rewards
         self.rewards.lin_vel_z_l2.weight = 0.0
-        self.rewards.undesired_contacts = None
+        # self.rewards.undesired_contacts = None
         self.rewards.flat_orientation_l2.weight = -1.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.25e-7
