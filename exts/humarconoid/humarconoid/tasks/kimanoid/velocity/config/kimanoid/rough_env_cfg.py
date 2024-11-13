@@ -75,11 +75,11 @@ class KimanoidRewardsCfg(RewardsCfg):
     )
     
     # 7. [Penalty] Leg Joint Limits
-    # dof_pos_limits_leg = RewTerm(
-    #     func=mdp.joint_pos_limits,
-    #     weight=-1.0,
-    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-4]"])},
-    # )
+    dof_pos_limits_leg = RewTerm(
+        func=mdp.joint_pos_limits,
+        weight=-1.0,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ4"])},
+    )
     
     # # 8. [Penalty] Torso Joint Limits
     # dof_pos_limits_torso = RewTerm(
@@ -112,6 +112,20 @@ class KimanoidRewardsCfg(RewardsCfg):
             "command_name": "base_velocity",
             "threshold": 0.4,
         },
+    )
+    
+    # 11. [Reward] Heel-Toe Motion Air Time
+    heel_toe_motion_air_time = RewTerm(
+        func=mdp.heel_toe_motion_air_time_positive_biped,
+        weight=0.125,
+        params={
+            "heel_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg6"),
+            "toe_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg7"),
+            "heel_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg6"),
+            "toe_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg7"),
+            "command_name": "base_velocity",
+            "threshold": 0.4,
+        }
     )
 
 

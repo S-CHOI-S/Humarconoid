@@ -40,10 +40,11 @@ class KimanoidFlatPPORunnerCfg(KimanoidRoughPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.max_iterations = 3000
+        self.max_iterations = 5000
         self.experiment_name = "kimanoid_flat"
         self.policy.actor_hidden_dims = [128, 128, 128]
         self.policy.critic_hidden_dims = [128, 128, 128]
+        
         
 @configclass
 class KimanoidStandPPORunnerCfg(KimanoidRoughPPORunnerCfg):

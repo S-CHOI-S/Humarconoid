@@ -127,6 +127,7 @@ KIMANOID_CFG = ArticulationCfg(
      'Left_Leg6',   'Right_Leg6',     'Left_Leg7',    'Right_Leg7']
 
 * Joint names:
+    [   '0',    '1',   '2',    '3',    '4',   '5',    '6',    '7',   '8',    '9',   '10',   '11',   '12',   '13',   '14',   '15',   '16']
     ['LLJ1', 'RLJ1', 'WJ1', 'LLJ2', 'RLJ2', 'WJ2', 'LLJ3', 'RLJ3', 'WJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
 
 '''

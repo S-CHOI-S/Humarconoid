@@ -233,12 +233,12 @@ class RewardsCfg:
     ang_vel_xy_l2 = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)
     dof_torques_l2 = RewTerm(func=mdp.joint_torques_l2, weight=-1.0e-5)
     dof_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)
-    action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
+    action_rate_l2 = RewTerm(func=mdp.action_rate_l2_wo_leg, weight=-0.01) ## custom reward
     feet_air_time = RewTerm(
         func=mdp.feet_air_time,
         weight=0.125,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*Leg[6-7]"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*Leg6"),
             "command_name": "base_velocity",
             "threshold": 0.5,
         },
@@ -248,7 +248,7 @@ class RewardsCfg:
         weight=-1.0,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*3"), "threshold": 1.0},
     )
-    # -- optional penalties
+    # -- optional rewards & penalties
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
     distance_btw_toes = RewTerm(func=mdp.distance_btw_body, weight=-0.0001)
@@ -261,7 +261,37 @@ class RewardsCfg:
             "command_name": "base_velocity",
         },
     )
-
+    heel_heeltoe_toe_seq1 = RewTerm(
+        func=mdp.heel_heeltoe_toe_seq,
+        weight=0.05,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg6"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Left_Leg7"),
+            "command_name": "base_velocity",
+        },
+    )
+    heel_heeltoe_toe_seq2 = RewTerm(
+        func=mdp.heel_heeltoe_toe_seq,
+        weight=0.05,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Right_Leg6"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg7"),
+            "command_name": "base_velocity",
+        },
+    )
+    action_rate_l2_leg = RewTerm(
+        func=mdp.action_rate_l2_leg,
+        weight=0.001,
+    )
+    leg_crossing_detection = RewTerm(
+        func=mdp.leg_crossing_detection,
+        weight=0.1,
+        params={
+            "left_sensor_cfg": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
+            "right_sensor_cfg": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
+            "command_name": "base_velocity",
+        },
+    )
 
 @configclass
 class TerminationsCfg:
