@@ -298,7 +298,6 @@ def action_rate_l2_leg(env: ManagerBasedRLEnv) -> torch.Tensor:
     
     return torch.sum(torch.square(filtered_diff), dim=1)
 
-
 def leg_crossing_detection(
     env: ManagerBasedRLEnv, command_name: str, 
     left_sensor_cfg: SceneEntityCfg, right_sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
@@ -321,8 +320,6 @@ def leg_crossing_detection(
     # asset = env.scene[asset_cfg.name]
     # body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :2]
     
-    reward = 0
-    
     # # 오른발의 x 방향 속도 가져오기 (왼발 기준)
     # right_foot_velocity = env.scene.sensors[right_sensor_cfg.name].data.velocity[:, 0]  # 오른발 x 속도
     
@@ -343,5 +340,6 @@ def leg_crossing_detection(
     # reward = torch.clamp(reward, max=1)
     
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward = 0
     
     return reward
