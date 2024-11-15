@@ -248,42 +248,45 @@ def heel_toe_motion_air_time_positive_biped(
     toe_contact_time2 = toe_contact_sensor2.data.current_contact_time[:, toe_sensor_cfg2.body_ids]
 
     # 힐-토 모션 체크
-    left_heel_contacted = torch.all(heel_contact_time1 > 0, dim=1)
-    left_toe_contacted = torch.all(toe_contact_time1 > 0, dim=1)
-    right_heel_contacted = torch.all(heel_contact_time2 > 0, dim=1)
-    right_toe_contacted = torch.all(toe_contact_time2 > 0, dim=1)
+    left_heel_first = torch.all(heel_contact_time1 > toe_contact_time1, dim=1) & torch.all(toe_contact_time1 > 0, dim=1)
+    right_heel_first = torch.all(heel_contact_time2 > toe_contact_time2, dim=1) & torch.all(toe_contact_time2 > 0, dim=1)
     
-    # 힐-토 순서 확인 (힐이 먼저, 그 다음 토가 접촉)
-    left_heel_toe_sequence = left_heel_contacted & left_toe_contacted
-    right_heel_toe_sequence = right_heel_contacted & right_toe_contacted
-
-    # 좌우 발의 힐-토 모션이 모두 성공한 경우
+    left_heel_toe_sequence = left_heel_first
+    right_heel_toe_sequence = right_heel_first
+    
+    # 좌우 발의 힐-토 모션이 올바른 순서로 성공한 경우
     heel_toe_motion = left_heel_toe_sequence & right_heel_toe_sequence
-
+    
     # 기존 보상 계산
     contact_time = torch.stack([
-        torch.max(heel_contact_time1, dim=1).values,
-        torch.max(heel_contact_time2, dim=1).values
+        torch.maximum(heel_contact_time1, toe_contact_time1).squeeze(-1),
+        torch.maximum(heel_contact_time2, toe_contact_time2).squeeze(-1)
     ], dim=1)
     air_time = torch.stack([
-        torch.min(heel_air_time1, dim=1).values,
-        torch.min(heel_air_time2, dim=1).values
+        torch.minimum(heel_air_time1, toe_air_time1).squeeze(-1),
+        torch.minimum(heel_air_time2, toe_air_time2).squeeze(-1)
     ], dim=1)
 
     in_contact = contact_time > 0.0
-    in_mode_time = torch.where(in_contact, contact_time, air_time)
+    in_mode_time = torch.where(in_contact, contact_time, air_time).squeeze(-1)
+    
+    # 양발이 번갈아 가며 접촉하도록 보상 추가
     single_stance = torch.sum(in_contact.int(), dim=1) == 1
-
-    # 기존 보상과 힐-토 보상 결합
+    # double_stance = torch.sum(in_contact.int(), dim=1) == 2
+    
+    # 한쪽 발만 계속 들고 있는 경우 페널티
+    penalty = torch.where(single_stance & (air_time[:, 0] > 0.5) & (air_time[:, 1] > 0.5), -0.1, 0.0)
+    
+    # 보상 계산
     base_reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
     base_reward = torch.clamp(base_reward, max=threshold)
-
+    
     # 힐-토 모션에 추가 보상 부여
-    reward = base_reward + (heel_toe_motion.float() * 0.5)  # 힐-토 모션 시 추가 보상
+    reward = base_reward + (heel_toe_motion.float() * 0.5) + penalty # 힐-토 모션 시 추가 보상
     
     # 명령 크기가 충분하지 않으면 보상 없음
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    
+
     return reward
 
 def action_rate_l2_leg(env: ManagerBasedRLEnv) -> torch.Tensor:
@@ -317,29 +320,68 @@ def leg_crossing_detection(
     # Single Support 조건 확인 (한쪽 발만 접촉)
     single_support = (left_contact ^ right_contact)
     
-    # asset = env.scene[asset_cfg.name]
-    # body_vel = asset.data.body_lin_vel_w[:, asset_cfg.body_ids, :2]
+    asset = env.scene[asset_cfg.name]
+    root_pos_w = asset.data.root_pos_w
+    root_quat_w = asset.data.root_quat_w
     
-    # # 오른발의 x 방향 속도 가져오기 (왼발 기준)
-    # right_foot_velocity = env.scene.sensors[right_sensor_cfg.name].data.velocity[:, 0]  # 오른발 x 속도
-    
-    # # 이전 프레임의 속도 저장 (이 부분은 상태 저장이 필요합니다)
-    # if not hasattr(env, 'prev_right_foot_velocity'):
-    #     env.prev_right_foot_velocity = right_foot_velocity.clone()
+    # 월드 좌표계 기준 발 위치 가져오기
+    left_foot_pos_w = asset.data.body_pos_w[:, 13, :]
+    right_foot_pos_w = asset.data.body_pos_w[:, 14, :]
 
-    # # 속도 변화 패턴 감지
-    # velocity_change = (env.prev_right_foot_velocity * right_foot_velocity) < 0  # 부호 변화 감지
-
-    # # Single support 상태에서 속도 변화가 있는 경우 발 교차로 판단
-    # leg_crossed = single_support & velocity_change
-
-    # # 현재 속도를 이전 속도로 업데이트
-    # env.prev_right_foot_velocity = right_foot_velocity.clone()
+    # 발 위치를 base frame 기준으로 변환
+    left_foot_pos_b = quat_rotate_inverse(root_quat_w, left_foot_pos_w - root_pos_w)
+    right_foot_pos_b = quat_rotate_inverse(root_quat_w, right_foot_pos_w - root_pos_w)
     
-    # reward = leg_crossed.float() * 0.5  # 교차 시 추가 보상
-    # reward = torch.clamp(reward, max=1)
+    relative_pos_x = left_foot_pos_b[:,0] - right_foot_pos_b[:,0]
+
+    if not hasattr(env, 'prev_relative_pos_x'):
+        env.prev_relative_pos_x = relative_pos_x.clone()
+
+    # x 방향 상대 속도 부호 변화 감지
+    position_sign_change = (env.prev_relative_pos_x * relative_pos_x) < 0  # 부호 변화 감지
     
+    # Single support 상태에서 속도 부호 변화가 있을 경우 보상 부여
+    reward = torch.where(single_support & position_sign_change, torch.tensor(1.0, device=relative_pos_x.device), torch.tensor(0.0, device=relative_pos_x.device))
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, 0], dim=1) > 0.1
+
+    # 이전 속도를 현재 속도로 업데이트
+    env.prev_relative_pos_x = relative_pos_x.clone()
+    
+    
+    # left_foot_lin_vel_w = asset.data.body_lin_vel_w[:, 13, :]
+    # right_foot_lin_vel_w = asset.data.body_lin_vel_w[:, 14, :]
+    
+    # # left_foot_ang_vel_w = asset.data.body_ang_vel_w[:, asset_cfg.body_names["Left_Leg6"], :]
+    # # right_foot_ang_vel_w = asset.data.body_ang_vel_w[:, asset_cfg.body_names["Right_Leg6"], :]
+    
+    # left_foot_lin_vel_b = quat_rotate_inverse(root_quat_w, left_foot_lin_vel_w)
+    # # left_foot_ang_vel_b = quat_rotate_inverse(root_quat_w, left_foot_ang_vel_w)
+    # # left_foot_vel_b = torch.cat((left_foot_lin_vel_b, left_foot_ang_vel_b), dim=-1)
+    
+    # right_foot_lin_vel_b = quat_rotate_inverse(root_quat_w, right_foot_lin_vel_w)
+    # # right_foot_ang_vel_b = quat_rotate_inverse(root_quat_w, right_foot_ang_vel_w)
+    # # right_foot_vel_b = torch.cat((right_foot_lin_vel_b, right_foot_ang_vel_b), dim=-1)
+    
+    # relative_lin_vel_x = left_foot_lin_vel_b[:, 0] - right_foot_lin_vel_b[:, 0]
+    
+    # # 이전 x 방향 상대 속도 저장 변수 초기화
+    # if not hasattr(env, 'prev_relative_lin_vel_x'):
+    #     env.prev_relative_lin_vel_x = relative_lin_vel_x.clone()
+
+    # # x 방향 상대 속도 부호 변화 감지
+    # velocity_sign_change = (env.prev_relative_lin_vel_x * relative_lin_vel_x) < 0  # 부호 변화 감지
+    
+    # # Single support 상태에서 속도 부호 변화가 있을 경우 보상 부여
+    # reward = torch.where(single_support & velocity_sign_change, torch.tensor(1.0, device=relative_lin_vel_x.device), torch.tensor(0.0, device=relative_lin_vel_x.device))
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    reward = 0
+
+    # # 이전 속도를 현재 속도로 업데이트
+    # env.prev_relative_lin_vel_x = relative_lin_vel_x.clone()
+    
+    # print(f"left_foot_lin_vel_b:\n{left_foot_lin_vel_b[:5, 0]}")
+    # print(f"right_foot_lin_vel_b:\n{right_foot_lin_vel_b[:5, 0]}")
+    # print(f"relative_lin_vel_x:\n{relative_lin_vel_x[:5]}")
+    # print(f"velocity_sign_change: {single_support & velocity_sign_change}")
+    # print(f"leg_crossing_reward:\n{reward[:5]}")
     
     return reward
