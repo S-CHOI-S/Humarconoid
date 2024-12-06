@@ -234,16 +234,20 @@ def heel_toe_motion_air_time_positive_biped(
     # 좌측 발의 힐과 토 센서 데이터
     heel_contact_sensor1: ContactSensor = env.scene.sensors[heel_sensor_cfg1.name]
     toe_contact_sensor1: ContactSensor = env.scene.sensors[toe_sensor_cfg1.name]
+    
     heel_air_time1 = heel_contact_sensor1.data.current_air_time[:, heel_sensor_cfg1.body_ids]
     heel_contact_time1 = heel_contact_sensor1.data.current_contact_time[:, heel_sensor_cfg1.body_ids]
+    
     toe_air_time1 = toe_contact_sensor1.data.current_air_time[:, toe_sensor_cfg1.body_ids]
     toe_contact_time1 = toe_contact_sensor1.data.current_contact_time[:, toe_sensor_cfg1.body_ids]
     
     # 우측 발의 힐과 토 센서 데이터
     heel_contact_sensor2: ContactSensor = env.scene.sensors[heel_sensor_cfg2.name]
     toe_contact_sensor2: ContactSensor = env.scene.sensors[toe_sensor_cfg2.name]
+    
     heel_air_time2 = heel_contact_sensor2.data.current_air_time[:, heel_sensor_cfg2.body_ids]
     heel_contact_time2 = heel_contact_sensor2.data.current_contact_time[:, heel_sensor_cfg2.body_ids]
+    
     toe_air_time2 = toe_contact_sensor2.data.current_air_time[:, toe_sensor_cfg2.body_ids]
     toe_contact_time2 = toe_contact_sensor2.data.current_contact_time[:, toe_sensor_cfg2.body_ids]
 
@@ -272,20 +276,48 @@ def heel_toe_motion_air_time_positive_biped(
     
     # 양발이 번갈아 가며 접촉하도록 보상 추가
     single_stance = torch.sum(in_contact.int(), dim=1) == 1
-    # double_stance = torch.sum(in_contact.int(), dim=1) == 2
+    # double_stance = torch.sum(in_contact.int(), dim=1) == 2    
     
-    # 한쪽 발만 계속 들고 있는 경우 페널티
-    penalty = torch.where(single_stance & (air_time[:, 0] > 0.5) & (air_time[:, 1] > 0.5), -0.1, 0.0)
+    # 한쪽 발만 계속 들고 있는 경우 페널티    
+    command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
+    
+    single_stance_reward = torch.where(single_stance, 1, 0.0) * (command_norm > 0.1) # tensor([0., 0., 0.], device='cuda:0')
+    # threshold = torch.tensor(threshold, dtype=torch.float32, device=command_norm.device) # 1.0
+
+    # command_norm은 이미 텐서로 정의되어 있어야 합니다.
+    threshold = torch.where(command_norm > 0.1, 1 / (5 * command_norm), torch.inf)
+
+    # threshold가 텐서로 변환되도록 명확히 해줍니다.
+    threshold = torch.tensor(threshold, device=command_norm.device)  # 텐서로 변환
+
+    # unsqueeze(1)로 차원을 확장하여 air_time과 비교
+    single_stance_penalty = torch.where(torch.any(air_time > threshold.unsqueeze(1), dim=1), -2, 0)
     
     # 보상 계산
-    base_reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
-    base_reward = torch.clamp(base_reward, max=threshold)
+    # base_reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
+    # base_reward = torch.clamp(base_reward, max=threshold)
     
     # 힐-토 모션에 추가 보상 부여
-    reward = base_reward + (heel_toe_motion.float() * 0.5) + penalty # 힐-토 모션 시 추가 보상
-    
+    # heel_toe_motion == True: 1, False: 0
+    reward = single_stance_reward + single_stance_penalty + 0.25 * (left_heel_toe_sequence.float() + right_heel_toe_sequence.float()) # 힐-토 모션 시 추가 보상
+
     # 명령 크기가 충분하지 않으면 보상 없음
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    
+    # print(f"single_stance_reward : {single_stance_reward}")
+    # print(f"single_stance_penalty: {single_stance_penalty}")
+    # print(f"heel_toe_motion      : {heel_toe_motion.float() * 0.5}")
+    
+    print(f"single_stance_reward: {single_stance_reward[0]}")
+    print(f"single_stance_penalty: {single_stance_penalty[0]}")
+    print(f"air time: {air_time[0]}")
+    print(f"command norm: {command_norm[0]}")
+    print(f"threshold: {threshold[0]}")
+    print(f"left_heel_toe_sequence: {left_heel_toe_sequence.float()[0]}")
+    print(f"right_heel_toe_sequence: {right_heel_toe_sequence.float()[0]}")
+    print(f"reward: {reward[0]}")
+    
+    reward *= 0.15
 
     return reward
 

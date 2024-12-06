@@ -102,6 +102,13 @@ class KimanoidRewardsCfg(RewardsCfg):
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-2]"])},
     )
     
+    # 11. [Penalty] Deviation from default of the joints that are not essential for locomotion
+    joint_deviation_ankle = RewTerm(
+        func=mdp.joint_deviation_l1,
+        weight=-0.005,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[5-7]"])},
+    )
+    
     # # 11. [Reward] Heel-Toe Air Time
     # heel_toe_air_time = RewTerm(
     #     func=mdp.heel_toe_air_time_positive_biped,
@@ -124,7 +131,7 @@ class KimanoidRewardsCfg(RewardsCfg):
             "heel_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg6"),
             "toe_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg7"),
             "command_name": "base_velocity",
-            "threshold": 0.4,
+            "threshold": 1,
         }
     )
 
