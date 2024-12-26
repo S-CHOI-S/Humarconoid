@@ -6,3 +6,4 @@ logs/
 .vscode
 .flake8
 *.zip
+scripts/sse/*
