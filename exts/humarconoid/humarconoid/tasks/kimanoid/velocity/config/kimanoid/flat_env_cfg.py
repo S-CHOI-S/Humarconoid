@@ -37,7 +37,7 @@ class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
         self.rewards.track_ang_vel_z_exp.weight = 0.5
         self.rewards.lin_vel_z_l2.weight = -0.1
         self.rewards.ang_vel_xy_l2.weight = -0.05
-        self.rewards.dof_torques_l2.weight = -2.5e-05
+        self.rewards.dof_torques_l2.weight = -4e-05
         self.rewards.dof_acc_l2.weight = 0
         self.rewards.action_rate_l2.weight = -0.01
         self.rewards.feet_air_time.weight = 0.0
@@ -49,7 +49,7 @@ class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
         self.rewards.feet_slide.weight = -0.25
         self.rewards.joint_deviation_torso.weight = -0.25
         self.rewards.joint_deviation_hip.weight = -0.1
-        self.rewards.heel_toe_motion_air_time.weight = 1
+        self.rewards.heel_toe_motion_air_time.weight = 0 #1
         
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 2.0)
@@ -72,6 +72,6 @@ class KimanoidFlatEnvCfg_PLAY(KimanoidFlatEnvCfg):
         self.events.push_robot = None
         
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.1)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 2.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)

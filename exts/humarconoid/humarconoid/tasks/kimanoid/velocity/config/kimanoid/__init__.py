@@ -33,6 +33,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.KimanoidFlatEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidFlatPPORunnerCfg",
+        "sse_cfg_entry_point": f"{agents.__name__}.sse_cfg:KimanoidFlatSAEPPORunnerCfg",
     },
 )
 
@@ -53,6 +54,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.KimanoidRoughEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidRoughPPORunnerCfg",
+        "sse_cfg_entry_point": f"{agents.__name__}.sse_cfg:KimanoidRoughSAEPPORunnerCfg",
     },
 )
 

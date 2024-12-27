@@ -276,16 +276,48 @@ def heel_toe_motion_air_time_positive_biped(
     
     # 양발이 번갈아 가며 접촉하도록 보상 추가
     single_stance = torch.sum(in_contact.int(), dim=1) == 1
-    # double_stance = torch.sum(in_contact.int(), dim=1) == 2    
+    # double_stance = torch.sum(in_contact.int(), dim=1) == 2
+    fully_contact_reward = torch.zeros(single_stance.shape[0], device='cuda:0')
+    
+    if single_stance.any():  # single_stance가 하나라도 참인 환경이 있다면
+        # print(f"single_stance: {single_stance}")
+        # print(f"in_contact.int(): {in_contact.int()}")
+
+        # 발뒤꿈치(heel)와 발끝(toe)의 접촉 시간 확인
+        left_fully_contact = (in_contact[:, 0].unsqueeze(-1) == 1) & (heel_contact_time1 > 0) & (toe_contact_time1 > 0) # tensor([[False, False], [False, False]], device='cuda:0')
+        right_fully_contact = (in_contact[:, 1].unsqueeze(-1) == 1) & (heel_contact_time2 > 0) & (toe_contact_time2 > 0) # tensor([[False, False], [False, False]], device='cuda:0')
+
+        # print(f"in_contact[:, 0] == 1: {in_contact[:, 0].unsqueeze(-1) == 1}")
+        # print(f"heel_contact_time1 > 0: {heel_contact_time1 > 0}")
+        # print(f"toe_contact_time1 > 0: {toe_contact_time1 > 0}")
+        # print(f"left_fully_contact or right_fully_contact: {torch.logical_or(left_fully_contact, right_fully_contact)}")
+        
+        # Combine left and right fully contact states
+        fully_contact = torch.where(torch.logical_or(left_fully_contact, right_fully_contact), 0.2, 0)#torch.logical_or(left_fully_contact, right_fully_contact) # fully_contact: tensor([[False, False], [False, False]], device='cuda:0')
+
+
+        # print(f"fully_contact: {fully_contact}")
+        
+        # print(f"[left_fully_contact, right_fully_contact]: {left_fully_contact}, {right_fully_contact}")
+        
+
+        # Reward tensor 초기화 (환경의 수만큼)
+        # fully_contact_reward = torch.zeros(single_stance.shape[0], device='cuda:0')
+
+        # fully_contact 조건이 True인 환경에 대해 reward 값을 1로 설정
+        # print(fully_contact.squeeze(-1))
+        fully_contact_reward = fully_contact.squeeze(-1)
+
+        # print(f"reward: {reward}")
     
     # 한쪽 발만 계속 들고 있는 경우 페널티    
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
     
     single_stance_reward = torch.where(single_stance, 1, 0.0) * (command_norm > 0.1) # tensor([0., 0., 0.], device='cuda:0')
     # threshold = torch.tensor(threshold, dtype=torch.float32, device=command_norm.device) # 1.0
-
+    # print(f"single_stance_reward: {single_stance_reward}")
     # command_norm은 이미 텐서로 정의되어 있어야 합니다.
-    threshold = torch.where(command_norm > 0.1, 1 / (5 * command_norm), torch.inf)
+    threshold = torch.where(command_norm > 0.1, 1 / (2 * command_norm), torch.inf)
 
     # threshold가 텐서로 변환되도록 명확히 해줍니다.
     threshold = torch.tensor(threshold, device=command_norm.device)  # 텐서로 변환
@@ -299,7 +331,7 @@ def heel_toe_motion_air_time_positive_biped(
     
     # 힐-토 모션에 추가 보상 부여
     # heel_toe_motion == True: 1, False: 0
-    reward = single_stance_reward + single_stance_penalty + 0.25 * (left_heel_toe_sequence.float() + right_heel_toe_sequence.float()) # 힐-토 모션 시 추가 보상
+    reward = single_stance_reward + fully_contact_reward + single_stance_penalty + 0.25 * (left_heel_toe_sequence.float() + right_heel_toe_sequence.float()) # 힐-토 모션 시 추가 보상
 
     # 명령 크기가 충분하지 않으면 보상 없음
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
@@ -308,14 +340,14 @@ def heel_toe_motion_air_time_positive_biped(
     # print(f"single_stance_penalty: {single_stance_penalty}")
     # print(f"heel_toe_motion      : {heel_toe_motion.float() * 0.5}")
     
-    print(f"single_stance_reward: {single_stance_reward[0]}")
-    print(f"single_stance_penalty: {single_stance_penalty[0]}")
-    print(f"air time: {air_time[0]}")
-    print(f"command norm: {command_norm[0]}")
-    print(f"threshold: {threshold[0]}")
-    print(f"left_heel_toe_sequence: {left_heel_toe_sequence.float()[0]}")
-    print(f"right_heel_toe_sequence: {right_heel_toe_sequence.float()[0]}")
-    print(f"reward: {reward[0]}")
+    # print(f"single_stance_reward: {single_stance_reward[0]}")
+    # print(f"single_stance_penalty: {single_stance_penalty[0]}")
+    # print(f"air time: {air_time[0]}")
+    # print(f"command norm: {command_norm[0]}")
+    # print(f"threshold: {threshold[0]}")
+    # print(f"left_heel_toe_sequence: {left_heel_toe_sequence.float()[0]}")
+    # print(f"right_heel_toe_sequence: {right_heel_toe_sequence.float()[0]}")
+    # print(f"reward: {reward[0]}")
     
     reward *= 0.15
 
@@ -417,3 +449,50 @@ def leg_crossing_detection(
     # print(f"leg_crossing_reward:\n{reward[:5]}")
     
     return reward
+
+
+def ref_gait_phase(
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    asset = env.scene[asset_cfg.name]
+    
+    command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
+    phase = env.episode_length_buf * env.physics_dt / env.step_dt * torch.where(command_norm > 0.1, command_norm, 0)
+    sin_pos = torch.sin(2 * torch.pi * phase)
+    
+    # double support phase
+    stance_mask = torch.zeros((env.num_envs, 2), device = sin_pos.device)
+    
+    # left foot stance
+    stance_mask[:, 0] = sin_pos > 0
+    
+    # right foot stance
+    stance_mask[:, 1] = sin_pos < 0
+    
+    # compute reference state
+    sin_pos_l = sin_pos.clone()
+    sin_pos_r = sin_pos.clone()
+    
+    left_joint_pos = asset.data.joint_pos[:, [6, 9, 11]]
+    right_joint_pos = asset.data.joint_pos[:, [7, 10, 12]]
+    ref_left_joint_pos = torch.zeros_like(left_joint_pos)
+    ref_right_joint_pos = torch.zeros_like(right_joint_pos)
+    
+    scale = 0.25
+    
+    sin_pos_l[sin_pos_l > 0] = 0 # left swing (-)
+    ref_left_joint_pos[:, 0] = sin_pos_l * scale
+    ref_left_joint_pos[:, 1] = -sin_pos_l * scale * 2
+    ref_left_joint_pos[:, 2] = sin_pos_l * scale
+    
+    sin_pos_r[sin_pos_l < 0] = 0 # right swing (+)
+    ref_right_joint_pos[:, 0] = sin_pos_r * scale
+    ref_right_joint_pos[:, 1] = -sin_pos_r * scale * 2
+    ref_right_joint_pos[:, 2] = sin_pos_r * scale
+    
+    ref_left_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    ref_right_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    
+    left_pos_err = ref_left_joint_pos - left_joint_pos
+    right_pos_err = ref_right_joint_pos - right_joint_pos
+    return -torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)
