@@ -457,8 +457,8 @@ def ref_gait_phase(
     asset = env.scene[asset_cfg.name]
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * env.physics_dt / env.step_dt * torch.where(command_norm > 0.1, command_norm, 0)
-    sin_pos = torch.sin(2 * torch.pi * phase)
+    phase = env.episode_length_buf * env.physics_dt / env.step_dt * command_norm
+    sin_pos = torch.sin(2 * torch.pi * phase/8)
     
     # double support phase
     stance_mask = torch.zeros((env.num_envs, 2), device = sin_pos.device)
@@ -478,7 +478,7 @@ def ref_gait_phase(
     ref_left_joint_pos = torch.zeros_like(left_joint_pos)
     ref_right_joint_pos = torch.zeros_like(right_joint_pos)
     
-    scale = 0.25
+    scale = 0.35
     
     sin_pos_l[sin_pos_l > 0] = 0 # left swing (-)
     ref_left_joint_pos[:, 0] = sin_pos_l * scale
@@ -492,6 +492,15 @@ def ref_gait_phase(
     
     ref_left_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
     ref_right_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    
+    # print(f"\033[33mphase: \033[0m{phase[20]}")
+    # print(f"\033[33msin_pos: \033[0m{sin_pos[20]}")
+    
+    # print(f"\033[35mref_left_joint_pos: \033[0m{ref_left_joint_pos[20]}")
+    # print(f"\033[34mleft_joint_pos: \033[0m{left_joint_pos[20]}")
+    
+    # print(f"\033[35mref_right_joint_pos: \033[0m{ref_right_joint_pos[20]}")
+    # print(f"\033[34mright_joint_pos: \033[0m{right_joint_pos[20]}")
     
     left_pos_err = ref_left_joint_pos - left_joint_pos
     right_pos_err = ref_right_joint_pos - right_joint_pos
