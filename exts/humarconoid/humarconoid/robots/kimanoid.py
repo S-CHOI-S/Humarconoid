@@ -97,7 +97,7 @@ KIMANOID_CFG = ArticulationCfg(
             joint_names_expr=["LLJ[5-7]", "RLJ[5-7]"],
             effort_limit={
                 ".*LJ[5-6]": 100,
-                ".*LJ7": 20,
+                ".*LJ7": 20, # 10 
             },
             velocity_limit={
                 ".*LJ[5-6]": 192,

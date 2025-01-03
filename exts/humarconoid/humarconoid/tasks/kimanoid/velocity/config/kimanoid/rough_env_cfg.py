@@ -47,15 +47,15 @@ class KimanoidRewardsCfg(RewardsCfg):
     )
     
     # 4. [Reward] Feet Air Time
-    feet_air_time = RewTerm(
-        func=mdp.feet_air_time_positive_biped,
-        weight=0.5,
-        params={
-            "command_name": "base_velocity",
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg[6-7]"),
-            "threshold": 0.4,
-        },
-    )
+    # feet_air_time = RewTerm(
+    #     func=mdp.feet_air_time_positive_biped,
+    #     weight=0.5,
+    #     params={
+    #         "command_name": "base_velocity",
+    #         "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg[6-7]"),
+    #         "threshold": 0.4,
+    #     },
+    # )
     
     # 5. [Penalty] Feet Slide
     feet_slide = RewTerm(
@@ -106,7 +106,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     joint_deviation_ankle = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.00,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[5-7]"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ6"])},
     )
     
     # # 11. [Reward] Heel-Toe Air Time
@@ -122,23 +122,23 @@ class KimanoidRewardsCfg(RewardsCfg):
     # )
     
     # 11. [Reward] Heel-Toe Motion Air Time
-    heel_toe_motion_air_time = RewTerm(
-        func=mdp.heel_toe_motion_air_time_positive_biped,
-        weight=0.125,
-        params={
-            "heel_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg6"),
-            "toe_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg7"),
-            "heel_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg6"),
-            "toe_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg7"),
-            "command_name": "base_velocity",
-            "threshold": 1,
-        }
-    )
+    # heel_toe_motion_air_time = RewTerm(
+    #     func=mdp.heel_toe_motion_air_time_positive_biped,
+    #     weight=0.125,
+    #     params={
+    #         "heel_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg6"),
+    #         "toe_sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg7"),
+    #         "heel_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg6"),
+    #         "toe_sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg7"),
+    #         "command_name": "base_velocity",
+    #         "threshold": 1,
+    #     }
+    # )
     
     # 12. [Penalty] Reference Motion
     reference_motion = RewTerm(
         func=mdp.ref_gait_phase,
-        weight=0.05,
+        weight=0.1,
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
@@ -211,16 +211,16 @@ class KimanoidRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.dof_torques_l2.weight = -4e-05
         self.rewards.dof_acc_l2.weight = 0
         self.rewards.action_rate_l2.weight = -0.01
-        self.rewards.feet_air_time.weight = 0.0
+        # self.rewards.feet_air_time.weight = 0.0
         self.rewards.undesired_contacts.weight = -1.0
         self.rewards.flat_orientation_l2.weight = -5.0
         self.rewards.dof_pos_limits.weight = -1
-        self.rewards.leg_crossing_detection.weight = 0
+        # self.rewards.leg_crossing_detection.weight = 0
         self.rewards.termination_penalty.weight = -200.0
         self.rewards.feet_slide.weight = -0.25
         self.rewards.joint_deviation_torso.weight = -0.25
         self.rewards.joint_deviation_hip.weight = -0.1
-        self.rewards.heel_toe_motion_air_time.weight = 1
+        # self.rewards.heel_toe_motion_air_time.weight = 1
 
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)

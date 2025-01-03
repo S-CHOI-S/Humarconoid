@@ -44,6 +44,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.KimanoidFlatEnvCfg_PLAY,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KimanoidFlatPPORunnerCfg",
+        "sse_cfg_entry_point": f"{agents.__name__}.sse_cfg:KimanoidFlatSAEPPORunnerCfg",
     },
 )
 

@@ -149,7 +149,7 @@ def heel_toe_air_time(
     return reward
 
 def heel_toe_air_time_positive_biped(
-    env: ManagerBasedRLEnv, command_name: str, threshold: float, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg
 ) -> torch.Tensor:
     """Reward long steps taken by the feet for bipeds.
 
@@ -179,7 +179,7 @@ def heel_toe_air_time_positive_biped(
     in_mode_time = torch.where(in_contact, contact_time, air_time)
     single_stance = torch.sum(in_contact.int(), dim=1) == 1
     reward = torch.min(torch.where(single_stance.unsqueeze(-1), in_mode_time, 0.0), dim=1)[0]
-    reward = torch.clamp(reward, max=threshold)
+    reward = torch.clamp(reward, max=1)
     # no reward for zero command
     reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     return reward
@@ -457,8 +457,8 @@ def ref_gait_phase(
     asset = env.scene[asset_cfg.name]
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * env.physics_dt / env.step_dt * command_norm
-    sin_pos = torch.sin(2 * torch.pi * phase/8)
+    phase = env.episode_length_buf * env.physics_dt / env.step_dt * (command_norm / 10)
+    sin_pos = torch.sin(2 * torch.pi * phase)
     
     # double support phase
     stance_mask = torch.zeros((env.num_envs, 2), device = sin_pos.device)
@@ -481,18 +481,20 @@ def ref_gait_phase(
     scale = 0.35
     
     sin_pos_l[sin_pos_l > 0] = 0 # left swing (-)
-    ref_left_joint_pos[:, 0] = sin_pos_l * scale
+    ref_left_joint_pos[:, 0] = -sin_pos_l * scale
     ref_left_joint_pos[:, 1] = -sin_pos_l * scale * 2
-    ref_left_joint_pos[:, 2] = sin_pos_l * scale
+    ref_left_joint_pos[:, 2] = -sin_pos_l * scale
     
     sin_pos_r[sin_pos_l < 0] = 0 # right swing (+)
-    ref_right_joint_pos[:, 0] = sin_pos_r * scale
+    ref_right_joint_pos[:, 0] = -sin_pos_r * scale
     ref_right_joint_pos[:, 1] = -sin_pos_r * scale * 2
-    ref_right_joint_pos[:, 2] = sin_pos_r * scale
+    ref_right_joint_pos[:, 2] = -sin_pos_r * scale
     
-    ref_left_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
-    ref_right_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    ref_left_joint_pos[torch.abs(sin_pos) < 0.1] = 0.
+    ref_right_joint_pos[torch.abs(sin_pos) < 0.1] = 0.
     
+    # print(f"\033[33mepisode_length_buf: \033[0m{env.episode_length_buf[20]}]")
+    # print(f"\033[33mcommand_norm: \033[0m{command_norm[20]}]")
     # print(f"\033[33mphase: \033[0m{phase[20]}")
     # print(f"\033[33msin_pos: \033[0m{sin_pos[20]}")
     
@@ -504,4 +506,23 @@ def ref_gait_phase(
     
     left_pos_err = ref_left_joint_pos - left_joint_pos
     right_pos_err = ref_right_joint_pos - right_joint_pos
-    return -torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)
+    
+    # print(f"ref_gait = {-torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)}")
+    
+    # Calculate the reward
+    left_pos_norm = torch.norm(left_pos_err, dim=1)
+    right_pos_norm = torch.norm(right_pos_err, dim=1)
+    
+    left_reward = torch.exp(-2 * left_pos_norm) - left_pos_norm
+    right_reward = torch.exp(-2 * right_pos_norm) - right_pos_norm
+    
+    total_reward = left_reward + right_reward
+    
+    # print(f"\033[34mleft:\033[0m {left_pos_err[20]} = {ref_left_joint_pos[20]} - {left_joint_pos[20]}")
+    # print(f"\033[34mright:\033[0m {right_pos_err[20]} = {ref_right_joint_pos[20]} - {right_joint_pos[20]}")
+    # print(f"\033[35mleft_reward:\033[0m {left_reward[20]}")
+    # print(f"\033[35mright_reward:\033[0m {right_reward[20]}")
+    
+    return total_reward
+    
+    # return -torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)
