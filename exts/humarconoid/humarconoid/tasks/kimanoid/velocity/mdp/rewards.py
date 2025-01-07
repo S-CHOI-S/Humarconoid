@@ -214,7 +214,7 @@ def heel_heeltoe_toe_seq(
 
 def action_rate_l2_wo_leg(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Penalize the rate of change of the actions except knee & hip_pitch joints using L2 squared kernel."""
-    exclude_indices = [6, 7, 9, 10] # 6, 7: knee / # 9, 10: hip_pitch
+    exclude_indices = [6, 7, 9, 10] # 6, 7: hip_pitch / # 9, 10: knee
     
     mask = torch.ones(env.action_manager.action.shape[1], dtype=torch.bool, device=env.action_manager.action.device)
     mask[exclude_indices] = False
@@ -450,14 +450,20 @@ def leg_crossing_detection(
     
     return reward
 
-
-def ref_gait_phase(
-    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+def get_phase(
+    env: ManagerBasedRLEnv, command_name: str,
 ) -> torch.Tensor:
-    asset = env.scene[asset_cfg.name]
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * env.physics_dt / env.step_dt * (command_norm / 10)
+    phase = env.episode_length_buf * env.physics_dt / env.step_dt * (command_norm / 16)
+    
+    return phase
+    
+def get_gait_phase(
+    env: ManagerBasedRLEnv, command_name: str,
+) -> torch.Tensor:
+    
+    phase = get_phase(env, command_name)
     sin_pos = torch.sin(2 * torch.pi * phase)
     
     # double support phase
@@ -468,6 +474,16 @@ def ref_gait_phase(
     
     # right foot stance
     stance_mask[:, 1] = sin_pos < 0
+    
+    return stance_mask
+
+def ref_gait_phase(
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    asset = env.scene[asset_cfg.name]
+    
+    phase = get_phase(env, command_name)
+    sin_pos = torch.sin(2 * torch.pi * phase)
     
     # compute reference state
     sin_pos_l = sin_pos.clone()
@@ -526,3 +542,36 @@ def ref_gait_phase(
     return total_reward
     
     # return -torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)
+    
+def feet_contact_number(
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg,
+) -> torch.Tensor:
+    # sensor_cfg: 
+    contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    left_feet_contact = contact_sensor1.data.current_contact_time[:, sensor_cfg1.body_ids]
+    contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    right_feet_contact = contact_sensor2.data.current_contact_time[:, sensor_cfg2.body_ids]
+    
+    stance_mask = get_gait_phase(env, command_name).float()
+    
+    contact_status = torch.zeros(env.num_envs, dtype=torch.bool, device=stance_mask.device)
+    
+    left_valid_indices = torch.where(stance_mask[:, 0] > 0)[0] # contacted left feet
+    right_valid_indices = torch.where(stance_mask[:, 1] > 0)[0] # contacted right feet
+    
+    left_non_zero_indices = torch.where(
+        (left_feet_contact[left_valid_indices, 0] != 0) | (left_feet_contact[left_valid_indices, 1] != 0)
+    )[0]
+    left_valid_indices = left_valid_indices[left_non_zero_indices]
+    
+    right_non_zero_indices = torch.where(
+        (right_feet_contact[right_valid_indices, 0] != 0) | (right_feet_contact[right_valid_indices, 1] != 0)
+    )[0]
+    right_valid_indices = right_valid_indices[right_non_zero_indices]
+    
+    contact_status[left_valid_indices] = left_feet_contact[left_valid_indices, 0] >= left_feet_contact[left_valid_indices, 1]
+    contact_status[right_valid_indices] = right_feet_contact[right_valid_indices, 0] >= right_feet_contact[right_valid_indices, 1]
+    # print(contact_status)
+    # print(contact_status.float())
+    
+    return contact_status.float()

@@ -107,7 +107,7 @@ def main():
             actions = policy(obs)
             # actions[:,9] = 3.734696626663208
             # actions[:,10] = -4.678939342498779
-            print("-------------------------------------------------------")
+            print(f"\033[0m-------------------------------------------------------")
             # print(f"joint_name: {mb_env.scene['robot'].data.joint_names[0]}, {mb_env.scene['robot'].data.joint_names[3]}, {mb_env.scene['robot'].data.joint_names[6]}")
             # print(f"joint_limit[6],[9]: {mb_env.scene['robot'].data.default_joint_limits[0][6]}, {mb_env.scene['robot'].data.default_joint_limits[0][9]}")
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")

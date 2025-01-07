@@ -42,8 +42,8 @@ class KimanoidFlatPPORunnerCfg(KimanoidRoughPPORunnerCfg):
 
         self.max_iterations = 10000
         self.experiment_name = "kimanoid_flat"
-        self.policy.actor_hidden_dims = [128, 128, 128]
-        self.policy.critic_hidden_dims = [128, 128, 128]
+        self.policy.actor_hidden_dims = [256, 256, 128]
+        self.policy.critic_hidden_dims = [256, 256, 128]
         
         
 @configclass
