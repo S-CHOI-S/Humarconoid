@@ -75,8 +75,14 @@ def main():
             # apply actions to the robot
             # efforts = torch.rand_like(env.action_manager.action) * 2
             efforts = torch.zeros_like(env.action_manager.action) * 2
-            efforts[0][9] = 6
-            efforts[0][10] = -6
+            efforts[0][6] = 0.5
+            efforts[0][7] = -0.5
+            
+            efforts[0][9] = 1.0
+            efforts[0][10] = -1.0
+            
+            efforts[0][11] = 0.5
+            efforts[0][12] = -0.5
             
             # print("Shape of asset.data.root_state_w:", env.scene["robot"].root_state_w.shape)
 

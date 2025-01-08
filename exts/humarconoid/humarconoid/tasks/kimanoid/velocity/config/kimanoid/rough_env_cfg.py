@@ -138,7 +138,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     # 12. [Penalty] Reference Motion
     reference_motion = RewTerm(
         func=mdp.ref_gait_phase,
-        weight=0.1,
+        weight=0.15,
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
