@@ -493,6 +493,8 @@ def ref_gait_phase(
     right_joint_pos = asset.data.joint_pos[:, [7, 10, 12]]
     ref_left_joint_pos = torch.zeros_like(left_joint_pos)
     ref_right_joint_pos = torch.zeros_like(right_joint_pos)
+    left_pos_err = torch.zeros_like(left_joint_pos)
+    right_pos_err = torch.zeros_like(right_joint_pos)
     
     scale = 0.35
     
@@ -506,8 +508,8 @@ def ref_gait_phase(
     ref_right_joint_pos[:, 1] = -sin_pos_r * scale * 2
     ref_right_joint_pos[:, 2] = -sin_pos_r * scale
     
-    ref_left_joint_pos[torch.abs(sin_pos) < 0.1] = 0.
-    ref_right_joint_pos[torch.abs(sin_pos) < 0.1] = 0.
+    ref_left_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    ref_right_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
     
     # print(f"\033[33mepisode_length_buf: \033[0m{env.episode_length_buf[20]}]")
     # print(f"\033[33mcommand_norm: \033[0m{command_norm[20]}]")
@@ -519,25 +521,38 @@ def ref_gait_phase(
     
     # print(f"\033[35mref_right_joint_pos: \033[0m{ref_right_joint_pos[20]}")
     # print(f"\033[34mright_joint_pos: \033[0m{right_joint_pos[20]}")
-    
-    left_pos_err = ref_left_joint_pos - left_joint_pos
-    right_pos_err = ref_right_joint_pos - right_joint_pos
-    
+
+    valid_left_indices = ref_left_joint_pos != 0  # ref_left_joint_pos가 0이 아닌 위치
+    valid_right_indices = ref_right_joint_pos != 0  # ref_right_joint_pos가 0이 아닌 위치
+
+    left_pos_err[valid_left_indices] = ref_left_joint_pos[valid_left_indices] - left_joint_pos[valid_left_indices]
+    right_pos_err[valid_right_indices] = ref_right_joint_pos[valid_right_indices] - right_joint_pos[valid_right_indices]
+
     # print(f"ref_gait = {-torch.sum(torch.abs(left_pos_err) + torch.abs(right_pos_err), dim=1)}")
     
     # Calculate the reward
     left_pos_norm = torch.norm(left_pos_err, dim=1)
     right_pos_norm = torch.norm(right_pos_err, dim=1)
     
-    left_reward = torch.exp(-2 * left_pos_norm) - left_pos_norm
-    right_reward = torch.exp(-2 * right_pos_norm) - right_pos_norm
+    # left_reward = torch.exp(-2 * left_pos_norm) - left_pos_norm
+    # right_reward = torch.exp(-2 * right_pos_norm) - right_pos_norm
+    
+    # Normalize to the range -0.5 to 0.5
+    left_reward = torch.clamp(0.5 - left_pos_norm, min=-0.5, max=0.5)
+    right_reward = torch.clamp(0.5 - right_pos_norm, min=-0.5, max=0.5)
+    
+    # Set reward to 0 where ref_joint_pos is 0
+    left_reward = torch.where(torch.all(ref_left_joint_pos == 0, dim=1), torch.tensor(0.0, device=left_reward.device), left_reward)
+    right_reward = torch.where(torch.all(ref_right_joint_pos == 0, dim=1), torch.tensor(0.0, device=right_reward.device), right_reward)
     
     total_reward = left_reward + right_reward
     
-    # print(f"\033[34mleft:\033[0m {left_pos_err[20]} = {ref_left_joint_pos[20]} - {left_joint_pos[20]}")
-    # print(f"\033[34mright:\033[0m {right_pos_err[20]} = {ref_right_joint_pos[20]} - {right_joint_pos[20]}")
+    # print(f"\033[34mleft:\033[0m {left_pos_err[20]}                        = {ref_left_joint_pos[20]} - {left_joint_pos[20]}")
+    # print(f"\033[34mright:\033[0m {right_pos_err[20]}                      = {ref_right_joint_pos[20]} - {right_joint_pos[20]}")
     # print(f"\033[35mleft_reward:\033[0m {left_reward[20]}")
     # print(f"\033[35mright_reward:\033[0m {right_reward[20]}")
+    # print(f"joint_limit[6],[9] : {asset.data.default_joint_limits[0][6]}, {asset.data.default_joint_limits[0][9]}")
+    # print(f"joint_limit[7],[10]: {asset.data.default_joint_limits[0][7]}, {asset.data.default_joint_limits[0][10]}")
     
     return total_reward
     

@@ -78,7 +78,6 @@ def main():
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
     # wrap around environment for rsl-rl
-    mb_env = env
     env = RslRlVecEnvWrapper(env)
 
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
@@ -109,7 +108,8 @@ def main():
             # actions[:,10] = -4.678939342498779
             print(f"\033[0m-------------------------------------------------------")
             # print(f"joint_name: {mb_env.scene['robot'].data.joint_names[0]}, {mb_env.scene['robot'].data.joint_names[3]}, {mb_env.scene['robot'].data.joint_names[6]}")
-            # print(f"joint_limit[6],[9]: {mb_env.scene['robot'].data.default_joint_limits[0][6]}, {mb_env.scene['robot'].data.default_joint_limits[0][9]}")
+            # print(f"joint_limit[6],[9] : {env.env.scene['robot'].data.default_joint_limits[0][6]}, {env.env.scene['robot'].data.default_joint_limits[0][9]}")
+            # print(f"joint_limit[7],[10]: {env.env.scene['robot'].data.default_joint_limits[0][7]}, {env.env.scene['robot'].data.default_joint_limits[0][10]}")
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
             # env stepping
             obs, _, _, _ = env.step(actions)
