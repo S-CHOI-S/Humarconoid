@@ -455,7 +455,7 @@ def get_phase(
 ) -> torch.Tensor:
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * env.physics_dt / env.step_dt * (command_norm / 8)
+    phase = env.episode_length_buf * (command_norm / 160)
     
     return phase
     
@@ -600,4 +600,4 @@ def feet_contact_number(
     # print(contact_status)
     # print(contact_status.float())
     
-    return contact_status.float() - penalty.float()
+    return contact_status.float() + penalty.float()
