@@ -49,7 +49,7 @@ class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
         self.rewards.feet_slide.weight = -0.25
         self.rewards.joint_deviation_torso.weight = -0.25
         self.rewards.joint_deviation_hip.weight = -0.1
-        self.rewards.heel_toe_air_time.weight = 0.5
+        self.rewards.heel_toe_air_time.weight = 1.0
         self.rewards.reference_motion.weight = 0.5
         self.rewards.contact_motion.weight = 0.2
         
