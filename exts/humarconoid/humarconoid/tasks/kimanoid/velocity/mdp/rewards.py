@@ -455,7 +455,7 @@ def get_phase(
 ) -> torch.Tensor:
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * (env.step_dt / 2) * command_norm
+    phase = env.episode_length_buf * (env.step_dt) * command_norm
     # print(env.episode_length_buf)
     # print(command_norm)
     # print(env.step_dt)
