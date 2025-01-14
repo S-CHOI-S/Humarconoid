@@ -117,12 +117,12 @@ def main():
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
             
-            # data_log.append({
-            #     "timestep": timestep,
-            #     "command": torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist(),  # Actions as a list
-            #     "action": torch.norm(obs[15,:2]).tolist()   # Rewards as a list
-            # })
-            # timestep += 1
+            data_log.append({
+                "timestep": timestep,
+                "command": torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[15, :2]).tolist(),  # Actions as a list
+                "action": torch.norm(obs[15,:2]).tolist()   # Rewards as a list
+            })
+            timestep += 1
             
         if args_cli.video:
             timestep += 1
@@ -130,12 +130,12 @@ def main():
             if timestep == args_cli.video_length:
                 break
     
-    # import pandas as pd
-    # # save data to CSV
-    # output_file = os.path.join(log_dir, "simulation_data.csv")
-    # print(f"[INFO] Saving data to {output_file}")
-    # df = pd.DataFrame(data_log)
-    # df.to_csv(output_file, index=False)
+    import pandas as pd
+    # save data to CSV
+    output_file = os.path.join(log_dir, "simulation_data.csv")
+    print(f"[INFO] Saving data to {output_file}")
+    df = pd.DataFrame(data_log)
+    df.to_csv(output_file, index=False)
                 
     # close the simulator
     env.close()

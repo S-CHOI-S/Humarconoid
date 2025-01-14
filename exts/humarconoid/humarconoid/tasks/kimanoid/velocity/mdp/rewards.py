@@ -455,7 +455,7 @@ def get_phase(
 ) -> torch.Tensor:
     
     command_norm = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1)
-    phase = env.episode_length_buf * (env.step_dt) * command_norm / 4
+    phase = env.episode_length_buf * (env.step_dt) * command_norm
     # print(env.episode_length_buf)
     # print(command_norm)
     # print(env.step_dt)
@@ -499,7 +499,7 @@ def ref_gait_phase(
     left_pos_err = torch.zeros_like(left_joint_pos)
     right_pos_err = torch.zeros_like(right_joint_pos)
     
-    scale = 0.35
+    scale = 0.5
     
     sin_pos_l[sin_pos_l > 0] = 0 # left swing (-)
     ref_left_joint_pos[:, 0] = -sin_pos_l * scale
