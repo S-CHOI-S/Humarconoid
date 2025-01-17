@@ -117,7 +117,7 @@ def main():
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
             
-            print(env.unwrapped.scene['robot'].data.GRAVITY_VEC_W)
+            # print(env.unwrapped.scene['robot'].data.GRAVITY_VEC_W)
             
             data_log.append({
                 "timestep": timestep,

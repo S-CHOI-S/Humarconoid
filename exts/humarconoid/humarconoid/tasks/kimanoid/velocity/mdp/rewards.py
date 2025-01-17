@@ -463,7 +463,7 @@ def get_phase(
     return phase
     
 def get_gait_phase(
-    env: ManagerBasedRLEnv, command_name: str,
+    env: ManagerBasedRLEnv, command_name: str, threshold: float = 0.3
 ) -> torch.Tensor:
     
     phase = get_phase(env, command_name)
@@ -478,10 +478,13 @@ def get_gait_phase(
     # right foot stance
     stance_mask[:, 1] = sin_pos < 0
     
+    # double support stance
+    stance_mask[torch.abs(sin_pos) < threshold] = 1
+    
     return stance_mask
 
 def ref_gait_phase(
-    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"), threshold: float = 0.3
 ) -> torch.Tensor:
     asset = env.scene[asset_cfg.name]
     
@@ -511,8 +514,8 @@ def ref_gait_phase(
     ref_right_joint_pos[:, 1] = -sin_pos_r * scale * 2
     ref_right_joint_pos[:, 2] = -sin_pos_r * scale
     
-    ref_left_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
-    ref_right_joint_pos[torch.abs(sin_pos) < 0.05] = 0.
+    ref_left_joint_pos[torch.abs(sin_pos) < threshold] = 0.
+    ref_right_joint_pos[torch.abs(sin_pos) < threshold] = 0.
     
     # print(f"\033[33mepisode_length_buf: \033[0m{env.episode_length_buf[20]}]")
     # print(f"\033[33mcommand_norm: \033[0m{command_norm[20]}]")
@@ -579,31 +582,33 @@ def feet_contact_number(
     contact_status = torch.zeros(env.num_envs, dtype=torch.bool, device=stance_mask.device)
     penalty = torch.zeros(env.num_envs, dtype=torch.float32, device=stance_mask.device)
     
-    left_valid_indices = torch.where(stance_mask[:, 0] > 0)[0] # contacted left feet
-    right_valid_indices = torch.where(stance_mask[:, 1] > 0)[0] # contacted right feet
+    left_valid_indices = torch.where(stance_mask[:, 0] > 0)[0] # left feet stance
+    right_valid_indices = torch.where(stance_mask[:, 1] > 0)[0] # right feet stance
     
+    # left feet stance & contact time > 0
     left_non_zero_indices = torch.where(
         (left_feet_contact[left_valid_indices, 0] != 0) | (left_feet_contact[left_valid_indices, 1] != 0)
     )[0]
     left_valid_indices = left_valid_indices[left_non_zero_indices]
     
+    # right feet stance & contact time > 0
     right_non_zero_indices = torch.where(
         (right_feet_contact[right_valid_indices, 0] != 0) | (right_feet_contact[right_valid_indices, 1] != 0)
     )[0]
     right_valid_indices = right_valid_indices[right_non_zero_indices]
     
-    contact_status[left_valid_indices] = left_feet_contact[left_valid_indices, 0] >= left_feet_contact[left_valid_indices, 1]
-    contact_status[right_valid_indices] = right_feet_contact[right_valid_indices, 0] >= right_feet_contact[right_valid_indices, 1]
+    contact_status[left_valid_indices] += left_feet_contact[left_valid_indices, 0] >= left_feet_contact[left_valid_indices, 1]
+    contact_status[right_valid_indices] += right_feet_contact[right_valid_indices, 0] >= right_feet_contact[right_valid_indices, 1]
     
-    left_false_contact_indices = torch.where((stance_mask[:, 1] > 0) & 
+    left_false_contact_indices = torch.where((stance_mask[:, 0] == 0) & 
                                          ((left_feet_contact[:, 0] != 0) | (left_feet_contact[:, 1] != 0)))[0]
-    penalty[left_false_contact_indices] = -0.5
+    penalty[left_false_contact_indices] = -0.6
     
-    right_false_contact_indices = torch.where((stance_mask[:, 0] > 0) & 
+    right_false_contact_indices = torch.where((stance_mask[:, 1] == 0) & 
                                          ((right_feet_contact[:, 0] != 0) | (right_feet_contact[:, 1] != 0)))[0]
-    penalty[right_false_contact_indices] = -0.5
+    penalty[right_false_contact_indices] = -0.6
 
-
+    # print(stance_mask[0, :], stance_mask[1, :])
     # print(contact_status)
     # print(contact_status.float())
     
