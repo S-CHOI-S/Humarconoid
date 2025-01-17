@@ -117,10 +117,12 @@ def main():
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
             
+            print(env.unwrapped.scene['robot'].data.GRAVITY_VEC_W)
+            
             data_log.append({
                 "timestep": timestep,
-                "command": torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[15, :2]).tolist(),  # Actions as a list
-                "action": torch.norm(obs[15,:2]).tolist()   # Rewards as a list
+                "command": torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[0, :2]).tolist(),  # Actions as a list
+                "action": torch.norm(obs[0,:2]).tolist()   # Rewards as a list
             })
             timestep += 1
             
@@ -132,10 +134,10 @@ def main():
     
     import pandas as pd
     # save data to CSV
-    output_file = os.path.join(log_dir, "simulation_data.csv")
-    print(f"[INFO] Saving data to {output_file}")
-    df = pd.DataFrame(data_log)
-    df.to_csv(output_file, index=False)
+    # output_file = os.path.join(log_dir, "simulation_data.csv")
+    # print(f"[INFO] Saving data to {output_file}")
+    # df = pd.DataFrame(data_log)
+    # df.to_csv(output_file, index=False)
                 
     # close the simulator
     env.close()

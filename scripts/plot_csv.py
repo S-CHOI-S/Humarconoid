@@ -107,11 +107,11 @@ import os
 current_dir = os.getcwd()
 print(f"Current Directory: {current_dir}")
 
-file_path1 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-07_18-30-29/simulation_data.csv')
-file_path2 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-07_18-30-29/simulation_data.csv')
+file_path1 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-15_13-57-34/simulation_data.csv')
+file_path2 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-15_13-57-34/simulation_data.csv')
 
-file_path3 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-07_18-30-29/simulation_data.csv')
-file_path4 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-07_18-30-29/simulation_data.csv')
+file_path3 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-15_13-57-34/simulation_data.csv')
+file_path4 = os.path.join(current_dir, '/home/sol/humarconoid/logs/rsl_rl/kimanoid_flat/2025-01-15_13-57-34/simulation_data.csv')
 
 # if not os.path.exists(file_path1):
 #     print(f"File not found: {file_path1}")

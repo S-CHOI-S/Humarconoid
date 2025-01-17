@@ -595,11 +595,11 @@ def feet_contact_number(
     contact_status[left_valid_indices] = left_feet_contact[left_valid_indices, 0] >= left_feet_contact[left_valid_indices, 1]
     contact_status[right_valid_indices] = right_feet_contact[right_valid_indices, 0] >= right_feet_contact[right_valid_indices, 1]
     
-    left_false_contact_indices = torch.where((stance_mask[:, 0] <= 0) & 
+    left_false_contact_indices = torch.where((stance_mask[:, 1] > 0) & 
                                          ((left_feet_contact[:, 0] != 0) | (left_feet_contact[:, 1] != 0)))[0]
     penalty[left_false_contact_indices] = -0.5
     
-    right_false_contact_indices = torch.where((stance_mask[:, 1] <= 0) & 
+    right_false_contact_indices = torch.where((stance_mask[:, 0] > 0) & 
                                          ((right_feet_contact[:, 0] != 0) | (right_feet_contact[:, 1] != 0)))[0]
     penalty[right_false_contact_indices] = -0.5
 
