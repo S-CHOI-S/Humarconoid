@@ -272,6 +272,16 @@ class RewardsCfg:
             "command_name": "base_velocity",
         }
     )
+    
+    feet_distance = RewTerm(
+        func=mdp.feet_distance,
+        weight=0.05,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
+            "command_name": "base_velocity",
+        }
+    )
 
     # action_rate_l2_leg = RewTerm(
     #     func=mdp.action_rate_l2_leg,

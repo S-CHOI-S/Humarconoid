@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.sensors import ContactSensor
-from omni.isaac.lab.utils.math import quat_rotate_inverse, yaw_quat
+from omni.isaac.lab.utils.math import quat_rotate_inverse, yaw_quat, subtract_frame_transforms
 
 if TYPE_CHECKING:
     from omni.isaac.lab.envs import ManagerBasedRLEnv
@@ -602,14 +602,78 @@ def feet_contact_number(
     
     left_false_contact_indices = torch.where((stance_mask[:, 0] == 0) & 
                                          ((left_feet_contact[:, 0] != 0) | (left_feet_contact[:, 1] != 0)))[0]
-    penalty[left_false_contact_indices] = -0.6
+    penalty[left_false_contact_indices] = -1.25
     
     right_false_contact_indices = torch.where((stance_mask[:, 1] == 0) & 
                                          ((right_feet_contact[:, 0] != 0) | (right_feet_contact[:, 1] != 0)))[0]
-    penalty[right_false_contact_indices] = -0.6
+    penalty[right_false_contact_indices] = -1.25
 
     # print(stance_mask[0, :], stance_mask[1, :])
     # print(contact_status)
     # print(contact_status.float())
     
     return contact_status.float() + penalty.float()
+
+def feet_distance(
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    # sensor_cfg: 
+    contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    left_feet_contact = contact_sensor1.data.current_contact_time[:, sensor_cfg1.body_ids]
+    contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    right_feet_contact = contact_sensor2.data.current_contact_time[:, sensor_cfg2.body_ids]
+    
+    stance_mask = get_gait_phase(env, command_name).float()
+    
+    reward = torch.zeros(env.num_envs, dtype=torch.float32, device=stance_mask.device)
+    
+    asset = env.scene[asset_cfg.name]
+    
+    root_pose_w = asset.data.body_link_state_w[:, 0, :7]
+    
+    left_feet_pos_w_gt = asset.data.body_link_pos_w[:, 14]
+    left_feet_quat_w_gt = asset.data.body_link_quat_w[:, 14]
+    
+    right_feet_pos_w_gt = asset.data.body_link_pos_w[:, 15]
+    right_feet_quat_w_gt = asset.data.body_link_quat_w[:, 15]
+    
+    left_foot_pos_b = torch.zeros(env.num_envs, 3, dtype=torch.float32, device=stance_mask.device)
+    right_foot_pos_b = torch.zeros(env.num_envs, 3, dtype=torch.float32, device=stance_mask.device)
+    
+    left_foot_pos_b, _ = subtract_frame_transforms(
+        root_pose_w[:, :3], root_pose_w[:, 3:], left_feet_pos_w_gt, left_feet_quat_w_gt
+    )
+    right_foot_pos_b, _ = subtract_frame_transforms(
+        root_pose_w[:, :3], root_pose_w[:, 3:], right_feet_pos_w_gt, right_feet_quat_w_gt
+    )
+    
+    
+    # [1, 0]
+    # left_feet_contact_index = torch.all(stance_mask == torch.tensor([1, 0], device=stance_mask.device), dim=1)
+    # reward[left_feet_contact_index] = ((left_foot_pos_b[left_feet_contact_index, 0] - right_foot_pos_b[left_feet_contact_index, 0]) < 0).float()
+
+    # # [0, 1]
+    # right_feet_contact_index = torch.all(stance_mask == torch.tensor([0, 1], device=stance_mask.device), dim=1)
+    # reward[right_feet_contact_index] = ((left_foot_pos_b[right_feet_contact_index, 0] - right_foot_pos_b[right_feet_contact_index, 0]) > 0).float()
+
+    # [1, 1]
+    double_support_index = torch.all(stance_mask == torch.tensor([1, 1], device=stance_mask.device), dim=1)
+    reward[double_support_index] = torch.abs((left_foot_pos_b[double_support_index, 0] - right_foot_pos_b[double_support_index, 0]))
+        
+    # print(f"\033[32m> root_pose_w[:, :3]: \033[0m", root_pose_w[:, :3].shape)
+    # print(f"\033[32m> root_pose_w[:, 3:]: \033[0m", root_pose_w[:, 3:].shape)
+    
+    # print(f"\033[32m> left_feet_pos_w_gt: \033[0m", left_feet_pos_w_gt.shape)
+    # print(f"\033[32m> left_feet_quat_w_gt: \033[0m", left_feet_quat_w_gt.shape)
+    
+    # print(f"\033[32m> right_feet_pos_w_gt: \033[0m", right_feet_pos_w_gt.shape)
+    # print(f"\033[32m> right_feet_quat_w_gt: \033[0m", right_feet_quat_w_gt.shape)
+    
+    # print(f"\033[32m> left_foot_pos_b: \033[0m", left_foot_pos_b.shape)
+    # print(f"\033[32m> right_foot_pos_b: \033[0m", right_foot_pos_b.shape)
+    
+    # print(f"\033[32m> reward: \033[0m", (left_foot_pos_b - right_foot_pos_b).shape)
+    
+    # print(f"\033[33m> reward: \033[0m", reward[:5])
+    
+    return reward # left_foot_pos_b - right_foot_pos_b # must be torch.Size([4096])!
