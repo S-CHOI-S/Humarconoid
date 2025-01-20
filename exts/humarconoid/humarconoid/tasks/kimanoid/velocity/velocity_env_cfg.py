@@ -282,6 +282,14 @@ class RewardsCfg:
             "command_name": "base_velocity",
         }
     )
+    
+    foot_clearance = RewTerm(
+        func=mdp.foot_clearance,
+        weight=0.1,
+        params={
+            "command_name": "base_velocity",
+        }
+    )
 
     # action_rate_l2_leg = RewTerm(
     #     func=mdp.action_rate_l2_leg,

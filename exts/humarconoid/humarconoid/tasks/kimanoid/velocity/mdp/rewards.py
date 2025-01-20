@@ -467,7 +467,7 @@ def get_gait_phase(
 ) -> torch.Tensor:
     
     phase = get_phase(env, command_name)
-    sin_pos = torch.sin(2 * torch.pi * phase)
+    sin_pos = torch.sin(2 * torch.pi * phase / 1.25)
     
     # double support phase
     stance_mask = torch.zeros((env.num_envs, 2), device = sin_pos.device)
@@ -607,12 +607,15 @@ def feet_contact_number(
     right_false_contact_indices = torch.where((stance_mask[:, 1] == 0) & 
                                          ((right_feet_contact[:, 0] != 0) | (right_feet_contact[:, 1] != 0)))[0]
     penalty[right_false_contact_indices] = -1.25
+    
+    reward = contact_status.float() + penalty.float()
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, torch.tensor(1.0, device=stance_mask.device), torch.tensor(0.0, device=stance_mask.device))
 
     # print(stance_mask[0, :], stance_mask[1, :])
     # print(contact_status)
     # print(contact_status.float())
     
-    return contact_status.float() + penalty.float()
+    return reward
 
 def feet_distance(
     env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
@@ -647,7 +650,6 @@ def feet_distance(
         root_pose_w[:, :3], root_pose_w[:, 3:], right_feet_pos_w_gt, right_feet_quat_w_gt
     )
     
-    
     # [1, 0]
     # left_feet_contact_index = torch.all(stance_mask == torch.tensor([1, 0], device=stance_mask.device), dim=1)
     # reward[left_feet_contact_index] = ((left_foot_pos_b[left_feet_contact_index, 0] - right_foot_pos_b[left_feet_contact_index, 0]) < 0).float()
@@ -659,6 +661,8 @@ def feet_distance(
     # [1, 1]
     double_support_index = torch.all(stance_mask == torch.tensor([1, 1], device=stance_mask.device), dim=1)
     reward[double_support_index] = torch.abs((left_foot_pos_b[double_support_index, 0] - right_foot_pos_b[double_support_index, 0]))
+    
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, torch.tensor(1.0, device=stance_mask.device), torch.tensor(0.0, device=stance_mask.device))
         
     # print(f"\033[32m> root_pose_w[:, :3]: \033[0m", root_pose_w[:, :3].shape)
     # print(f"\033[32m> root_pose_w[:, 3:]: \033[0m", root_pose_w[:, 3:].shape)
@@ -677,3 +681,20 @@ def feet_distance(
     # print(f"\033[33m> reward: \033[0m", reward[:5])
     
     return reward # left_foot_pos_b - right_foot_pos_b # must be torch.Size([4096])!
+
+def foot_clearance(
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    asset = env.scene[asset_cfg.name]
+    
+    left_foot_height = asset.data.body_link_pos_w[:, 14, 2]
+    right_foot_height = asset.data.body_link_pos_w[:, 14, 2]
+    
+    reward = torch.zeros(env.num_envs, dtype=torch.float32, device=left_foot_height.device)
+
+    flying_foot = torch.where(torch.logical_or(left_foot_height > 0.2, right_foot_height > 0.2))    
+    reward[flying_foot] -= left_foot_height[flying_foot] + right_foot_height[flying_foot]
+    
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, torch.tensor(1.0, device=left_foot_height.device), torch.tensor(0.0, device=left_foot_height.device))
+    
+    return reward
