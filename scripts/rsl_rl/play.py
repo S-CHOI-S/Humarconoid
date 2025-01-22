@@ -107,12 +107,20 @@ def main():
             # actions[:,9] = 3.734696626663208
             # actions[:,10] = -4.678939342498779
             print(f"\033[0m-------------------------------------------------------")
-            # print(f"joint_name: {mb_env.scene['robot'].data.joint_names[0]}, {mb_env.scene['robot'].data.joint_names[3]}, {mb_env.scene['robot'].data.joint_names[6]}")
+            # print information from the sensors
+            # print(env.unwrapped.scene["contact_points"])
+            # print("Received force matrix of: ", env.unwrapped.scene["contact_points"].data.force_matrix_w)
+            # print("Received contact force of: ", env.unwrapped.scene["contact_points"].data.net_forces_w)
+            # print(f"link_names: {env.unwrapped.scene['robot'].data.body_names}")
+            # print(f"joint_names: {env.unwrapped.scene['robot'].data.joint_names}")
+            
             # print(f"joint_limit[6],[9] : {env.env.scene['robot'].data.default_joint_limits[0][6]}, {env.env.scene['robot'].data.default_joint_limits[0][9]}")
             # print(f"joint_limit[7],[10]: {env.env.scene['robot'].data.default_joint_limits[0][7]}, {env.env.scene['robot'].data.default_joint_limits[0][10]}")
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
             # env stepping
             obs, _, _, _ = env.step(actions)
+            
+            # print(f"obs: \n{obs}")
             
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")

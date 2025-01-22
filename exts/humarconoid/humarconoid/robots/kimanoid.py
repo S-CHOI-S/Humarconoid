@@ -22,7 +22,8 @@ from humarconoid.robots import HUMARCONOID_EXT_DIR
 
 KIMANOID_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{HUMARCONOID_EXT_DIR}/KIST_HUMANOID_TORSO/kist_humanoid3.usd",
+        # usd_path=f"{HUMARCONOID_EXT_DIR}/KIST_HUMANOID_TORSO/kist_humanoid3.usd",
+        usd_path=f"{HUMARCONOID_EXT_DIR}/KIST_HUMANOID_TORSO_ANKLE/kist_humanoid3.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -56,9 +57,9 @@ KIMANOID_CFG = ArticulationCfg(
             # "RLJ5": -0.52,
             # "RLJ6": -0.055,
             # "RLJ7": 0,
-            # "WJ1": 0.00103,
-            # "WJ2": -0.00247,
-            # "WJ3": 0.532,
+            # "BWJ1": 0.00103,
+            # "BWJ2": -0.00247,
+            # "BWJ3": 0.532,
         },
         joint_vel={".*": 0.0},
     ),
@@ -109,7 +110,7 @@ KIMANOID_CFG = ArticulationCfg(
         ),
         
         "torso": ImplicitActuatorCfg(
-            joint_names_expr=["WJ[1-3]"],
+            joint_names_expr=["BWJ[1-3]"],
             effort_limit=300,
             velocity_limit=93,
             stiffness=20.0, ## 0
@@ -127,7 +128,7 @@ KIMANOID_CFG = ArticulationCfg(
      'Left_Leg6',   'Right_Leg6',     'Left_Leg7',    'Right_Leg7']
 
 * Joint names:
-    [   '0',    '1',   '2',    '3',    '4',   '5',    '6',    '7',   '8',    '9',   '10',   '11',   '12',   '13',   '14',   '15',   '16']
-    ['LLJ1', 'RLJ1', 'WJ1', 'LLJ2', 'RLJ2', 'WJ2', 'LLJ3', 'RLJ3', 'WJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
+    [   '0',    '1',    '2',    '3',    '4',    '5',    '6',    '7',    '8',    '9',   '10',   '11',   '12',   '13',   '14',   '15',   '16']
+    ['LLJ1', 'RLJ1', 'BWJ1', 'LLJ2', 'RLJ2', 'BWJ2', 'LLJ3', 'RLJ3', 'BWJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
 
 '''
