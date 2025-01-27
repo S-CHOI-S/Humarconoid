@@ -116,7 +116,7 @@ class ActionsCfg:
 
     # ['LLJ1', 'RLJ1', 'WJ1', 'LLJ2', 'RLJ2', 'WJ2', 'LLJ3', 'RLJ3', 'WJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
     joint_pos = mdp.JointPositionActionCfg(
-        asset_name="robot", joint_names=[".*"], scale=0.5, use_default_offset=True
+        asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True
     )
 
 

@@ -692,7 +692,7 @@ def foot_clearance(
     
     reward = torch.zeros(env.num_envs, dtype=torch.float32, device=left_foot_height.device)
 
-    flying_foot = torch.where(torch.logical_or(left_foot_height > 0.2, right_foot_height > 0.2))    
+    flying_foot = torch.where(torch.logical_or(left_foot_height > 0.3, right_foot_height > 0.3))    
     reward[flying_foot] -= left_foot_height[flying_foot] + right_foot_height[flying_foot]
     
     reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, torch.tensor(1.0, device=left_foot_height.device), torch.tensor(0.0, device=left_foot_height.device))

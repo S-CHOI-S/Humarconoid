@@ -117,10 +117,15 @@ def main():
             # print(f"joint_limit[6],[9] : {env.env.scene['robot'].data.default_joint_limits[0][6]}, {env.env.scene['robot'].data.default_joint_limits[0][9]}")
             # print(f"joint_limit[7],[10]: {env.env.scene['robot'].data.default_joint_limits[0][7]}, {env.env.scene['robot'].data.default_joint_limits[0][10]}")
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
+            # 
+            
+            # print(f"obs: \n{obs}")
+            # print(f"action: \n{actions}")
+            
             # env stepping
             obs, _, _, _ = env.step(actions)
             
-            # print(f"obs: \n{obs}")
+            
             
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
@@ -129,8 +134,8 @@ def main():
             
             data_log.append({
                 "timestep": timestep,
-                "command": torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[0, :2]).tolist(),  # Actions as a list
-                "action": torch.norm(obs[0,:2]).tolist()   # Rewards as a list
+                "observation": (obs[0]).tolist(), # torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[0, :2]).tolist(),  # Actions as a list
+                "action": (actions[0]).tolist()   # Rewards as a list
             })
             timestep += 1
             
@@ -142,10 +147,10 @@ def main():
     
     import pandas as pd
     # save data to CSV
-    # output_file = os.path.join(log_dir, "simulation_data.csv")
-    # print(f"[INFO] Saving data to {output_file}")
-    # df = pd.DataFrame(data_log)
-    # df.to_csv(output_file, index=False)
+    output_file = os.path.join(log_dir, "simulation_data.csv")
+    print(f"[INFO] Saving data to {output_file}")
+    df = pd.DataFrame(data_log)
+    df.to_csv(output_file, index=False)
                 
     # close the simulator
     env.close()
