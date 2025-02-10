@@ -17,7 +17,7 @@ parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
 )
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-parser.add_argument("--task", type=str, default=None, help="Name of the task.")
+parser.add_argument("--task", type=str, default="G1-Flat-Play", help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
@@ -46,7 +46,7 @@ import humarconoid.tasks  # noqa: F401
 
 from omni.isaac.lab.utils.dict import print_dict
 from omni.isaac.lab_tasks.utils import get_checkpoint_path, parse_env_cfg
-from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, export_policy_as_onnx
+from omni.isaac.lab_tasks.utils.wrappers.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, export_policy_as_jit, export_policy_as_onnx
 
 
 def main():
@@ -91,7 +91,12 @@ def main():
 
     # export policy to onnx
     export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
-    export_policy_as_onnx(ppo_runner.alg.actor_critic, export_model_dir, filename="policy.onnx")
+    export_policy_as_jit(
+        ppo_runner.alg.actor_critic, ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.pt"
+    )
+    export_policy_as_onnx(
+        ppo_runner.alg.actor_critic, normalizer=ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.onnx"
+    )
 
     # reset environment
     obs, _ = env.get_observations()
@@ -106,7 +111,7 @@ def main():
             actions = policy(obs)
             # actions[:,9] = 3.734696626663208
             # actions[:,10] = -4.678939342498779
-            print(f"\033[0m-------------------------------------------------------")
+            # print(f"\033[0m-------------------------------------------------------")
             # print information from the sensors
             # print(env.unwrapped.scene["contact_points"])
             # print("Received force matrix of: ", env.unwrapped.scene["contact_points"].data.force_matrix_w)
@@ -119,8 +124,8 @@ def main():
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
             # 
             
-            # print(f"obs: \n{obs}")
-            # print(f"action: \n{actions}")
+            # print(f"obs: \n{obs[0]}")
+            # print(f"action: \n{actions[0]}")
             
             # env stepping
             obs, _, _, _ = env.step(actions)
