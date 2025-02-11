@@ -22,5 +22,6 @@ HUMARCONOID_EXT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 
 from .g1 import *
+from .g1_kist import *
 from .mahru import *
 from .kimanoid import *
