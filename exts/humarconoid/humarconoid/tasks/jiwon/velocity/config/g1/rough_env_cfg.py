@@ -49,31 +49,33 @@ class JiwonRewards(RewardsCfg):
     # Penalize ankle joint limits
     dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
-        weight=-1.0,
+        weight=-0.1,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"])},
     )
     # Penalize deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_.*"])},
     )
+    
     joint_deviation_arms = RewTerm(
         func=mdp.joint_deviation_l1,
-        weight=-0.1,
+        weight=-0.2,
         params={
             "asset_cfg": SceneEntityCfg(
                 "robot",
                 joint_names=[
-                    ".*_shoulder_pitch_joint",
+                    # ".*_shoulder_pitch_joint",
                     ".*_shoulder_roll_joint",
-                    ".*_shoulder_yaw_joint",
-                    ".*_elbow_joint",
-                    ".*_wrist_.*",
+                    # ".*_shoulder_yaw_joint",
+                    # ".*_elbow_joint",
+                    # ".*_wrist_.*",
                 ],
             )
         },
     )
+    
     # joint_deviation_fingers = RewTerm(
     #     func=mdp.joint_deviation_l1,
     #     weight=-0.05,
@@ -94,9 +96,11 @@ class JiwonRewards(RewardsCfg):
     # )
     joint_deviation_torso = RewTerm(
         func=mdp.joint_deviation_l1,
-        weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names="waist_.*_joint")},
+        weight=-0.2,
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names="waist_.*")},
     )
+    
+    # flat_orientation_body = RewTerm(func=mdp.flat_orientation_body, weight=0.0)
 
 
 @configclass

@@ -102,6 +102,7 @@ def main():
     obs, _ = env.get_observations()
     timestep = 0
     data_log = []
+    obs[0, 9] = 0.6
     
     # simulate environment
     while simulation_app.is_running():
@@ -129,20 +130,26 @@ def main():
             
             # env stepping
             obs, _, _, _ = env.step(actions)
+            # obs[0, 9] = 0.6
             
-            
+            # if timestep > 1000:
+            #     obs[0, 9] = 0
             
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
             # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
             
             # print(env.unwrapped.scene['robot'].data.GRAVITY_VEC_W)
             
-            data_log.append({
-                "timestep": timestep,
-                "observation": (obs[0]).tolist(), # torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[0, :2]).tolist(),  # Actions as a list
-                "action": (actions[0]).tolist()   # Rewards as a list
-            })
-            timestep += 1
+            # selected_indices = [0, 3, 7, 11, 15, 19]
+            # data_log.append({
+            #     "timestep": timestep,
+            #     "observation": [obs[0, 12+i].cpu().item() for i in selected_indices], # (obs[0, 0]).tolist(), # torch.norm(env.unwrapped.command_manager.get_command('base_velocity')[0, :2]).tolist(),  # Actions as a list
+            #     "action": [obs[0, 86+i].cpu().item() for i in selected_indices], # (obs[0, 9]).tolist(), # (env.unwrapped.command_manager.get_command('base_velocity')[0, 0]).tolist()   # Rewards as a list
+            # })
+            # timestep += 1
+            
+            # if timestep == 2001:
+            #     break
             
         if args_cli.video:
             timestep += 1
@@ -152,7 +159,7 @@ def main():
     
     import pandas as pd
     # save data to CSV
-    output_file = os.path.join(log_dir, "simulation_data.csv")
+    output_file = os.path.join(log_dir, "tracking_qdes.csv")
     print(f"[INFO] Saving data to {output_file}")
     df = pd.DataFrame(data_log)
     df.to_csv(output_file, index=False)

@@ -93,3 +93,16 @@ def track_ang_vel_z_world_exp(
     asset = env.scene[asset_cfg.name]
     ang_vel_error = torch.square(env.command_manager.get_command(command_name)[:, 2] - asset.data.root_ang_vel_w[:, 2])
     return torch.exp(-ang_vel_error / std**2)
+
+def flat_orientation_body(
+    env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """Penalize non-flat base orientation using L2 squared kernel.
+
+    This is computed by penalizing the xy-components of the projected gravity vector.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset = env.scene[asset_cfg.name]
+    
+    projected_gravity = quat_rotate_inverse(asset.data.body_link_quat_w[:, 11], asset.data.GRAVITY_VEC_W)
+    return torch.sum(torch.square(projected_gravity), dim=1)

@@ -22,7 +22,7 @@ from humarconoid.robots import HUMARCONOID_EXT_DIR
 
 G1_KIST_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist.usd",
+        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist_leg.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -43,7 +43,7 @@ G1_KIST_CFG = ArticulationCfg(
             # default joint positions
             "left_shoulder_roll_joint": 0.2,
             "right_shoulder_roll_joint": -0.2,
-            ".*_elbow_joint": 1.0,
+            # ".*_elbow_joint": 1.0,
         },
         joint_vel={".*": 0.0},
     ),
@@ -88,11 +88,11 @@ G1_KIST_CFG = ArticulationCfg(
         ),
         "arms": ImplicitActuatorCfg(
             joint_names_expr=[
-                ".*_shoulder_pitch_joint",
+                # ".*_shoulder_pitch_joint",
                 ".*_shoulder_roll_joint",
-                ".*_shoulder_yaw_joint",
-                ".*_elbow_joint",
-                ".*_wrist_.*",
+                # ".*_shoulder_yaw_joint",
+                # ".*_elbow_joint",
+                # ".*_wrist_.*",
             ],
             effort_limit=300,
             velocity_limit=100.0,
@@ -100,10 +100,21 @@ G1_KIST_CFG = ArticulationCfg(
             damping=2.0,
             armature={
                 ".*_shoulder_.*": 0.01,
-                ".*_elbow_.*": 0.01,
-                ".*_wrist_.*": 0.01,
+                # ".*_elbow_.*": 0.01,
+                # ".*_wrist_.*": 0.01,
             },
         ),
     },
 )
 """Configuration for the Unitree G1 Humanoid robot (29dof)."""
+'''
+'pelvis', 'imu_in_pelvis', 'left_hip_pitch_link', 'pelvis_contour_link', 'right_hip_pitch_link', 
+'waist_yaw_link', 'left_hip_roll_link', 'right_hip_roll_link', 'waist_roll_link', 'left_hip_yaw_link', 
+'right_hip_yaw_link', 'torso_link', 'left_knee_link', 'right_knee_link', 'd435_link', 'head_link', 
+'imu_in_torso', 'left_shoulder_pitch_link', 'logo_link', 'mid360_link', 'right_shoulder_pitch_link', 
+'left_ankle_pitch_link', 'right_ankle_pitch_link', 'left_shoulder_roll_link', 'right_shoulder_roll_link', 
+'left_ankle_roll_link', 'right_ankle_roll_link', 'left_shoulder_yaw_link', 'right_shoulder_yaw_link', 
+'left_elbow_link', 'right_elbow_link', 'left_wrist_roll_link', 'right_wrist_roll_link', 
+'left_wrist_pitch_link', 'right_wrist_pitch_link', 'left_wrist_yaw_link', 'right_wrist_yaw_link', 
+'left_rubber_hand', 'right_rubber_hand'
+'''
