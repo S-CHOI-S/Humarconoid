@@ -59,22 +59,22 @@ class JiwonRewards(RewardsCfg):
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_.*"])},
     )
     
-    joint_deviation_arms = RewTerm(
-        func=mdp.joint_deviation_l1,
-        weight=-0.2,
-        params={
-            "asset_cfg": SceneEntityCfg(
-                "robot",
-                joint_names=[
-                    # ".*_shoulder_pitch_joint",
-                    ".*_shoulder_roll_joint",
-                    # ".*_shoulder_yaw_joint",
-                    # ".*_elbow_joint",
-                    # ".*_wrist_.*",
-                ],
-            )
-        },
-    )
+    # joint_deviation_arms = RewTerm(
+    #     func=mdp.joint_deviation_l1,
+    #     weight=-0.03,
+    #     params={
+    #         "asset_cfg": SceneEntityCfg(
+    #             "robot",
+    #             joint_names=[
+    #                 # ".*_shoulder_pitch_joint",
+    #                 ".*_shoulder_roll_joint",
+    #                 # ".*_shoulder_yaw_joint",
+    #                 # ".*_elbow_joint",
+    #                 # ".*_wrist_.*",
+    #             ],
+    #         )
+    #     },
+    # )
     
     # joint_deviation_fingers = RewTerm(
     #     func=mdp.joint_deviation_l1,
@@ -96,7 +96,7 @@ class JiwonRewards(RewardsCfg):
     # )
     joint_deviation_torso = RewTerm(
         func=mdp.joint_deviation_l1,
-        weight=-0.2,
+        weight=-0.25,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names="waist_.*")},
     )
     
