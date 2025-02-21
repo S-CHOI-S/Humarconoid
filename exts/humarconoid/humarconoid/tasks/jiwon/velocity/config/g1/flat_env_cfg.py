@@ -34,7 +34,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint",  ".*_ankle_.*"]
         )
-        self.rewards.joint_deviation_torso.weight = -0
+        # self.rewards.joint_deviation_torso.weight = -0
         
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
@@ -55,3 +55,5 @@ class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
         # remove random pushing
         self.events.base_external_force_torque = None
         self.events.push_robot = None
+        
+        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)

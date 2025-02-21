@@ -102,7 +102,7 @@ def main():
     obs, _ = env.get_observations()
     timestep = 0
     data_log = []
-    obs[0, 9] = 0.6
+    # obs[0, 9] = 0.6
     
     # simulate environment
     while simulation_app.is_running():
@@ -112,7 +112,7 @@ def main():
             actions = policy(obs)
             # actions[:,9] = 3.734696626663208
             # actions[:,10] = -4.678939342498779
-            # print(f"\033[0m-------------------------------------------------------")
+            print(f"\033[0m-------------------------------------------------------")
             # print information from the sensors
             # print(env.unwrapped.scene["contact_points"])
             # print("Received force matrix of: ", env.unwrapped.scene["contact_points"].data.force_matrix_w)
@@ -125,8 +125,8 @@ def main():
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
             # 
             
-            # print(f"obs: \n{obs[0]}")
-            # print(f"action: \n{actions[0]}")
+            print(f"obs: \n{obs[0]}")
+            print(f"action: \n{actions[0]}")
             
             # env stepping
             obs, _, _, _ = env.step(actions)
@@ -136,7 +136,7 @@ def main():
             #     obs[0, 9] = 0
             
             # print(f"command_norm: {torch.norm(mb_env.command_manager.get_command('base_velocity')[15, :2]).tolist()}")
-            # print(f"action: {torch.norm(obs[15,:2]).tolist()}")
+            # print(f"action: {actions[0]}")
             
             # print(env.unwrapped.scene['robot'].data.GRAVITY_VEC_W)
             

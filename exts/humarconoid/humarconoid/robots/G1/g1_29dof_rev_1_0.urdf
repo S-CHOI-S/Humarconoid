@@ -456,7 +456,7 @@
       </material>
     </visual>
   </link>
-  <joint name="waist_yaw_joint" type="revolute">
+  <joint name="waist_yaw_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="pelvis"/>
     <child link="waist_yaw_link"/>
@@ -479,7 +479,7 @@
       </material>
     </visual>
   </link>
-  <joint name="waist_roll_joint" type="revolute">
+  <joint name="waist_roll_joint" type="fixed">
     <origin xyz="-0.0039635 0 0.044" rpy="0 0 0"/>
     <parent link="waist_yaw_link"/>
     <child link="waist_roll_link"/>
@@ -508,7 +508,7 @@
       </geometry>
     </collision>
   </link>
-  <joint name="waist_pitch_joint" type="revolute">
+  <joint name="waist_pitch_joint" type="fixed">
     <origin xyz="0 0 0" rpy="0 0 0"/>
     <parent link="waist_roll_link"/>
     <child link="torso_link"/>
@@ -658,7 +658,7 @@
       </geometry>
     </collision> -->
   </link>
-  <joint name="left_shoulder_roll_joint" type="revolute">
+  <joint name="left_shoulder_roll_joint" type="fixed">
     <origin xyz="0 0.038 -0.013831" rpy="-0.27925 0 0"/>
     <parent link="left_shoulder_pitch_link"/>
     <child link="left_shoulder_roll_link"/>
@@ -888,7 +888,7 @@
       </geometry>
     </collision> -->
   </link>
-  <joint name="right_shoulder_roll_joint" type="revolute">
+  <joint name="right_shoulder_roll_joint" type="fixed">
     <origin xyz="0 -0.038 -0.013831" rpy="0.27925 0 0"/>
     <parent link="right_shoulder_pitch_link"/>
     <child link="right_shoulder_roll_link"/>
