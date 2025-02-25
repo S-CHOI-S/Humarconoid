@@ -12,7 +12,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         
         # self.sim.dt = 0.002 ## 500 hz
         # self.decimation = 4 ## 125 hz
-        self.actions.joint_pos.joint_names = {".*_hip_.*", ".*_knee_.*", ".*_ankle_.*"}
+        self.actions.joint_pos.joint_names = {".*_hip_.*", ".*_knee_.*", ".*_ankle_pitch_.*"}
 
         # change terrain to flat
         self.scene.terrain.terrain_type = "plane"
@@ -34,11 +34,15 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint",  ".*_ankle_.*"]
         )
+        # self.rewards.undesired_contacts.weight =-1.0
+        # self.rewards.undesired_contacts.params["sensor_cfg"] = SceneEntityCfg(
+        #     "robot", body_names=[".*_hip_.*", ".*_knee_joint",  ".*_ankle_.*"]
+        # )
         # self.rewards.joint_deviation_torso.weight = -0
         
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0., 0.)
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.3, 0.3)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.3)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
 
 
@@ -56,4 +60,4 @@ class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
         self.events.base_external_force_torque = None
         self.events.push_robot = None
         
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.5)

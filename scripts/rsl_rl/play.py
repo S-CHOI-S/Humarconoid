@@ -118,7 +118,7 @@ def main():
             # print("Received force matrix of: ", env.unwrapped.scene["contact_points"].data.force_matrix_w)
             # print("Received contact force of: ", env.unwrapped.scene["contact_points"].data.net_forces_w)
             # print(f"link_names: {env.unwrapped.scene['robot'].data.body_names}")
-            # print(f"joint_names: {env.unwrapped.scene['robot'].data.joint_names}")
+            print(f"joint_names: {env.unwrapped.scene['robot'].data.joint_names}")
             
             # print(f"joint_limit[6],[9] : {env.env.scene['robot'].data.default_joint_limits[0][6]}, {env.env.scene['robot'].data.default_joint_limits[0][9]}")
             # print(f"joint_limit[7],[10]: {env.env.scene['robot'].data.default_joint_limits[0][7]}, {env.env.scene['robot'].data.default_joint_limits[0][10]}")
