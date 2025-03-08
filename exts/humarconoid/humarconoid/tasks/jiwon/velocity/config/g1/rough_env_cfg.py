@@ -3,7 +3,7 @@ from omni.isaac.lab.managers import SceneEntityCfg
 from omni.isaac.lab.managers import TerminationTermCfg as DoneTerm
 
 import humarconoid.tasks.jiwon.velocity.mdp as mdp
-from humarconoid.tasks.locomotion.velocity.velocity_env_cfg import (
+from humarconoid.tasks.jiwon.velocity.velocity_env_cfg import (
     LocomotionVelocityRoughEnvCfg,
     RewardsCfg,
 )
@@ -50,13 +50,39 @@ class JiwonRewards(RewardsCfg):
     dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_pitch_joint", ".*_ankle_roll_joint", ".*_knee_joint"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_joint", ".*_knee_joint"])}, # ".*_ankle_pitch_joint"
     )
     # Penalize deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.1,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_.*"])},
+    )
+    
+    # knee_action = RewTerm(
+    #     func=mdp.joint_acc_l2,
+    #     weight=5e-7, ## reward
+    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_joint"])},
+    # )
+    
+    reward_feet_swing_height = RewTerm(
+        func=mdp.reward_feet_swing_height,
+        weight=0.1,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
+        }
+    )
+    
+    feet_safe_contact = RewTerm(
+        func=mdp.feet_safe_contact,
+        weight=-0.1,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
+            # "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
+        }
     )
     
     # joint_deviation_arms = RewTerm(

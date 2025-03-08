@@ -114,19 +114,20 @@ def main():
             # actions[:,10] = -4.678939342498779
             print(f"\033[0m-------------------------------------------------------")
             # print information from the sensors
-            # print(env.unwrapped.scene["contact_points"])
-            # print("Received force matrix of: ", env.unwrapped.scene["contact_points"].data.force_matrix_w)
-            # print("Received contact force of: ", env.unwrapped.scene["contact_points"].data.net_forces_w)
+            # print(env.unwrapped.scene["contact_forces"])
+            # print("Received force matrix of: ", env.unwrapped.scene["contact_forces"].data.force_matrix_w)
+            # print("Received contact force of: ", env.unwrapped.scene["contact_forces"].data.net_forces_w[0, 7])
+            # print("Received contact force of: ", env.unwrapped.scene["contact_forces"].data.net_forces_w[0, 7, 2])
             # print(f"link_names: {env.unwrapped.scene['robot'].data.body_names}")
-            print(f"joint_names: {env.unwrapped.scene['robot'].data.joint_names}")
+            # print(f"joint_names: {env.unwrapped.scene['robot'].data.joint_names}")
             
             # print(f"joint_limit[6],[9] : {env.env.scene['robot'].data.default_joint_limits[0][6]}, {env.env.scene['robot'].data.default_joint_limits[0][9]}")
             # print(f"joint_limit[7],[10]: {env.env.scene['robot'].data.default_joint_limits[0][7]}, {env.env.scene['robot'].data.default_joint_limits[0][10]}")
             # print(f"action[6],[9]:\n {actions[0][6]}, {actions[0][9]}")
             # 
             
-            print(f"obs: \n{obs[0]}")
-            print(f"action: \n{actions[0]}")
+            # print(f"obs: \n{obs[0]}")
+            # print(f"action: \n{actions[0]}")
             
             # env stepping
             obs, _, _, _ = env.step(actions)
