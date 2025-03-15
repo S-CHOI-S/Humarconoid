@@ -82,7 +82,10 @@ def track_lin_vel_xy_yaw_frame_exp(
     lin_vel_error = torch.sum(
         torch.square(env.command_manager.get_command(command_name)[:, :2] - vel_yaw[:, :2]), dim=1
     )
-    return torch.exp(-lin_vel_error / std**2)
+    # print(f"velocity command: {env.command_manager.get_command(command_name)[:, :2]}")
+    # print(f"root lin vel: {asset.data.root_lin_vel_b[:, :2]}")
+    # print(f"track_lin_vel: {torch.exp(-lin_vel_error / std**2)}")
+    return torch.exp(-2 * lin_vel_error / std**2)
 
 
 def track_ang_vel_z_world_exp(
@@ -133,7 +136,7 @@ def get_phase(
 #     return res
 
 def reward_feet_swing_height(
-    env: ManagerBasedRLEnv, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg1: SceneEntityCfg, sensor_cfg2: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ) -> torch.Tensor:
     asset = env.scene[asset_cfg.name]
     
@@ -155,17 +158,18 @@ def reward_feet_swing_height(
     
     reward = torch.zeros(env.num_envs, device=left_feet_contact.device)
 
-    left_mask = torch.isin(left_air_indices, only_one_air_indices)  # "하나만 공중"인 것만 선택
+    left_mask = torch.isin(left_air_indices, only_one_air_indices) 
     
     # print("left_filtered_positions shape:", left_filtered_positions.shape)
     # print("left_filtered_positions[left_mask] shape:", left_filtered_positions[left_mask].shape)
 
     reward[left_air_indices[left_mask]] += torch.norm(left_filtered_positions[left_mask] - 0.08)
 
-    right_mask = torch.isin(right_air_indices, only_one_air_indices)  # "하나만 공중"인 것만 선택
+    right_mask = torch.isin(right_air_indices, only_one_air_indices) 
     reward[right_air_indices[right_mask]] += torch.norm(right_filtered_positions[right_mask] - 0.08)
     
     # contact = torch.norm(self.contact_forces[:, self.feet_indices, :3], dim=2) > 1.
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
     
     return reward
 
@@ -174,16 +178,111 @@ def feet_safe_contact(
 ) -> torch.Tensor:
 
     # Contact forces for left foot
+    contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    left_feet_contact = contact_sensor1.data.current_contact_time[:, sensor_cfg1.body_ids]
     left_feet_contact_force = env.scene["contact_forces"].data.net_forces_w[:, sensor_cfg1.body_ids]  # Shape: (N, B, 3)
+    # print(f"left_feet_contact_force: {left_feet_contact_force}")
 
     # Contact forces for right foot
+    contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    right_feet_contact = contact_sensor2.data.current_contact_time[:, sensor_cfg2.body_ids]
     right_feet_contact_force = env.scene["contact_forces"].data.net_forces_w[:, sensor_cfg2.body_ids]  # Shape: (N, B, 3)
+    # print(f"right_feet_contact_force: {right_feet_contact_force}")
+    
+    left_contact = left_feet_contact > 0
+    right_contact = right_feet_contact > 0
+    
+    left_contact_indices = torch.nonzero(left_contact, as_tuple=True)[0]
+    right_contact_indices = torch.nonzero(right_contact, as_tuple=True)[0]
+    
+    penalty = torch.zeros(env.num_envs, device=left_feet_contact.device)
 
-    # Compute the norm of X, Y forces for each foot (Lateral forces)
-    left_lateral_force = torch.norm(left_feet_contact_force[:, :, :2], dim=-1)  # sqrt(Fx^2 + Fy^2)
-    right_lateral_force = torch.norm(right_feet_contact_force[:, :, :2], dim=-1)  # sqrt(Fx^2 + Fy^2)
+    # Compute the norm of X, Y forces for each foot (Lateral forces) ## 250313/1303: only roll
+    left_lateral_force = torch.norm(left_feet_contact_force[:, :, :1], dim=-1)  # sqrt(Fx^2 + Fy^2)
+    right_lateral_force = torch.norm(right_feet_contact_force[:, :, :1], dim=-1)  # sqrt(Fx^2 + Fy^2)
+    # print(f"left_lateral_force: {left_lateral_force}")
+    # print(f"right_lateral_force: {right_lateral_force}")
 
     # Compute penalty based on the lateral force magnitude > 0
-    penalty = (left_lateral_force + right_lateral_force).squeeze(-1)  # The larger the lateral force, the bigger the penalty
+        # Apply penalty only when there is contact
+    if left_contact.any():
+        penalty[left_contact.any(dim=1)] += left_lateral_force[left_contact].sum(dim=-1)
+
+    if right_contact.any():
+        penalty[right_contact.any(dim=1)] += right_lateral_force[right_contact].sum(dim=-1)
+    # print(f"penalty: {penalty}")
+    
+    # reward = 1.0 / (1.0 + penalty)
     
     return penalty
+
+def feet_air_time_balanced_positive_biped(
+    env: ManagerBasedRLEnv, command_name: str, threshold: float, sensor_cfg: SceneEntityCfg # balance_tolerance: float, 
+) -> torch.Tensor:
+    """Reward long steps taken by the feet for bipeds.
+
+    This function rewards the agent for taking steps up to a specified threshold and also keep one foot at
+    a time in the air.
+
+    If the commands are small (i.e. the agent is not supposed to take a step), then the reward is zero.
+    """
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    
+    # current step
+    air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
+    contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+    # print(f"contact_time\n: {contact_time[:5]}")
+    # print(f"air_time\n: {air_time[:5]}")
+    
+    # previous step
+    last_air_time = contact_sensor.data.last_air_time[:, sensor_cfg.body_ids]
+    last_contact_time = contact_sensor.data.last_contact_time[:, sensor_cfg.body_ids]
+    # print(f"last_contact_time\n: {last_contact_time[:5]}")
+    # print(f"last_air_time\n: {last_air_time[:5]}")
+    
+    # is current step contact
+    in_contact = contact_time > 0.0
+    # print(f"in_contact\n: {in_contact[:5]}")
+
+    # which feet is contacted or in the air
+    in_mode_time = torch.where(in_contact, contact_time, air_time)
+    # print(f"in_mode_time\n: {in_mode_time[:5]}")
+    
+    # if single stance, get reward
+    single_stance = torch.sum(in_contact.int(), dim=1) == 1
+    # print(f"single_stance\n: {single_stance[:5]}")
+    
+    # get reward if previous contact time & current contact time is similar
+    time_diff = torch.zeros_like(contact_time[:, 0])
+    
+    time_diff = torch.where( # left foot is in the air
+        (single_stance.bool()) & (contact_time[:, 0] == 0),
+        torch.abs(last_contact_time[:, 0] - contact_time[:, 1]),
+        time_diff
+    )
+    
+    time_diff = torch.where( # right foot is in the air
+        (single_stance.bool()) & (contact_time[:, 1] == 0),
+        torch.abs(contact_time[:, 0] - last_contact_time[:, 1]),
+        time_diff
+    )
+    
+    # print(f"time_diff\n: {time_diff[:5]}")
+    
+    contact_time_balance = torch.where(time_diff < 0.1, 1, 0) == 1 # balance_tolerance
+    # print(f"contact_time_balance\n: {contact_time_balance[:5]}")
+    
+    # if step is long enough
+    exceed_air_time = air_time > 0.8
+    sufficient_air_time = torch.sum(exceed_air_time.int(), dim=1) == 0
+    # print(f"single_stance\n: {single_stance[:5]}")
+    # print(f"sufficient_air_time\n: {sufficient_air_time[:5]}")
+    
+    # get reward
+    reward = torch.min(torch.where(single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1), #  & contact_time_balance.unsqueeze(-1)
+                                   in_mode_time, 0.0), dim=1)[0] 
+    reward = torch.clamp(reward, max=threshold)
+    
+    # no reward for zero command
+    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    return reward

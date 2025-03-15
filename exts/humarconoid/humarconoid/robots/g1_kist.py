@@ -22,7 +22,7 @@ from humarconoid.robots import HUMARCONOID_EXT_DIR
 
 G1_KIST_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist.usd", # 12 dof
+        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -40,11 +40,10 @@ G1_KIST_CFG = ArticulationCfg(
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.793),
         joint_pos={
-            # default joint positions
-            # "left_shoulder_roll_joint": 0.2,
-            # "right_shoulder_roll_joint": -0.2,
-            # ".*_elbow_joint": 1.0,
-            ".*": 0.0,
+            ".*_hip_pitch_joint": -0.20,
+            ".*_knee_joint": 0.42,
+            ".*_ankle_pitch_joint": -0.23,
+            # ".*": 0.0,
         },
         joint_vel={".*": 0.0},
     ),
@@ -61,17 +60,17 @@ G1_KIST_CFG = ArticulationCfg(
             effort_limit=300,
             velocity_limit=100.0,
             stiffness={
-                ".*_hip_yaw_joint": 60.0,
-                ".*_hip_roll_joint": 60.0,
-                ".*_hip_pitch_joint": 60.0,
-                ".*_knee_joint": 100.0,
+                ".*_hip_yaw_joint": 100.0,
+                ".*_hip_roll_joint": 100.0,
+                ".*_hip_pitch_joint": 100.0,
+                ".*_knee_joint": 150.0,
                 # "waist_.*_joint": 200.0,
             },
             damping={
-                ".*_hip_yaw_joint": 1.0,
-                ".*_hip_roll_joint": 1.0,
-                ".*_hip_pitch_joint": 1.0,
-                ".*_knee_joint": 2.0,
+                ".*_hip_yaw_joint": 2.0,
+                ".*_hip_roll_joint": 2.0,
+                ".*_hip_pitch_joint": 2.0,
+                ".*_knee_joint": 4.0,
                 # "waist_.*_joint": 5.0,
             },
             armature={
@@ -84,16 +83,16 @@ G1_KIST_CFG = ArticulationCfg(
             effort_limit=20,
             joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
             stiffness=40.0,
-            damping=1.0,
+            damping=2.0,
             armature=0.01,
         ),
         # "arms": ImplicitActuatorCfg(
         #     joint_names_expr=[
-        #         # ".*_shoulder_pitch_joint",
+        #         ".*_shoulder_pitch_joint",
         #         ".*_shoulder_roll_joint",
-        #         # ".*_shoulder_yaw_joint",
-        #         # ".*_elbow_joint",
-        #         # ".*_wrist_.*",
+        #         ".*_shoulder_yaw_joint",
+        #         ".*_elbow_joint",
+        #         ".*_wrist_.*",
         #     ],
         #     effort_limit=300,
         #     velocity_limit=100.0,
@@ -101,8 +100,8 @@ G1_KIST_CFG = ArticulationCfg(
         #     damping=2.0,
         #     armature={
         #         ".*_shoulder_.*": 0.01,
-        #         # ".*_elbow_.*": 0.01,
-        #         # ".*_wrist_.*": 0.01,
+        #         ".*_elbow_.*": 0.01,
+        #         ".*_wrist_.*": 0.01,
         #     },
         # ),
     },

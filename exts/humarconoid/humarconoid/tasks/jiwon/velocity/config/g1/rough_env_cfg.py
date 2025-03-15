@@ -29,7 +29,7 @@ class JiwonRewards(RewardsCfg):
         func=mdp.track_ang_vel_z_world_exp, weight=2.0, params={"command_name": "base_velocity", "std": 0.5}
     )
     feet_air_time = RewTerm(
-        func=mdp.feet_air_time_positive_biped,
+        func=mdp.feet_air_time_positive_biped, ## ??
         weight=0.25,
         params={
             "command_name": "base_velocity",
@@ -50,53 +50,32 @@ class JiwonRewards(RewardsCfg):
     dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_joint", ".*_knee_joint"])}, # ".*_ankle_pitch_joint"
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_.*", ".*_ankle_.*"])},
     )
     # Penalize deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_.*"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_roll_.*", ".*_hip_yaw_.*"])},
     )
-    
-    # knee_action = RewTerm(
-    #     func=mdp.joint_acc_l2,
-    #     weight=5e-7, ## reward
-    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_joint"])},
-    # )
-    
-    reward_feet_swing_height = RewTerm(
-        func=mdp.reward_feet_swing_height,
-        weight=0.1,
-        params={
-            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
-            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
-        }
-    )
-    
-    feet_safe_contact = RewTerm(
-        func=mdp.feet_safe_contact,
+    joint_deviation_ankle = RewTerm(
+        func=mdp.joint_deviation_l1,
         weight=-0.1,
-        params={
-            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
-            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
-            # "asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link"),
-        }
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_.*"])},
     )
     
     # joint_deviation_arms = RewTerm(
     #     func=mdp.joint_deviation_l1,
-    #     weight=-0.03,
+    #     weight=-0.2,
     #     params={
     #         "asset_cfg": SceneEntityCfg(
     #             "robot",
     #             joint_names=[
-    #                 # ".*_shoulder_pitch_joint",
+    #                 ".*_shoulder_pitch_joint",
     #                 ".*_shoulder_roll_joint",
-    #                 # ".*_shoulder_yaw_joint",
-    #                 # ".*_elbow_joint",
-    #                 # ".*_wrist_.*",
+    #                 ".*_shoulder_yaw_joint",
+    #                 ".*_elbow_joint",
+    #                 ".*_wrist_.*",
     #             ],
     #         )
     #     },
@@ -122,11 +101,30 @@ class JiwonRewards(RewardsCfg):
     # )
     # joint_deviation_torso = RewTerm(
     #     func=mdp.joint_deviation_l1,
-    #     weight=-0.25,
+    #     weight=-0.1,
     #     params={"asset_cfg": SceneEntityCfg("robot", joint_names="waist_.*")},
     # )
     
     # flat_orientation_body = RewTerm(func=mdp.flat_orientation_body, weight=0.0)
+    
+    feet_safe_contact = RewTerm(
+        func=mdp.feet_safe_contact,
+        weight= -0.1,
+        params={
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
+        }
+    )
+
+    feet_swing_height = RewTerm(
+        func=mdp.reward_feet_swing_height,
+        weight = 0.1,
+        params={
+            "command_name": "base_velocity",
+            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
+            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
+        }
+    )
 
 
 @configclass
@@ -169,24 +167,43 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
             },
         }
 
+        # self.actions.joint_pos.joint_names = {".*_hip_.*", ".*_knee_.*", ".*_ankle_.*"}
+
         # Rewards
-        self.rewards.lin_vel_z_l2.weight = 0.0
         self.rewards.undesired_contacts = None
+
+        self.rewards.track_lin_vel_xy_exp.weight = 1.25
+        self.rewards.track_ang_vel_z_exp.weight = 1.0
+        self.rewards.lin_vel_z_l2.weight = -0.2
         self.rewards.flat_orientation_l2.weight = -1.0
         self.rewards.action_rate_l2.weight = -0.01
-        self.rewards.dof_acc_l2.weight = -3e-7
+        # self.rewards.action_rate_l2.params["asset_cfg"] = SceneEntityCfg(
+        #     "robot", joint_names={"^(?!.*_knee_).*"} # , ".*_knee_joint"]
+        # )
+        self.rewards.dof_acc_l2.weight = -1.0e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*_hip_.*", ".*_knee_joint"]
+            "robot", joint_names=["^(?!.*_knee_).*"] # , ".*_knee_joint"]
         )
-        self.rewards.dof_torques_l2.weight = -3e-7
+        self.rewards.feet_air_time.weight = 2.0
+        self.rewards.feet_air_time.params["threshold"] = 1.0
+        self.rewards.feet_slide.weight = -0.2
+        self.rewards.dof_torques_l2.weight = -4.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
+            "robot", joint_names=[".*_hip_.*", ".*_ankle_.*"] # , ".*_knee_joint"]
         )
-
+        # self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names={"^(?!.*knee_joint).*"})
+        # self.rewards.knee_action.weight = 0.0000000002
+        # self.rewards.reward_feet_swing_height.weight = 0.003
+        # self.rewards.undesired_contacts.weight =-1.0
+        # self.rewards.undesired_contacts.params["sensor_cfg"] = SceneEntityCfg(
+        #     "robot", body_names=[".*_hip_.*", ".*_knee_joint",  ".*_ankle_.*"]
+        # )
+        # self.rewards.joint_deviation_torso.weight = -0
+        
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
-        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.5)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
 
 
 @configclass

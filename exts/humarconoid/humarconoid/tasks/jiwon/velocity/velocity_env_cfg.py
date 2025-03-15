@@ -161,14 +161,13 @@ class EventCfg:
     #     },
     # )
     
-    # reset
     physics_material = EventTerm(
         func=mdp.randomize_rigid_body_material,
         mode="reset",
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names=".*"),
-            "static_friction_range": (0.1, 1.25),
-            "dynamic_friction_range": (0.3, 1.25),
+            "static_friction_range": (0.1, 2.0),
+            "dynamic_friction_range": (0.3, 2.0),
             "restitution_range": (0.0, 0.2),
             "num_buckets": 64,
         },
@@ -183,7 +182,19 @@ class EventCfg:
             "operation": "add",
         },
     )
-    
+
+    # reset
+    base_external_force_torque = EventTerm(
+        func=mdp.apply_external_force_torque,
+        mode="interval",
+        interval_range_s=(5.0, 15.0),
+        params={
+            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+            "force_range": (-100.0, 100.0),
+            "torque_range": (-5.0, 5.0),
+        },
+    )
+
     reset_base = EventTerm(
         func=mdp.reset_root_state_uniform,
         mode="reset",
@@ -208,41 +219,21 @@ class EventCfg:
             "velocity_range": (0.0, 0.0),
         },
     )
-    
-    reset_robot_joints = EventTerm(
-        func=mdp.reset_joints_by_scale,
-        mode="reset",
-        params={
-            "position_range": (0.5, 1.5),
-            "velocity_range": (0.0, 0.0),
-        },
-    )
-    
-    # interval
-    base_external_force_torque = EventTerm(
-        func=mdp.apply_external_force_torque,
-        mode="interval",
-        interval_range_s=(5.0, 15.0),
-        params={
-            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-            "force_range": (-10.0, 10.0),
-            "torque_range": (-5.0, 5.0),
-        },
-    )
 
+    # interval
     push_robot = EventTerm(
         func=mdp.push_by_setting_velocity,
         mode="interval",
         interval_range_s=(5.0, 15.0),
-        params={"velocity_range": {"x": (-1.5, 1.5), "y": (-1.5, 1.5)}},
+        params={"velocity_range": {"x": (-5.0, 5.0), "y": (-1.5, 1.5)}},
     )
-    
+
     add_joint_noise = EventTerm(
         func=mdp.apply_joint_position_noise,
         mode="interval",
         interval_range_s=(5.0, 15.0),
         params={
-            "noise_range": (-0.035, 0.035),
+            "noise_range": (-0.05, 0.05),
         },
     )
 

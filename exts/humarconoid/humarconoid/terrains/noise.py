@@ -21,7 +21,7 @@ import omni.isaac.lab.terrains as terrain_gen
 from omni.isaac.lab.terrains.terrain_generator_cfg import TerrainGeneratorCfg
 
 NOISE_TERRAINS_CFG = TerrainGeneratorCfg(
-    size=(2.0, 2.0),
+    size=(1.0, 1.0),
     border_width=0.0,
     num_rows=10,
     num_cols=20,
@@ -31,11 +31,11 @@ NOISE_TERRAINS_CFG = TerrainGeneratorCfg(
     use_cache=False,
     sub_terrains={
         "boxes": terrain_gen.MeshRandomGridTerrainCfg(
-            proportion=0.3, grid_width=0.45, grid_height_range=(0.00, 0.05), platform_width=2.0
+            proportion=0.3, grid_width=0.45, grid_height_range=(0.00, 0.03), platform_width=2.0
         ),
-        "random_rough": terrain_gen.HfRandomUniformTerrainCfg(
-            proportion=0.3, noise_range=(0.00, 0.05), noise_step=0.02, border_width=0.25
-        ),
+        # "random_rough": terrain_gen.HfRandomUniformTerrainCfg(
+        #     proportion=0.1, noise_range=(0.00, 0.005), noise_step=0.02, border_width=0.25
+        # ),
     },
 )
 """Noise terrains configuration."""
