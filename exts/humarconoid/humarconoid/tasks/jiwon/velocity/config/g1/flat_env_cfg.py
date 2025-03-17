@@ -58,9 +58,9 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_.*", ".*_ankle_.*", ".*_knee_.*"] # , ".*_knee_joint"]
         )
-        self.rewards.feet_safe_contact.weight = -0.025
+        self.rewards.feet_safe_contact.weight = -0.075
         self.rewards.joint_deviation_hip.weight = -0.2
-        self.rewards.feet_swing_height.weight = 0.005
+        self.rewards.feet_swing_height.weight = 0.0025
         
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.5)
