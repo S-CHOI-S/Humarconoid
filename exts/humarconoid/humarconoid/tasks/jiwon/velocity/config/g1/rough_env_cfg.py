@@ -29,7 +29,7 @@ class JiwonRewards(RewardsCfg):
         func=mdp.track_ang_vel_z_world_exp, weight=2.0, params={"command_name": "base_velocity", "std": 0.5}
     )
     feet_air_time = RewTerm(
-        func=mdp.feet_air_time_positive_biped, ## ??
+        func=mdp.feet_air_time_balanced_positive_biped, ## ??
         weight=0.25,
         params={
             "command_name": "base_velocity",
@@ -61,7 +61,7 @@ class JiwonRewards(RewardsCfg):
     joint_deviation_ankle = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_.*"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_.*", ".*_ankle_pitch_.*"])},
     )
     
     # joint_deviation_arms = RewTerm(

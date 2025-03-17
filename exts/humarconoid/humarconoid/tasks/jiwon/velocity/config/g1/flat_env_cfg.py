@@ -60,7 +60,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         )
         self.rewards.feet_safe_contact.weight = -0.025
         self.rewards.joint_deviation_hip.weight = -0.2
-        self.rewards.feet_swing_height.weight = 0.01
+        self.rewards.feet_swing_height.weight = 0.005
         
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.5)
