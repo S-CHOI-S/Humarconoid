@@ -286,5 +286,7 @@ def feet_air_time_balanced_positive_biped(
     reward += torch.where(contact_time_balance, 0.1, 0)
     
     # no reward for zero command
-    reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
+    
     return reward

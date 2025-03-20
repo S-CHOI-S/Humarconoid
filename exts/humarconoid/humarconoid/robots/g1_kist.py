@@ -40,9 +40,9 @@ G1_KIST_CFG = ArticulationCfg(
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.793),
         joint_pos={
-            ".*_hip_pitch_joint": -0.20,
-            ".*_knee_joint": 0.42,
-            ".*_ankle_pitch_joint": -0.23,
+            ".*_hip_pitch_joint": -0.28, # -0.20,
+            ".*_knee_joint": 0.6, # 0.42,
+            ".*_ankle_pitch_joint": -0.32, # -0.23,
             # ".*": 0.0,
         },
         joint_vel={".*": 0.0},
