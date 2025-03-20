@@ -105,12 +105,8 @@ class CommandsCfg:
 class ActionsCfg:
     """Action specifications for the MDP."""
 
-    # joint_pos = mdp.JointPositionActionCfg(
-    #     asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True
-    # )
-    
-    joint_pos = mdp.JointPositionToLimitsActionCfg(
-        asset_name="robot", joint_names=[".*"], scale=1.0, rescale_to_limits=True
+    joint_pos = mdp.JointPositionActionCfg(
+        asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True
     )
 
 
