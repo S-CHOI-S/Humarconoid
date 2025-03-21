@@ -1,6 +1,6 @@
 import gymnasium as gym
 
-from . import agents, flat_env_cfg, rough_env_cfg
+from . import agents, flat_env_cfg, rough_env_cfg, arm_env_cfg
 
 ##
 # Register Gym environments.
@@ -45,3 +45,24 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
     },
 )
+
+gym.register(
+    id="Jiwon-Arm",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="Jiwon-Arm-Play",
+    entry_point="omni.isaac.lab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg_PLAY,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+    },
+)
+

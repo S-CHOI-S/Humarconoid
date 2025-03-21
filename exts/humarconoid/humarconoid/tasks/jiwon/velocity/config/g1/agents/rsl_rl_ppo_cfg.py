@@ -44,3 +44,14 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
         self.experiment_name = "jiwon_flat"
         self.policy.actor_hidden_dims = [256, 256, 128]
         self.policy.critic_hidden_dims = [256, 256, 128]
+        
+        
+@configclass
+class JiwonArmPPORunnerCfg(JiwonRoughPPORunnerCfg):
+    def __post_init__(self):
+        super().__post_init__()
+
+        self.max_iterations = 30000
+        self.experiment_name = "jiwon_arm"
+        self.policy.actor_hidden_dims = [256, 256, 128]
+        self.policy.critic_hidden_dims = [256, 256, 128]

@@ -5,7 +5,7 @@ from .rough_env_cfg import JiwonRoughEnvCfg
 
 
 @configclass
-class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
+class JiwonArmEnvCfg(JiwonRoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
@@ -40,9 +40,6 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         
         # self.events.base_external_force_torque = None
         # self.events.push_robot = None
-        
-        # Observations
-        self.observations.policy.base_lin_vel = None
 
         # Rewards
         self.rewards.track_lin_vel_xy_exp.weight = 1.0
@@ -63,7 +60,6 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         )
         self.rewards.feet_safe_contact.weight = -0.075
         self.rewards.joint_deviation_hip.weight = -0.2
-        self.rewards.joint_deviation_ankle.weight = -0.2
         self.rewards.feet_swing_height.weight = 0.0025
         
         # Commands
@@ -72,7 +68,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
 
 
-class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
+class JiwonArmEnvCfg_PLAY(JiwonArmEnvCfg):
     def __post_init__(self) -> None:
         # post init of parent
         super().__post_init__()
