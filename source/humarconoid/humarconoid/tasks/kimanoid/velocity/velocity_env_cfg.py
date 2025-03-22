@@ -67,7 +67,7 @@ class MySceneCfg(InteractiveSceneCfg):
         mesh_prim_paths=["/World/ground"],
     )
     contact_forces = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True)
-    
+
     # lights
     light = AssetBaseCfg(
         prim_path="/World/light",
@@ -107,9 +107,7 @@ class ActionsCfg:
     """Action specifications for the MDP."""
 
     # ['LLJ1', 'RLJ1', 'WJ1', 'LLJ2', 'RLJ2', 'WJ2', 'LLJ3', 'RLJ3', 'WJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
-    joint_pos = mdp.JointPositionActionCfg(
-        asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True
-    )
+    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True)
 
 
 @configclass
@@ -234,7 +232,7 @@ class RewardsCfg:
     ang_vel_xy_l2 = RewTerm(func=mdp.ang_vel_xy_l2, weight=-0.05)
     dof_torques_l2 = RewTerm(func=mdp.joint_torques_l2, weight=-1.0e-5)
     dof_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)
-    action_rate_l2 = RewTerm(func=mdp.action_rate_l2_wo_leg, weight=-0.01) ## custom reward
+    action_rate_l2 = RewTerm(func=mdp.action_rate_l2_wo_leg, weight=-0.01)  ## custom reward
     # feet_air_time = RewTerm(
     #     func=mdp.feet_air_time,
     #     weight=0.125,
@@ -253,7 +251,7 @@ class RewardsCfg:
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
     # distance_btw_toes = RewTerm(func=mdp.distance_btw_body, weight=-0.0001)
-    
+
     heel_toe_air_time = RewTerm(
         func=mdp.heel_toe_air_time_positive_biped,
         weight=1.0,
@@ -263,7 +261,7 @@ class RewardsCfg:
             "command_name": "base_velocity",
         },
     )
-    
+
     contact_motion = RewTerm(
         func=mdp.feet_contact_number,
         weight=0.05,
@@ -271,9 +269,9 @@ class RewardsCfg:
             "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
             "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
             "command_name": "base_velocity",
-        }
+        },
     )
-    
+
     feet_distance = RewTerm(
         func=mdp.feet_distance,
         weight=0.05,
@@ -281,15 +279,15 @@ class RewardsCfg:
             "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
             "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
             "command_name": "base_velocity",
-        }
+        },
     )
-    
+
     foot_clearance = RewTerm(
         func=mdp.foot_clearance,
         weight=0.1,
         params={
             "command_name": "base_velocity",
-        }
+        },
     )
 
     # action_rate_l2_leg = RewTerm(
@@ -305,6 +303,7 @@ class RewardsCfg:
     #         "command_name": "base_velocity",
     #     },
     # )
+
 
 @configclass
 class TerminationsCfg:

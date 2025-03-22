@@ -24,7 +24,7 @@
 
 # def preprocess_df(data, smoothing=100):
 #     data.columns = ['Wall_time', 'Step', 'Value']
-    
+
 #     # 스무딩 적용
 #     data['Value_RollingMean'] = data['Value'].rolling(window=smoothing).mean()
 #     data['Value_RollingStd'] = data['Value'].rolling(window=smoothing).std()
@@ -32,7 +32,7 @@
 
 # def preprocess_dff(data, smoothing=100):
 #     data.columns = ['timestep', 'command', 'action']
-    
+
 #     # 스무딩 적용
 #     data['action_RollingMean'] = data['action'].rolling(window=smoothing).mean()
 #     data['action_RollingStd'] = data['action'].rolling(window=smoothing).std()
@@ -43,7 +43,7 @@
 #     if figure_number is not None:
 #         plt.figure(figure_number, figsize=(8, 6))
 #         ax = plt.gca()
-    
+
 #     ax.fill_between(data1['Step'],
 #                     data1['Value_RollingMean'] - data1['Value_RollingStd'],
 #                     data1['Value_RollingMean'] + data1['Value_RollingStd'],
@@ -73,7 +73,7 @@
 #     if figure_number is not None:
 #         plt.figure(figure_number, figsize=(8, 6))
 #         ax = plt.gca()
-    
+
 #     ax.fill_between(data1['timestep'],
 #                     data1['action_RollingMean'] - data1['action_RollingStd'],
 #                     data1['action_RollingMean'] + data1['action_RollingStd'],
@@ -117,7 +117,7 @@
 # #     print(f"File not found: {file_path1}")
 # # else:
 # #     print(f"File found: {file_path1}")
-    
+
 # data1 = preprocess_df(load_csv(file_path1), smoothing=20)
 # data2 = preprocess_df(load_csv(file_path2), smoothing=20)
 
@@ -148,11 +148,11 @@
 # def preprocess_data(file_path, smoothing=20):
 #     data = pd.read_csv(file_path)
 #     data.columns = ['Wall_time', 'Step', 'Value']
-    
+
 #     # 스무딩 처리
 #     data['Value_RollingMean'] = data['Value'].rolling(window=smoothing).mean()
 #     data['Value_RollingStd'] = data['Value'].rolling(window=smoothing).std()
-    
+
 #     return data
 
 # # 데이터 로드 및 전처리 실행
@@ -166,9 +166,9 @@
 
 # # 라인 플롯과 표준편차 영역 추가
 # sns.lineplot(x='Step', y='Value_RollingMean', data=data, label='Mean Value', color='b', linewidth=2)
-# plt.fill_between(data['Step'], 
-#                  data['Value_RollingMean'] - data['Value_RollingStd'], 
-#                  data['Value_RollingMean'] + data['Value_RollingStd'], 
+# plt.fill_between(data['Step'],
+#                  data['Value_RollingMean'] - data['Value_RollingStd'],
+#                  data['Value_RollingMean'] + data['Value_RollingStd'],
 #                  alpha=0.3, color='b', label='±1 Std Dev')
 
 # # 그래프 제목 및 축 레이블 설정
@@ -186,23 +186,6 @@
 # # 그래프 출력
 # plt.tight_layout()
 # plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # import pandas as pd
@@ -245,11 +228,10 @@
 # plt.show()
 
 
-
-
 import ast
-import pandas as pd
 import matplotlib.pyplot as plt
+
+import pandas as pd
 
 # CSV 파일 로드
 csv_file = "/home/sol/humarconoid/logs/rsl_rl/g1_flat/2025-02-11_14-38-21/tracking_qdes.csv"
@@ -258,13 +240,17 @@ df = pd.read_csv(csv_file)
 # x축 (시간 또는 timestep)
 timesteps = df["timestep"]
 
+
 # observation 컬럼이 문자열일 경우 변환
 def safe_eval(value):
     """'tensor([...])' 문자열을 리스트로 변환하는 함수"""
-    if isinstance(value, str):  
-        value = value.replace("tensor", "").replace("device='cuda:0'", "").replace("device='cpu'", "")  # 'tensor' 문자열 제거
+    if isinstance(value, str):
+        value = (
+            value.replace("tensor", "").replace("device='cuda:0'", "").replace("device='cpu'", "")
+        )  # 'tensor' 문자열 제거
         return ast.literal_eval(value)  # 안전한 문자열 → 리스트 변환
     return value
+
 
 df["observation"] = df["observation"].apply(safe_eval)
 
@@ -277,7 +263,7 @@ values = [[] for _ in range(num_values)]
 for obs in df["observation"]:
     for i in range(num_values):
         observations[i].append(obs[i])
-        
+
 for val in df["action"]:
     for i in range(num_values):
         values[i].append(val[i])
@@ -292,7 +278,7 @@ for i in range(num_values):
     plt.subplot(3, 2, i + 1)
     plt.plot(df["timestep"], observations[i], label=f"q_measured[{i}]")
     plt.plot(df["timestep"], values[i], label="q_desired[{i}]", color="red")
-    
+
     plt.xlabel("Steps", fontsize=10)
     plt.ylabel(f"Joint{i+1} Position", fontsize=10)
     plt.title("Desired vs Measured Joint Positions", fontsize=12)

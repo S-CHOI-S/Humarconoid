@@ -1,22 +1,18 @@
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.utils import configclass
 
 import humarconoid.tasks.kimanoid.velocity.mdp as mdp
-from humarconoid.tasks.kimanoid.velocity.velocity_env_cfg import (
-    LocomotionVelocityRoughEnvCfg,
-    RewardsCfg,
-)
-
-from isaaclab.utils import configclass
 
 ##
 # Pre-defined configs
 ##
 from humarconoid.robots import KIMANOID_CFG
+from humarconoid.tasks.kimanoid.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
 from humarconoid.tasks.utils import set_joint_mapping as KIMANOID_JNT_CFG
 
-joint_cfg = KIMANOID_JNT_CFG.load_from_yaml('kimanoid')
+joint_cfg = KIMANOID_JNT_CFG.load_from_yaml("kimanoid")
 # print("<><><><>><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>")
 # print("\tjoint_order:", joint_cfg["joint_order"])
 # print("\tsorted_joint:", joint_cfg["sorted_joint"])
@@ -27,25 +23,26 @@ joint_cfg = KIMANOID_JNT_CFG.load_from_yaml('kimanoid')
 # for joint, indices in joint_mapping.items():
 #     print(f"{joint}: joint_order_index={indices['original_index']}, sorted_joint_index={indices['sorted_index']}")
 
+
 @configclass
 class KimanoidRewardsCfg(RewardsCfg):
     """Reward terms for the MDP."""
 
     # 1. [Penalty] Termination
     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-200.0)
-    
+
     # 2. [Reward] Tracking of Linear velocity Commands (xy axes)
     track_lin_vel_xy_exp = RewTerm(
         func=mdp.track_lin_vel_xy_yaw_frame_exp,
         weight=1.0,
         params={"command_name": "base_velocity", "std": 0.5},
     )
-    
+
     # 3. [Reward] Tracking of Angular Velocity Commands (yaw)
     track_ang_vel_z_exp = RewTerm(
         func=mdp.track_ang_vel_z_world_exp, weight=2.0, params={"command_name": "base_velocity", "std": 0.5}
     )
-    
+
     # 4. [Reward] Feet Air Time
     # feet_air_time = RewTerm(
     #     func=mdp.feet_air_time_positive_biped,
@@ -56,7 +53,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     #         "threshold": 0.4,
     #     },
     # )
-    
+
     # 5. [Penalty] Feet Slide
     feet_slide = RewTerm(
         func=mdp.feet_slide,
@@ -73,42 +70,42 @@ class KimanoidRewardsCfg(RewardsCfg):
         weight=-1.0,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-7]", "BWJ[1-3]"])},
     )
-    
+
     # # 7. [Penalty] Leg Joint Limits
     # dof_pos_limits_leg = RewTerm(
     #     func=mdp.joint_pos_limits,
     #     weight=-1.0,
     #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ4"])},
     # )
-    
+
     # # 8. [Penalty] Torso Joint Limits
     # dof_pos_limits_torso = RewTerm(
     #     func=mdp.joint_pos_limits,
     #     weight=-1.0,
     #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=["BWJ[1-3]"])},
     # )
-    
+
     # 9. [Penalty] Deviation from default of the joints that are not essential for locomotion
     joint_deviation_torso = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.5,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=["BWJ[1-3]"])},
     )
-    
+
     # 10. [Penalty] Deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.01,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-2]"])},
     )
-    
+
     # 11. [Penalty] Deviation from default of the joints that are not essential for locomotion
     joint_deviation_ankle = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.00,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ6"])},
     )
-    
+
     # # 11. [Reward] Heel-Toe Air Time
     # heel_toe_air_time = RewTerm(
     #     func=mdp.heel_toe_air_time_positive_biped,
@@ -120,7 +117,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     #         "threshold": 0.4,
     #     },
     # )
-    
+
     # 11. [Reward] Heel-Toe Motion Air Time
     # heel_toe_motion_air_time = RewTerm(
     #     func=mdp.heel_toe_motion_air_time_positive_biped,
@@ -134,7 +131,7 @@ class KimanoidRewardsCfg(RewardsCfg):
     #         "threshold": 1,
     #     }
     # )
-    
+
     # 12. [Penalty] Reference Motion
     reference_motion = RewTerm(
         func=mdp.ref_gait_phase,
@@ -142,7 +139,7 @@ class KimanoidRewardsCfg(RewardsCfg):
         params={
             "command_name": "base_velocity",
             "asset_cfg": SceneEntityCfg("robot", joint_names=".*"),
-        }
+        },
     )
 
 
@@ -152,7 +149,7 @@ class TerminationsCfg:
 
     # 1. Time Out
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
-    
+
     # 2. Base Link Contact
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
@@ -195,14 +192,10 @@ class KimanoidRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.flat_orientation_l2.weight = -1.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.25e-7
-        self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*LJ[1-4]"]
-        )
+        self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-4]"])
         self.rewards.dof_torques_l2.weight = -1.5e-7
-        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*LJ[1-7]"]
-        )
-        
+        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-7]"])
+
         ## Reshape Rewards
         self.rewards.track_lin_vel_xy_exp.weight = 1.0
         self.rewards.track_ang_vel_z_exp.weight = 0.5

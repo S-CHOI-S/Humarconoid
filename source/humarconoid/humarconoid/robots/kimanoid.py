@@ -38,7 +38,6 @@ KIMANOID_CFG = ArticulationCfg(
             enabled_self_collisions=True, solver_position_iteration_count=8, solver_velocity_iteration_count=4
         ),
     ),
-    
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.85),
         joint_pos={
@@ -46,9 +45,7 @@ KIMANOID_CFG = ArticulationCfg(
         },
         joint_vel={".*": 0.0},
     ),
-    
     soft_joint_pos_limit_factor=0.9,
-    
     actuators={
         "legs": ImplicitActuatorCfg(
             joint_names_expr=[
@@ -76,42 +73,40 @@ KIMANOID_CFG = ArticulationCfg(
                 "RLJ[1-4]": 0.01,
             },
         ),
-        
         "feet": ImplicitActuatorCfg(
             joint_names_expr=["LLJ[5-7]", "RLJ[5-7]"],
             effort_limit={
                 ".*LJ[5-6]": 100,
-                ".*LJ7": 20, # 10 
+                ".*LJ7": 20,  # 10
             },
             velocity_limit={
                 ".*LJ[5-6]": 192,
                 ".*LJ7": 144,
             },
-            stiffness=20.0, ## 0
+            stiffness=20.0,  ## 0
             damping=2.0,
             armature=0.01,
         ),
-        
         "torso": ImplicitActuatorCfg(
             joint_names_expr=["BWJ[1-3]"],
             effort_limit=300,
             velocity_limit=93,
-            stiffness=20.0, ## 0
+            stiffness=20.0,  ## 0
             damping=2.0,
             armature=0.01,
-        )
+        ),
     },
 )
 """Configuration for the KIST Humanoid3 (Kimanoid) robot."""
 
-'''
+"""
 * Body names:
-    ['kimanoid',     'Left_Leg1',    'Right_Leg1',   'Body_Waist1',    'Left_Leg2',   'Right_Leg2',   'Body_Waist2', 
-     'Left_Leg3',   'Right_Leg3',   'Body_Waist3',     'Left_Leg4',   'Right_Leg4',    'Left_Leg5',    'Right_Leg5', 
+    ['kimanoid',     'Left_Leg1',    'Right_Leg1',   'Body_Waist1',    'Left_Leg2',   'Right_Leg2',   'Body_Waist2',
+     'Left_Leg3',   'Right_Leg3',   'Body_Waist3',     'Left_Leg4',   'Right_Leg4',    'Left_Leg5',    'Right_Leg5',
      'Left_Leg6',   'Right_Leg6',     'Left_Leg7',    'Right_Leg7']
 
 * Joint names:
     [   '0',    '1',    '2',    '3',    '4',    '5',    '6',    '7',    '8',    '9',   '10',   '11',   '12',   '13',   '14',   '15',   '16']
     ['LLJ1', 'RLJ1', 'BWJ1', 'LLJ2', 'RLJ2', 'BWJ2', 'LLJ3', 'RLJ3', 'BWJ3', 'LLJ4', 'RLJ4', 'LLJ5', 'RLJ5', 'LLJ6', 'RLJ6', 'LLJ7', 'RLJ7']
 
-'''
+"""

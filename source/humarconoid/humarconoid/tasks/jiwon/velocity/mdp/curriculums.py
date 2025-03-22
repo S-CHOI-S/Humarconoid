@@ -49,9 +49,8 @@ def terrain_levels_vel(
     # return the mean terrain level
     return torch.mean(terrain.terrain_levels.float())
 
-def modify_reward_weight(
-    env: ManagerBasedRLEnv, env_ids: Sequence[int], term_name: str, weight: float, num_steps: int
-    ):
+
+def modify_reward_weight(env: ManagerBasedRLEnv, env_ids: Sequence[int], term_name: str, weight: float, num_steps: int):
     """Curriculum that modifies a reward weight a given number of steps.
 
     Args:
@@ -67,11 +66,16 @@ def modify_reward_weight(
         # update term settings
         term_cfg.weight = weight
         env.reward_manager.set_term_cfg(term_name, term_cfg)
-        
+
+
 def modify_event_interval(
-    env: ManagerBasedRLEnv, env_ids: Sequence[int], term_name: str, interval_range:tuple[float, float], 
-    num_steps: int, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
-    ):
+    env: ManagerBasedRLEnv,
+    env_ids: Sequence[int],
+    term_name: str,
+    interval_range: tuple[float, float],
+    num_steps: int,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+):
     """Curriculum that modifies a event interval range a given number of steps.
 
     Args:
@@ -87,4 +91,3 @@ def modify_event_interval(
         # update term settings
         term_cfg.interval_range_s = interval_range
         env.event_manager.set_term_cfg(term_name, term_cfg)
-        

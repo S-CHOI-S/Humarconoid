@@ -39,18 +39,19 @@ import os
 import torch
 from datetime import datetime
 
-# Import extensions to set up environment tasks
-import humarconoid.tasks  # noqa: F401
-
-from isaaclab.envs import ManagerBasedRLEnvCfg, ManagerBasedRLEnv
+from isaaclab.envs import ManagerBasedRLEnv, ManagerBasedRLEnvCfg
 from isaaclab.utils.dict import print_dict
 from isaaclab_tasks.utils import parse_env_cfg
+
+# Import extensions to set up environment tasks
+import humarconoid.tasks  # noqa: F401
 
 torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 torch.backends.cudnn.deterministic = False
 torch.backends.cudnn.benchmark = False
-    
+
+
 def main():
     """Train with RSL-RL agent."""
     # parse configuration
@@ -58,10 +59,10 @@ def main():
 
     # create isaac environment
     env = ManagerBasedRLEnv(cfg=env_cfg)
-        
+
     # Play the simulator
     print("[INFO]: Setup complete...")
-    
+
     # Simulate physics
     count = 0
     prev_obs = 0.0
@@ -71,22 +72,24 @@ def main():
             if count % 2000 == 0:
                 count = 0
                 env.reset()
-                
+
             # apply actions to the robot
             # efforts = torch.rand_like(env.action_manager.action) * 2
             efforts = torch.zeros_like(env.action_manager.action) * 2
             efforts[0][6] = 0.5
             efforts[0][7] = -0.5
-            
+
             efforts[0][9] = 1.0
             efforts[0][10] = -1.0
-            
+
             efforts[0][11] = 0.5
             efforts[0][12] = -0.5
-            
+
             # print("Shape of asset.data.root_state_w:", env.scene["robot"].root_state_w.shape)
 
-            distance = torch.linalg.norm(env.scene["robot"].data.body_state_w[:, 14] - env.scene["robot"].data.body_state_w[:, 15])
+            distance = torch.linalg.norm(
+                env.scene["robot"].data.body_state_w[:, 14] - env.scene["robot"].data.body_state_w[:, 15]
+            )
             print(env.scene["robot"].data.joint_names)
 
             if distance < 0.2:
@@ -96,11 +99,12 @@ def main():
             obs, rew, terminated, truncated, info = env.step(efforts)
             # print("=============================================")
             # print(efforts[0][9])
-            
+
             count += 1
-            
+
     # close the simulator
     env.close()
+
 
 if __name__ == "__main__":
     # run the main execution

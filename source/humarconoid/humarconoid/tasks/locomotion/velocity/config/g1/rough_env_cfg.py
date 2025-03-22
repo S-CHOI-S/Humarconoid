@@ -1,19 +1,16 @@
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.utils import configclass
 
 import humarconoid.tasks.locomotion.velocity.mdp as mdp
-from humarconoid.tasks.locomotion.velocity.velocity_env_cfg import (
-    LocomotionVelocityRoughEnvCfg,
-    RewardsCfg,
-)
-
-from isaaclab.utils import configclass
 
 ##
 # Pre-defined configs
 ##
 from humarconoid.robots import G1_CFG
+from humarconoid.tasks.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
+
 
 @configclass
 class G1Rewards(RewardsCfg):

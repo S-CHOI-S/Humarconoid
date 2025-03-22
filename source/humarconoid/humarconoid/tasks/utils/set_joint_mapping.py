@@ -15,18 +15,21 @@
 "* Authors: Sol Choi (Jennifer) *"
 
 import yaml
+
 from humarconoid.robots import HUMARCONOID_EXT_DIR
+
 
 def load_from_yaml(robot_name):
     file_path = f"{HUMARCONOID_EXT_DIR}/KIST_HUMANOID_TORSO/{robot_name}.yaml"
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         data = yaml.safe_load(file)
-        
+
     # [Usage]
     # print("joint_order:", data["joint_order"])
     # print("sorted_joint:", data["sorted_joint"])
 
     return data
+
 
 def joint_mapping(original, sorted):
     # Mapping dictionary

@@ -9,9 +9,9 @@ class G1FlatEnvCfg(G1RoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
-        
-        self.sim.dt = 0.002 ## 500 hz
-        self.decimation = 4 ## 125 hz
+
+        self.sim.dt = 0.002  ## 500 hz
+        self.decimation = 4  ## 125 hz
 
         # change terrain to flat
         self.scene.terrain.terrain_type = "plane"
@@ -35,7 +35,7 @@ class G1FlatEnvCfg(G1RoughEnvCfg):
         )
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.6)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0., 0.)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
 
 

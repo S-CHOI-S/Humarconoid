@@ -18,7 +18,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.observations.policy.height_scan = None
         # no terrain curriculum
         self.curriculum.terrain_levels = None
-        
+
         # Events
         self.events.add_base_mass.params["asset_cfg"].body_names = ["torso_link"]
         self.events.reset_robot_joints.params["position_range"] = (0.8, 1.2)
@@ -34,10 +34,16 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
                 "yaw": (0.0, 0.0),
             },
         }
-        self.events.push_robot.params={
-            "velocity_range": {"x": (-1.5, 1.5), "y": (-1.5, 1.5), "roll": (-0.5, 0.5), "pitch": (-0.5, 0.5), "yaw": (-0.5, 0.5)}
+        self.events.push_robot.params = {
+            "velocity_range": {
+                "x": (-1.5, 1.5),
+                "y": (-1.5, 1.5),
+                "roll": (-0.5, 0.5),
+                "pitch": (-0.5, 0.5),
+                "yaw": (-0.5, 0.5),
             }
-        
+        }
+
         # self.events.base_external_force_torque = None
         # self.events.push_robot = None
 
@@ -49,19 +55,19 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.action_rate_l2.weight = -0.01
         self.rewards.dof_acc_l2.weight = -1.0e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=["^(?!.*_knee_).*"] # , ".*_knee_joint"]
+            "robot", joint_names=["^(?!.*_knee_).*"]  # , ".*_knee_joint"]
         )
         self.rewards.feet_air_time.weight = 2.0
         self.rewards.feet_air_time.params["threshold"] = 1.0
         self.rewards.feet_slide.weight = -0.2
         self.rewards.dof_torques_l2.weight = -4.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*_hip_.*", ".*_ankle_.*", ".*_knee_.*"] # , ".*_knee_joint"]
+            "robot", joint_names=[".*_hip_.*", ".*_ankle_.*", ".*_knee_.*"]  # , ".*_knee_joint"]
         )
         self.rewards.feet_safe_contact.weight = -0.075
         self.rewards.joint_deviation_hip.weight = -0.2
         self.rewards.feet_swing_height.weight = 0.0025
-        
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
@@ -81,8 +87,8 @@ class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
         # remove random pushing
         self.events.base_external_force_torque = None
         self.events.push_robot = None
-        
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.3)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0., 0.)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)

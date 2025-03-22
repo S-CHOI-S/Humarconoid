@@ -40,9 +40,9 @@ G1_KIST_CFG = ArticulationCfg(
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 0.793),
         joint_pos={
-            ".*_hip_pitch_joint": -0.28, # -0.20,
-            ".*_knee_joint": 0.6, # 0.42,
-            ".*_ankle_pitch_joint": -0.32, # -0.23,
+            ".*_hip_pitch_joint": -0.28,  # -0.20,
+            ".*_knee_joint": 0.6,  # 0.42,
+            ".*_ankle_pitch_joint": -0.32,  # -0.23,
             # ".*": 0.0,
         },
         joint_vel={".*": 0.0},
@@ -107,32 +107,32 @@ G1_KIST_CFG = ArticulationCfg(
     },
 )
 """Configuration for the Unitree G1 Humanoid robot (29dof)."""
-'''
-'pelvis', 'imu_in_pelvis', 'left_hip_pitch_link', 'pelvis_contour_link', 'right_hip_pitch_link', 
-'waist_yaw_link', 'left_hip_roll_link', 'right_hip_roll_link', 'waist_roll_link', 'left_hip_yaw_link', 
-'right_hip_yaw_link', 'torso_link', 'left_knee_link', 'right_knee_link', 'd435_link', 'head_link', 
-'imu_in_torso', 'left_shoulder_pitch_link', 'logo_link', 'mid360_link', 'right_shoulder_pitch_link', 
-'left_ankle_pitch_link', 'right_ankle_pitch_link', 'left_shoulder_roll_link', 'right_shoulder_roll_link', 
-'left_ankle_roll_link', 'right_ankle_roll_link', 'left_shoulder_yaw_link', 'right_shoulder_yaw_link', 
-'left_elbow_link', 'right_elbow_link', 'left_wrist_roll_link', 'right_wrist_roll_link', 
-'left_wrist_pitch_link', 'right_wrist_pitch_link', 'left_wrist_yaw_link', 'right_wrist_yaw_link', 
+"""
+'pelvis', 'imu_in_pelvis', 'left_hip_pitch_link', 'pelvis_contour_link', 'right_hip_pitch_link',
+'waist_yaw_link', 'left_hip_roll_link', 'right_hip_roll_link', 'waist_roll_link', 'left_hip_yaw_link',
+'right_hip_yaw_link', 'torso_link', 'left_knee_link', 'right_knee_link', 'd435_link', 'head_link',
+'imu_in_torso', 'left_shoulder_pitch_link', 'logo_link', 'mid360_link', 'right_shoulder_pitch_link',
+'left_ankle_pitch_link', 'right_ankle_pitch_link', 'left_shoulder_roll_link', 'right_shoulder_roll_link',
+'left_ankle_roll_link', 'right_ankle_roll_link', 'left_shoulder_yaw_link', 'right_shoulder_yaw_link',
+'left_elbow_link', 'right_elbow_link', 'left_wrist_roll_link', 'right_wrist_roll_link',
+'left_wrist_pitch_link', 'right_wrist_pitch_link', 'left_wrist_yaw_link', 'right_wrist_yaw_link',
 'left_rubber_hand', 'right_rubber_hand'
-'''
+"""
 
-'''
+"""
 0  'left_hip_pitch_joint',
-1  'right_hip_pitch_joint', 
-2  'left_hip_roll_joint', 
-3  'right_hip_roll_joint', 
-4  'left_hip_yaw_joint', 
-5  'right_hip_yaw_joint', 
-6  'left_knee_joint', 
-7  'right_knee_joint', 
-8  'left_ankle_pitch_joint', 
-9  'right_ankle_pitch_joint', 
-10 'left_ankle_roll_joint', 
+1  'right_hip_pitch_joint',
+2  'left_hip_roll_joint',
+3  'right_hip_roll_joint',
+4  'left_hip_yaw_joint',
+5  'right_hip_yaw_joint',
+6  'left_knee_joint',
+7  'right_knee_joint',
+8  'left_ankle_pitch_joint',
+9  'right_ankle_pitch_joint',
+10 'left_ankle_roll_joint',
 11 'right_ankle_roll_joint'
-'''
+"""
 
 # 0, 6, 12, 1, 7, 13, 2, 8, 14, 3, 9, 4, 10, 15, 16, 5, 11
 # 0, 3, 6, 9, 11, 15, 1, 4, 7, 10, 12, 16, 2, 5, 8, 13, 14

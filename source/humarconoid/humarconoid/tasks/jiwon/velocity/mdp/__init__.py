@@ -2,8 +2,8 @@
 
 from isaaclab.envs.mdp import *  # noqa: F401, F403
 
+from .commands import *
 from .curriculums import *  # noqa: F401, F403
+from .events import *
 from .rewards import *  # noqa: F401, F403
 from .terminations import *  # noqa: F401, F403
-from .commands import *
-from .events import *

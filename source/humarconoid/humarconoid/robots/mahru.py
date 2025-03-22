@@ -91,7 +91,7 @@ MAHRU_CFG = ArticulationCfg(
             stiffness=40.0,
             damping=10.0,
             armature=0.01,
-        )
+        ),
     },
 )
 """Configuration for the KIST MAHRU Humanoid robot."""

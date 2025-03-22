@@ -27,11 +27,8 @@ class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
         # self.rewards.feet_air_time.weight = 1.5 # 0.75
         # self.rewards.feet_air_time.params["threshold"] = 0.4
         self.rewards.dof_torques_l2.weight = -2.0e-6
-        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*LJ[1-7]"]
-        )
-        
-        
+        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-7]"])
+
         ## Reshape Rewards
         self.rewards.track_lin_vel_xy_exp.weight = 1.0
         self.rewards.track_ang_vel_z_exp.weight = 0.5
@@ -50,12 +47,12 @@ class KimanoidFlatEnvCfg(KimanoidRoughEnvCfg):
         self.rewards.joint_deviation_torso.weight = -0.25
         self.rewards.joint_deviation_hip.weight = -0.1
         self.rewards.joint_deviation_ankle.weight = -0.01
-        self.rewards.heel_toe_air_time.weight = 0 # 0.1
+        self.rewards.heel_toe_air_time.weight = 0  # 0.1
         self.rewards.reference_motion.weight = 0.0
-        self.rewards.contact_motion.weight = 0.5 # 0.25
-        self.rewards.feet_distance.weight = 0.05 # 0.25
+        self.rewards.contact_motion.weight = 0.5  # 0.25
+        self.rewards.feet_distance.weight = 0.05  # 0.25
         self.rewards.foot_clearance.weight = 0.1
-        
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
@@ -75,7 +72,7 @@ class KimanoidFlatEnvCfg_PLAY(KimanoidFlatEnvCfg):
         # remove random pushing
         self.events.base_external_force_torque = None
         self.events.push_robot = None
-        
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (1.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)

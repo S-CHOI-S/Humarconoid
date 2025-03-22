@@ -105,9 +105,7 @@ class CommandsCfg:
 class ActionsCfg:
     """Action specifications for the MDP."""
 
-    joint_pos = mdp.JointPositionActionCfg(
-        asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True
-    )
+    joint_pos = mdp.JointPositionActionCfg(asset_name="robot", joint_names=[".*"], scale=1, use_default_offset=True)
 
 
 @configclass
@@ -160,7 +158,7 @@ class EventCfg:
     #         "num_buckets": 64,
     #     },
     # )
-    
+
     physics_material = EventTerm(
         func=mdp.randomize_rigid_body_material,
         mode="reset",

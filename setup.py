@@ -3,10 +3,8 @@
 import os
 import toml
 
-from setuptools import setup
-
 # Installation operation
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name="humarcscripts",
@@ -19,8 +17,7 @@ setup(
     maintainer_email="solchoi@yonsei.ac.kr",
     description="Scripts and utilities for humarcscripts",
     url="https://github.com/S-CHOI-S/Humarconoid.git",
-    install_requires=[
-    ],
+    install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",

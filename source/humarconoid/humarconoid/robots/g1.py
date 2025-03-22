@@ -113,39 +113,39 @@ G1_CFG = ArticulationCfg(
 )
 """Configuration for the Unitree G1 Humanoid robot."""
 
-'''
+"""
 * Body names:
-    ['pelvis', 'left_hip_pitch_link', 'pelvis_contour_link', 'right_hip_pitch_link', 'torso_link', 'left_hip_roll_link', 'right_hip_roll_link', 
-     'head_link', 'imu_link', 'left_shoulder_pitch_link', 'logo_link', 'right_shoulder_pitch_link', 'left_hip_yaw_link', 'right_hip_yaw_link', 
-     'left_shoulder_roll_link', 'right_shoulder_roll_link', 'left_knee_link', 'right_knee_link', 'left_shoulder_yaw_link', 'right_shoulder_yaw_link', 
-     'left_ankle_pitch_link', 'right_ankle_pitch_link', 'left_elbow_pitch_link', 'right_elbow_pitch_link', 'left_ankle_roll_link', 'right_ankle_roll_link', 
-     'left_elbow_roll_link', 'right_elbow_roll_link', 'left_palm_link', 'right_palm_link', 'left_five_link', 'left_three_link', 'left_zero_link', 
-     'right_five_link', 'right_three_link', 'right_zero_link', 'left_six_link', 'left_four_link', 'left_one_link', 'right_six_link', 
+    ['pelvis', 'left_hip_pitch_link', 'pelvis_contour_link', 'right_hip_pitch_link', 'torso_link', 'left_hip_roll_link', 'right_hip_roll_link',
+     'head_link', 'imu_link', 'left_shoulder_pitch_link', 'logo_link', 'right_shoulder_pitch_link', 'left_hip_yaw_link', 'right_hip_yaw_link',
+     'left_shoulder_roll_link', 'right_shoulder_roll_link', 'left_knee_link', 'right_knee_link', 'left_shoulder_yaw_link', 'right_shoulder_yaw_link',
+     'left_ankle_pitch_link', 'right_ankle_pitch_link', 'left_elbow_pitch_link', 'right_elbow_pitch_link', 'left_ankle_roll_link', 'right_ankle_roll_link',
+     'left_elbow_roll_link', 'right_elbow_roll_link', 'left_palm_link', 'right_palm_link', 'left_five_link', 'left_three_link', 'left_zero_link',
+     'right_five_link', 'right_three_link', 'right_zero_link', 'left_six_link', 'left_four_link', 'left_one_link', 'right_six_link',
      'right_four_link', 'right_one_link', 'left_two_link', 'right_two_link']
 
 * Joint names:
-    [             '0',                            '1',                         '2',                         '3',                        '4',   
-    [     'left_hip_pitch_joint',       'right_hip_pitch_joint',              'torso_joint',      'left_hip_roll_joint',       'right_hip_roll_joint', 
- 
-                  '5',                            '6',                         '7',                         '8',                        '9', 
-     'left_shoulder_pitch_joint',  'right_shoulder_pitch_joint',       'left_hip_yaw_joint',      'right_hip_yaw_joint',   'left_shoulder_roll_joint', 
-     
-                 '10',                           '11',                        '12',                        '13',                       '14',  
-     'right_shoulder_roll_joint',             'left_knee_joint',         'right_knee_joint',  'left_shoulder_yaw_joint',   'right_shoulder_yaw_joint', 
-     
+    [             '0',                            '1',                         '2',                         '3',                        '4',
+    [     'left_hip_pitch_joint',       'right_hip_pitch_joint',              'torso_joint',      'left_hip_roll_joint',       'right_hip_roll_joint',
+
+                  '5',                            '6',                         '7',                         '8',                        '9',
+     'left_shoulder_pitch_joint',  'right_shoulder_pitch_joint',       'left_hip_yaw_joint',      'right_hip_yaw_joint',   'left_shoulder_roll_joint',
+
+                 '10',                           '11',                        '12',                        '13',                       '14',
+     'right_shoulder_roll_joint',             'left_knee_joint',         'right_knee_joint',  'left_shoulder_yaw_joint',   'right_shoulder_yaw_joint',
+
                  '15',                           '16',                        '17',                        '18',                       '19',
-        'left_ankle_pitch_joint',     'right_ankle_pitch_joint',   'left_elbow_pitch_joint',  'right_elbow_pitch_joint',      'left_ankle_roll_joint', 
+        'left_ankle_pitch_joint',     'right_ankle_pitch_joint',   'left_elbow_pitch_joint',  'right_elbow_pitch_joint',      'left_ankle_roll_joint',
 
                  '20',                           '21',                        '22',                        '23',                       '24',
-        'right_ankle_roll_joint',       'left_elbow_roll_joint',   'right_elbow_roll_joint',          'left_five_joint',           'left_three_joint', 
-        
+        'right_ankle_roll_joint',       'left_elbow_roll_joint',   'right_elbow_roll_joint',          'left_five_joint',           'left_three_joint',
+
                  '25',                           '26',                        '27',                        '28',                       '29',
-               'left_zero_joint',            'right_five_joint',        'right_three_joint',         'right_zero_joint',             'left_six_joint', 
+               'left_zero_joint',            'right_five_joint',        'right_three_joint',         'right_zero_joint',             'left_six_joint',
 
                  '30',                           '31',                        '32',                        '33',                       '34',
-               'left_four_joint',              'left_one_joint',          'right_six_joint',         'right_four_joint',            'right_one_joint', 
-               
+               'left_four_joint',              'left_one_joint',          'right_six_joint',         'right_four_joint',            'right_one_joint',
+
                  '35',                           '36'  ]
                 'left_two_joint',             'right_two_joint']
 
-'''
+"""

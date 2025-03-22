@@ -2,26 +2,22 @@ from __future__ import annotations
 
 import torch
 from collections.abc import Sequence
-from typing import TYPE_CHECKING
 from dataclasses import MISSING
+from typing import TYPE_CHECKING
 
-from isaaclab.managers import SceneEntityCfg
-from isaaclab.sensors import ContactSensor
 import isaaclab.utils.math as math_utils
 from isaaclab.assets import Articulation
-from isaaclab.managers import CommandTerm
-from isaaclab.managers import CommandTermCfg
-from isaaclab.managers import CommandTermCfg
-from isaaclab.markers import VisualizationMarkers
-from isaaclab.markers import VisualizationMarkersCfg
+from isaaclab.envs import ManagerBasedRLEnv
+from isaaclab.managers import CommandTerm, CommandTermCfg, SceneEntityCfg
+from isaaclab.markers import VisualizationMarkers, VisualizationMarkersCfg
 from isaaclab.markers.config import BLUE_ARROW_X_MARKER_CFG, FRAME_MARKER_CFG, GREEN_ARROW_X_MARKER_CFG
-
+from isaaclab.sensors import ContactSensor
 from isaaclab.utils import configclass
 from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 
-from isaaclab.envs import ManagerBasedRLEnv
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv
+
 
 class UniformVelocityCommandZ(CommandTerm):
     """Command generator that generates a velocity command in the z direction (vertical) only.

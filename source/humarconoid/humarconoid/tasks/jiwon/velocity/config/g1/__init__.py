@@ -1,6 +1,6 @@
 import gymnasium as gym
 
-from . import agents, flat_env_cfg, rough_env_cfg, arm_env_cfg
+from . import agents, arm_env_cfg, flat_env_cfg, rough_env_cfg
 
 ##
 # Register Gym environments.
@@ -65,4 +65,3 @@ gym.register(
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
     },
 )
-

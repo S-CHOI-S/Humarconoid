@@ -1,9 +1,5 @@
 from isaaclab.utils import configclass
-from isaaclab_rl.rsl_rl import (
-    RslRlOnPolicyRunnerCfg,
-    RslRlPpoActorCriticCfg,
-    RslRlPpoAlgorithmCfg,
-)
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
 
 
 @configclass
@@ -44,8 +40,8 @@ class G1FlatPPORunnerCfg(G1RoughPPORunnerCfg):
         self.experiment_name = "g1_flat"
         self.policy.actor_hidden_dims = [128, 128, 128]
         self.policy.critic_hidden_dims = [128, 128, 128]
-        
-        
+
+
 @configclass
 class G1SquatPPORunnerCfg(G1RoughPPORunnerCfg):
     def __post_init__(self):

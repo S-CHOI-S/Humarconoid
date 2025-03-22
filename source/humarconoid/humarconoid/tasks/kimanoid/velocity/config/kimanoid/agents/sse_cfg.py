@@ -1,9 +1,6 @@
+from humarcscripts.sse.sse_cfg import SseActorCriticCfg, SseOnPolicyRunnerCfg, SsePpoAlgorithmCfg
+
 from isaaclab.utils import configclass
-from humarcscripts.sse.sse_cfg import (
-    SseOnPolicyRunnerCfg,
-    SseActorCriticCfg,
-    SsePpoAlgorithmCfg,
-)
 
 
 @configclass
@@ -33,7 +30,7 @@ class KimanoidRoughSAEPPORunnerCfg(SseOnPolicyRunnerCfg):
         desired_kl=0.01,
         max_grad_norm=1.0,
         num_synergies=5,
-        sae_hidden_dims=[5], #32
+        sae_hidden_dims=[5],  # 32
     )
 
 

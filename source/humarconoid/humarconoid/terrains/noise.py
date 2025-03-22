@@ -17,7 +17,6 @@
 """Configuration for custom terrains."""
 
 import isaaclab.terrains as terrain_gen
-
 from isaaclab.terrains.terrain_generator_cfg import TerrainGeneratorCfg
 
 NOISE_TERRAINS_CFG = TerrainGeneratorCfg(
@@ -39,4 +38,3 @@ NOISE_TERRAINS_CFG = TerrainGeneratorCfg(
     },
 )
 """Noise terrains configuration."""
-

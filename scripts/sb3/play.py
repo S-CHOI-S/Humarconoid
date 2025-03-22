@@ -48,9 +48,8 @@ import torch
 from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import VecNormalize
 
-from isaaclab.utils.dict import print_dict
-
 import isaaclab_tasks  # noqa: F401
+from isaaclab.utils.dict import print_dict
 from isaaclab_tasks.utils.parse_cfg import get_checkpoint_path, load_cfg_from_registry, parse_env_cfg
 from isaaclab_tasks.utils.wrappers.sb3 import Sb3VecEnvWrapper, process_sb3_cfg
 

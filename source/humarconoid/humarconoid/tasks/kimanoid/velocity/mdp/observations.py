@@ -11,8 +11,9 @@ from isaaclab.sensors import RayCaster
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv, ManagerBasedRLEnv
 
+
 def phase_information(env: ManagerBasedRLEnv) -> torch.Tensor:
-    # phi = 
+    # phi =
     # phase = 2 * torch.pi * phi
     # torch.sin()
     # env.step_dt

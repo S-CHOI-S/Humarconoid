@@ -75,6 +75,7 @@ from isaaclab.utils.dict import print_dict
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 assets_path = os.path.join(BASE_DIR, "../exts/humarconoid/humarconoid/robots/")
 
+
 def main():
     # check valid file path
     urdf_path = assets_path + args_cli.input

@@ -1,9 +1,5 @@
 from isaaclab.utils import configclass
-from isaaclab_rl.rsl_rl import (
-    RslRlOnPolicyRunnerCfg,
-    RslRlPpoActorCriticCfg,
-    RslRlPpoAlgorithmCfg,
-)
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
 
 
 @configclass
@@ -44,8 +40,8 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
         self.experiment_name = "jiwon_flat"
         self.policy.actor_hidden_dims = [256, 256, 128]
         self.policy.critic_hidden_dims = [256, 256, 128]
-        
-        
+
+
 @configclass
 class JiwonArmPPORunnerCfg(JiwonRoughPPORunnerCfg):
     def __post_init__(self):

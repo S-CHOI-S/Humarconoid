@@ -1,19 +1,16 @@
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.utils import configclass
 
 import humarconoid.tasks.jiwon.velocity.mdp as mdp
-from humarconoid.tasks.jiwon.velocity.velocity_env_cfg import (
-    LocomotionVelocityRoughEnvCfg,
-    RewardsCfg,
-)
-
-from isaaclab.utils import configclass
 
 ##
 # Pre-defined configs
 ##
 from humarconoid.robots import G1_KIST_CFG
+from humarconoid.tasks.jiwon.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
+
 
 @configclass
 class JiwonRewards(RewardsCfg):
@@ -29,7 +26,7 @@ class JiwonRewards(RewardsCfg):
         func=mdp.track_ang_vel_z_world_exp, weight=2.0, params={"command_name": "base_velocity", "std": 0.5}
     )
     feet_air_time = RewTerm(
-        func=mdp.feet_air_time_balanced_positive_biped, ## ??
+        func=mdp.feet_air_time_balanced_positive_biped,  ## ??
         weight=0.25,
         params={
             "command_name": "base_velocity",
@@ -68,7 +65,7 @@ class JiwonRewards(RewardsCfg):
         weight=-0.01,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_.*"])},
     )
-    
+
     # joint_deviation_arms = RewTerm(
     #     func=mdp.joint_deviation_l1,
     #     weight=-0.2,
@@ -85,7 +82,7 @@ class JiwonRewards(RewardsCfg):
     #         )
     #     },
     # )
-    
+
     # joint_deviation_fingers = RewTerm(
     #     func=mdp.joint_deviation_l1,
     #     weight=-0.05,
@@ -109,26 +106,26 @@ class JiwonRewards(RewardsCfg):
     #     weight=-0.1,
     #     params={"asset_cfg": SceneEntityCfg("robot", joint_names="waist_.*")},
     # )
-    
+
     # flat_orientation_body = RewTerm(func=mdp.flat_orientation_body, weight=0.0)
-    
+
     feet_safe_contact = RewTerm(
         func=mdp.feet_safe_contact,
-        weight= -0.1,
+        weight=-0.1,
         params={
             "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
             "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
-        }
+        },
     )
 
     feet_swing_height = RewTerm(
         func=mdp.reward_feet_swing_height,
-        weight = 0.1,
+        weight=0.1,
         params={
             "command_name": "base_velocity",
             "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
             "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
-        }
+        },
     )
 
 
@@ -139,7 +136,10 @@ class TerminationsCfg:
     time_out = DoneTerm(func=mdp.time_out, time_out=True)
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names={"^(?!.*ankle_roll_link).*"}), "threshold": 1.0},
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["^(?!.*ankle_roll_link).*"]),
+            "threshold": 1.0,
+        },
     )
 
 
@@ -187,14 +187,14 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # )
         self.rewards.dof_acc_l2.weight = -1.0e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=["^(?!.*_knee_).*"] # , ".*_knee_joint"]
+            "robot", joint_names=["^(?!.*_knee_).*"]  # , ".*_knee_joint"]
         )
         self.rewards.feet_air_time.weight = 2.0
         self.rewards.feet_air_time.params["threshold"] = 1.0
         self.rewards.feet_slide.weight = -0.2
         self.rewards.dof_torques_l2.weight = -4.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*_hip_.*", ".*_ankle_.*"] # , ".*_knee_joint"]
+            "robot", joint_names=[".*_hip_.*", ".*_ankle_.*"]  # , ".*_knee_joint"]
         )
         # self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names={"^(?!.*knee_joint).*"})
         # self.rewards.knee_action.weight = 0.0000000002
@@ -204,7 +204,7 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         #     "robot", body_names=[".*_hip_.*", ".*_knee_joint",  ".*_ankle_.*"]
         # )
         # self.rewards.joint_deviation_torso.weight = -0
-        
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.3, 0.5)
