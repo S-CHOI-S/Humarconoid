@@ -1,4 +1,4 @@
-# ARC Humanoid Robot Training for Isaac Lab
+# ARC Humanoid Robot Training using Isaac Lab
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-4.5.0-silver.svg)](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html)
 [![Isaac Lab](https://img.shields.io/badge/IsaacLab-2.0.2-silver)](https://isaac-sim.github.io/IsaacLab)
@@ -9,61 +9,75 @@
 
 ## Overview
 
-This repository serves as a template for building projects or extensions based on Isaac Lab. It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
+This repository contains a project developed for training _**humanoid robots**_ from the _[KIST Advanced Robot Control Lab.](https://sites.google.com/view/kist-arc/)_ using Isaac Lab. It follows the structure of the Isaac Lab extension template.
 
-**Key Features:**
+**Humanoid Robots:**
 
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
+- _**New KIST Humanoid Robot**_: Coming soon!
+- _**MAHRU**_: MAHRU is a wheel-legged humanoid robot developed by KIST. This robot combines wheels and legs for enhanced mobility!
+- _**G1**_: 29 DoF G1 robot from Unitree Robotics.
+> Also contains the 'Anymal-D' robot as an example!
 
-**Keywords:** extension, template, isaaclab
+**Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real  
+**Maintainer, Author:** [Sol Choi](https://github.com/S-CHOI-S)
 
+</br>
 
-### Installation
+## Installation
 
-
-- Throughout the repository, the name `humarconoid` only serves as an example and we provide a script to rename all the references to it automatically:
-
+**Step 1.** Clone this git repository
 ```
-# Rename all occurrences of humarconoid (in files/directories) to your_fancy_extension_name
+git clone https://github.com/S-CHOI-S/Humarconoid.git
+```
+
+**Step 2.** (Optional) Rename all occurrences of humarconoid (in files/directories) to your_fancy_extension_name
+```
 python scripts/rename_template.py your_fancy_extension_name
 ```
 
-- Install Isaac Lab, see the [installation guide](https://isaac-sim.github.io/IsaacLab/source/setup/installation/index.html).
+**Step 3.** Install Isaac Lab, see the [installation guide](https://isaac-sim.github.io/IsaacLab/source/setup/installation/index.html)
 
-- Using a python interpreter that has Isaac Lab installed, install the library
+**Step 4.** Using a python interpreter that has Isaac Lab installed, install the library
+- `humarcscripts` library
+    ```
+    python -m pip install -e .
+    ```
+- `humarconoid` library
+    ```
+    cd source/humarconoid
+    python -m pip install -e .
+    ```
 
+
+</br>
+
+## Usage
+### Train
+**Step 1.** Check out the environments available in the Humarconoid project.
 ```
-cd exts/humarconoid
-python -m pip install -e .
+python scripts/list_envs.py
+```
+**Step 2.** Start training with humarconoid TASK!
+```
+python scripts/rsl_rl/train.py --task TASK --headless
+```
+>[!Tips]  
+> Humarconoid is compatible with `rsl_rl`, `Stable Baselines3`, as well as custom reinforcement learning algorithms.
+
+### Play
+**Step 1.** Choose your TASK and LOGDIR from your log.
+```
+python scripts/rsl_rl/play.py --task TASK --log_dir LOGDIR --num_envs NUM_ENVS
 ```
 
-#### Set up IDE (Optional)
-
-To setup the IDE, please follow these instructions:
-
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu. When running this task, you will be prompted to add the absolute path to your Isaac Lab installation.
-
-If everything executes correctly, it should create a file .python.env in the .vscode directory. The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse. This helps in indexing all the python modules for intelligent suggestions while writing code.
+### Monitor
+You can monitor real-time training logs via TensorBoard!
+```
+tensorboard --logdir logs/rsl_rl/TASK/
+```
 
 
-#### Setup as Omniverse Extension (Optional)
-
-We provide an example UI extension that will load upon enabling your extension defined in `exts/humarconoid/humarconoid/ui_extension_example.py`. For more information on UI extensions, enable and check out the source code of the `omni.isaac.ui_template` extension and refer to the introduction on [Isaac Sim Workflows 1.2.3. GUI](https://docs.omniverse.nvidia.com/isaacsim/latest/introductory_tutorials/tutorial_intro_workflows.html#gui).
-
-To enable your extension, follow these steps:
-
-1. **Add the search path of your repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon** (☰), then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to `IsaacLabExtensionTemplate/exts`
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source/extensions`)
-    - Click on the **Hamburger Icon** (☰), then click `Refresh`.
-
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
-
+</br>
 
 ## Code formatting
 

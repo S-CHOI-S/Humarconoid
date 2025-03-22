@@ -1,3 +1,19 @@
+"""*******************************************************************************
+* HumARConoid
+*
+* Advanced Humanoid Locomotion Strategy using Reinforcement Learning
+*
+*     https://github.com/S-CHOI-S/HumARConoid.git
+*
+* Advanced Robot Control Lab. (ARC)
+* 	  @ Korea Institute of Science and Technology
+*
+*	  https://sites.google.com/view/kist-arc
+*
+*******************************************************************************"""
+
+"* Authors: Sol Choi (Jennifer) *"
+
 """
 Script to print all the available environments in the extension.
 
@@ -22,6 +38,8 @@ from prettytable import PrettyTable
 # Import extensions to set up environment tasks
 import humarconoid.tasks  # noqa: F401
 
+from color_code import *
+
 
 def main():
     """Print all environments registered in `isaac.lab_demo` extension."""
@@ -36,14 +54,38 @@ def main():
     # count of environments
     index = 0
     # acquire all Isaac environments names
+    
+    ''' Print tasks which concludes [Template-] in task name! '''
+    # for task_spec in gym.registry.values():
+    #     if "Template-" in task_spec.id:
+    #         # add details to table
+    #         table.add_row([index + 1, task_spec.id, task_spec.entry_point, task_spec.kwargs["env_cfg_entry_point"]])
+    #         # increment count
+    #         index += 1
+    
+    ''' Print all registered tasks! '''
+    # for task_spec in gym.registry.values():
+    #     table.add_row([
+    #         index + 1,
+    #         task_spec.id,
+    #         task_spec.entry_point,
+    #         task_spec.kwargs.get("env_cfg_entry_point", "N/A")
+    #     ])
+    #     index += 1
+        
+    ''' Print only registered humarconoid tasks! '''
     for task_spec in gym.registry.values():
-        if "Template-" in task_spec.id:
-            # add details to table
-            table.add_row([index + 1, task_spec.id, task_spec.entry_point, task_spec.kwargs["env_cfg_entry_point"]])
-            # increment count
+        env_cfg = task_spec.kwargs.get("env_cfg_entry_point", "")
+        if "humarconoid" in str(env_cfg):
+            table.add_row([
+                index + 1,
+                task_spec.id,
+                task_spec.entry_point,
+                env_cfg
+            ])
             index += 1
 
-    print(table)
+    print(f"{RESET}{table}")
 
 
 if __name__ == "__main__":

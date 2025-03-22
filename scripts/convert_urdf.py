@@ -73,7 +73,7 @@ from isaaclab.utils.assets import check_file_path
 from isaaclab.utils.dict import print_dict
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-assets_path = os.path.join(BASE_DIR, "../exts/humarconoid/humarconoid/robots/")
+assets_path = os.path.join(BASE_DIR, "../source/humarconoid/humarconoid/robots/")
 
 
 def main():
