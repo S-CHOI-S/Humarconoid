@@ -13,9 +13,9 @@ This repository contains a project developed for training _**humanoid robots**_ 
 
 **Humanoid Robots:**
 
-- _**New KIST Humanoid Robot**_: Coming soon!
-- _**MAHRU**_: MAHRU is a wheel-legged humanoid robot developed by KIST. This robot combines wheels and legs for enhanced mobility!
-- _**G1**_: 29 DoF G1 robot from Unitree Robotics.
+- **New KIST Humanoid Robot**: Coming soon!
+- **MAHRU**: MAHRU is a wheel-legged humanoid robot developed by KIST. This robot combines wheels and legs for enhanced mobility!
+- **G1**: 29-DoF G1 robot from Unitree Robotics.
 > Also contains the 'Anymal-D' robot as an example!
 
 **Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real  
@@ -57,15 +57,15 @@ python scripts/rename_template.py your_fancy_extension_name
 ```
 python scripts/list_envs.py
 ```
-**Step 2.** Start training with humarconoid TASK!
+**Step 2.** Start training with humarconoid `TASK`!
 ```
 python scripts/rsl_rl/train.py --task TASK --headless
 ```
->[!Tips]  
+>[!Tip]  
 > Humarconoid is compatible with `rsl_rl`, `Stable Baselines3`, as well as custom reinforcement learning algorithms.
 
 ### Play
-**Step 1.** Choose your TASK and LOGDIR from your log.
+**Step 1.** Choose your `TASK` and `LOGDIR` from your log.
 ```
 python scripts/rsl_rl/play.py --task TASK --log_dir LOGDIR --num_envs NUM_ENVS
 ```
