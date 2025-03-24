@@ -46,6 +46,9 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
 
         # self.events.base_external_force_torque = None
         # self.events.push_robot = None
+        
+        # Observations
+        self.observations.policy.base_lin_vel = None
 
         # Rewards
         self.rewards.track_lin_vel_xy_exp.weight = 1.0

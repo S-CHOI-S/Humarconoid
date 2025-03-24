@@ -9,6 +9,8 @@ from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
+    
+from humarcscripts.color_code import *
 
 
 def feet_air_time(
@@ -209,11 +211,11 @@ def feet_safe_contact(
 
     penalty = torch.zeros(env.num_envs, device=left_feet_contact.device)
 
-    # Compute the norm of X, Y forces for each foot (Lateral forces) ## 250313/1303: only roll
+    # Compute the norm of X, Y forces for each foot (Lateral forces)
     left_lateral_force = torch.norm(left_feet_contact_force[:, :, :1], dim=-1)  # sqrt(Fx^2 + Fy^2)
     right_lateral_force = torch.norm(right_feet_contact_force[:, :, :1], dim=-1)  # sqrt(Fx^2 + Fy^2)
-    # print(f"left_lateral_force: {left_lateral_force}")
-    # print(f"right_lateral_force: {right_lateral_force}")
+    # print(f"{RESET}left_lateral_force: {left_feet_contact_force[0]}")
+    # print(f"right_lateral_force: {right_feet_contact_force[0]}")
 
     # Compute penalty based on the lateral force magnitude > 0
     # Apply penalty only when there is contact
