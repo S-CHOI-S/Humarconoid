@@ -141,14 +141,13 @@ class ObservationsCfg:
     @configclass
     class CriticCfg(PolicyCfg):
         """Observations for critic group."""
-
         projected_gravity_feet1 = ObsTerm(
-            func=mdp.flat_orientation_body,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names="left_ankle_roll_link")},
+            func=mdp.projected_gravity_body,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="left_ankle_roll_link")}
         )
         projected_gravity_feet2 = ObsTerm(
-            func=mdp.flat_orientation_body,
-            params={"asset_cfg": SceneEntityCfg("robot", body_names="right_ankle_roll_link")},
+            func=mdp.projected_gravity_body,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="right_ankle_roll_link")}
         )
         joint_torques = ObsTerm(func=mdp.joint_torques, noise=Unoise(n_min=-0.01, n_max=0.01))
 
