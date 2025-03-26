@@ -18,7 +18,7 @@ This repository contains a project developed for training _**humanoid robots**_ 
 - **G1**: 29-DoF G1 robot from Unitree Robotics.
 > Also contains the 'Anymal-D' robot as an example!
 
-**Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real  
+**Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real
 **Maintainer, Author:** [Sol Choi](https://github.com/S-CHOI-S)
 
 </br>
@@ -61,7 +61,7 @@ python scripts/list_envs.py
 ```
 python scripts/rsl_rl/train.py --task TASK --headless
 ```
->[!Tip]  
+>[!Tip]
 > Humarconoid is compatible with `rsl_rl`, `Stable Baselines3`, as well as custom reinforcement learning algorithms.
 
 ### Play

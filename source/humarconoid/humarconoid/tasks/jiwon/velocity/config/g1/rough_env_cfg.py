@@ -65,6 +65,10 @@ class JiwonRewards(RewardsCfg):
         weight=-0.01,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_.*"])},
     )
+    flat_orientation_feet = RewTerm(
+        func=mdp.flat_orientation_feet,
+        weight=1.0,
+    )
 
     # joint_deviation_arms = RewTerm(
     #     func=mdp.joint_deviation_l1,
@@ -111,7 +115,7 @@ class JiwonRewards(RewardsCfg):
 
     feet_safe_contact = RewTerm(
         func=mdp.feet_safe_contact,
-        weight=-0.1,
+        weight=0.1,
         params={
             "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
             "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),

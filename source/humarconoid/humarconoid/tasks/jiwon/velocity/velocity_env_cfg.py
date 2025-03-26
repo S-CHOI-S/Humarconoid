@@ -138,8 +138,23 @@ class ObservationsCfg:
             self.enable_corruption = True
             self.concatenate_terms = True
 
+    @configclass
+    class CriticCfg(PolicyCfg):
+        """Observations for critic group."""
+
+        projected_gravity_feet1 = ObsTerm(
+            func=mdp.flat_orientation_body,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="left_ankle_roll_link")},
+        )
+        projected_gravity_feet2 = ObsTerm(
+            func=mdp.flat_orientation_body,
+            params={"asset_cfg": SceneEntityCfg("robot", body_names="right_ankle_roll_link")},
+        )
+        joint_torques = ObsTerm(func=mdp.joint_torques, noise=Unoise(n_min=-0.01, n_max=0.01))
+
     # observation groups
     policy: PolicyCfg = PolicyCfg()
+    critic: CriticCfg = CriticCfg()
 
 
 @configclass
@@ -188,8 +203,8 @@ class EventCfg:
         interval_range_s=(5.0, 15.0),
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names="base"),
-            "force_range": (-100.0, 100.0),
-            "torque_range": (-5.0, 5.0),
+            "force_range": (-300.0, 300.0),
+            "torque_range": (-10.0, 10.0),
         },
     )
 

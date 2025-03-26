@@ -112,6 +112,16 @@ def main():
             actions = policy(obs)
             # env stepping
             obs, _, _, _ = env.step(actions)
+
+            # get robot body names
+            # print(f"body_names: {env.unwrapped.scene['robot'].data.body_names})
+
+            # get robot joint pos
+            # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_pos}")
+
+            # get robot joint names
+            # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_names}")
+
         if args_cli.video:
             timestep += 1
             # Exit the play loop after recording one video

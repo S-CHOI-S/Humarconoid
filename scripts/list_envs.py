@@ -35,10 +35,10 @@ simulation_app = app_launcher.app
 import gymnasium as gym
 from prettytable import PrettyTable
 
+from color_code import *
+
 # Import extensions to set up environment tasks
 import humarconoid.tasks  # noqa: F401
-
-from color_code import *
 
 
 def main():
@@ -54,16 +54,16 @@ def main():
     # count of environments
     index = 0
     # acquire all Isaac environments names
-    
-    ''' Print tasks which concludes [Template-] in task name! '''
+
+    """ Print tasks which concludes [Template-] in task name! """
     # for task_spec in gym.registry.values():
     #     if "Template-" in task_spec.id:
     #         # add details to table
     #         table.add_row([index + 1, task_spec.id, task_spec.entry_point, task_spec.kwargs["env_cfg_entry_point"]])
     #         # increment count
     #         index += 1
-    
-    ''' Print all registered tasks! '''
+
+    """ Print all registered tasks! """
     # for task_spec in gym.registry.values():
     #     table.add_row([
     #         index + 1,
@@ -72,17 +72,12 @@ def main():
     #         task_spec.kwargs.get("env_cfg_entry_point", "N/A")
     #     ])
     #     index += 1
-        
-    ''' Print only registered humarconoid tasks! '''
+
+    """ Print only registered humarconoid tasks! """
     for task_spec in gym.registry.values():
         env_cfg = task_spec.kwargs.get("env_cfg_entry_point", "")
         if "humarconoid" in str(env_cfg):
-            table.add_row([
-                index + 1,
-                task_spec.id,
-                task_spec.entry_point,
-                env_cfg
-            ])
+            table.add_row([index + 1, task_spec.id, task_spec.entry_point, env_cfg])
             index += 1
 
     print(f"{RESET}{table}")

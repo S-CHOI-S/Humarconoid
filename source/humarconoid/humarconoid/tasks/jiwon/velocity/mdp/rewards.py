@@ -9,7 +9,7 @@ from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
-    
+
 from humarcscripts.color_code import *
 
 
@@ -118,7 +118,7 @@ def get_phase(
 ) -> torch.Tensor:
     period = 0.8
     offset = 0.5
-    dt = env.decimation * env.step_dt
+    dt = env.cfg.decimation * env.step_dt
     phase = (env.episode_length_buf * dt) % period / period
     phase_left = phase
     phase_right = (phase + offset) % 1
@@ -226,9 +226,9 @@ def feet_safe_contact(
         penalty[right_contact.any(dim=1)] += right_lateral_force[right_contact].sum(dim=-1)
     # print(f"penalty: {penalty}")
 
-    # reward = 1.0 / (1.0 + penalty)
+    reward = 1.0 / (1.0 + penalty)
 
-    return penalty
+    return reward
 
 
 def feet_air_time_balanced_positive_biped(
@@ -309,5 +309,30 @@ def feet_air_time_balanced_positive_biped(
     # no reward for zero command
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
     reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
+
+    return reward
+
+
+def flat_orientation_feet(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """Penalize non-flat base orientation using L2 squared kernel.
+
+    This is computed by penalizing the xy-components of the projected gravity vector.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset = env.scene[asset_cfg.name]
+
+    quat_11 = asset.data.body_link_quat_w[:, 11]
+    quat_12 = asset.data.body_link_quat_w[:, 12]
+
+    gravity = asset.data.GRAVITY_VEC_W
+
+    projected_grav_11 = quat_rotate_inverse(quat_11, gravity)
+    projected_grav_12 = quat_rotate_inverse(quat_12, gravity)
+    # print(f"projected_grav_11: {projected_grav_11}")
+
+    penalty_11 = torch.sum(torch.square(projected_grav_11), dim=1)
+    penalty_12 = torch.sum(torch.square(projected_grav_12), dim=1)
+
+    reward = 1.0 / (1.0 + penalty_11 + penalty_12)
 
     return reward

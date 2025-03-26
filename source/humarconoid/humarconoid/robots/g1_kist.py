@@ -22,6 +22,7 @@ from humarconoid.robots import HUMARCONOID_EXT_DIR
 
 G1_KIST_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
+        # usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_29dof_rev_1_0/g1_29dof_rev_1_0.usd",
         usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
@@ -43,6 +44,7 @@ G1_KIST_CFG = ArticulationCfg(
             ".*_hip_pitch_joint": -0.28,  # -0.20,
             ".*_knee_joint": 0.6,  # 0.42,
             ".*_ankle_pitch_joint": -0.32,  # -0.23,
+            ".*_ankle_roll_joint": 0.0,
             # ".*": 0.0,
         },
         joint_vel={".*": 0.0},

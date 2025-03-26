@@ -87,14 +87,14 @@ def main():
 
             # print("Shape of asset.data.root_state_w:", env.scene["robot"].root_state_w.shape)
 
-            distance = torch.linalg.norm(
-                env.scene["robot"].data.body_state_w[:, 14] - env.scene["robot"].data.body_state_w[:, 15]
-            )
-            print(env.scene["robot"].data.joint_names)
+            # distance = torch.linalg.norm(
+            #     env.scene["robot"].data.body_state_w[:, 14] - env.scene["robot"].data.body_state_w[:, 15]
+            # )
+            # print(env.scene["robot"].data.joint_names)
 
-            if distance < 0.2:
-                distance = torch.tensor(0.0)
-            print(distance)
+            # if distance < 0.2:
+            #     distance = torch.tensor(0.0)
+            # print(distance)
 
             obs, rew, terminated, truncated, info = env.step(efforts)
             # print("=============================================")
