@@ -91,3 +91,32 @@ def modify_event_interval(
         # update term settings
         term_cfg.interval_range_s = interval_range
         env.event_manager.set_term_cfg(term_name, term_cfg)
+
+
+def push_robot_levels(
+    env: ManagerBasedRLEnv,
+    env_ids: Sequence[int],
+    velocity_range: dict[str, tuple[float, float]],
+    # episode_length: int,
+    # asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+):
+    # obtain term settings
+    term_cfg = env.event_manager.get_term_cfg("push_robot")
+
+    if torch.all(env.episode_length_buf > (env.max_episode_length / 3)):
+        # update term settings
+        term_cfg.params = {
+            "velocity_range": velocity_range
+        }
+    else:
+        term_cfg.params = {
+            "velocity_range": {
+                "x": (0.0, 0.0),
+                "y": (0.0, 0.0),
+                "z": (0.0, 0.0),
+                "roll": (0.0, 0.0),
+                "pitch": (0.0, 0.0),
+                "yaw": (0.0, 0.0),
+            }
+        }
+    env.event_manager.set_term_cfg("push_robot", term_cfg)

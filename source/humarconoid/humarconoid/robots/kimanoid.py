@@ -83,7 +83,7 @@ KIMANOID_CFG = ArticulationCfg(
                 ".*LJ[5-6]": 192,
                 ".*LJ7": 144,
             },
-            stiffness=20.0,  ## 0
+            stiffness=20.0,
             damping=2.0,
             armature=0.01,
         ),
@@ -91,7 +91,7 @@ KIMANOID_CFG = ArticulationCfg(
             joint_names_expr=["BWJ[1-3]"],
             effort_limit=300,
             velocity_limit=93,
-            stiffness=20.0,  ## 0
+            stiffness=20.0,
             damping=2.0,
             armature=0.01,
         ),

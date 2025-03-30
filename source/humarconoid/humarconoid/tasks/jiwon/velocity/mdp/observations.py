@@ -47,3 +47,15 @@ def joint_torques(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntit
     asset: Articulation = env.scene[asset_cfg.name]
 
     return asset.data.applied_torque[:, asset_cfg.joint_ids]
+
+
+def body_height(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """
+        Get body heights related on the ground.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset: Articulation = env.scene[asset_cfg.name]
+
+    body_height = asset.data.body_link_pos_w[:, asset_cfg.body_ids, 2].squeeze(1)
+
+    return body_height

@@ -150,6 +150,10 @@ class ObservationsCfg:
             params={"asset_cfg": SceneEntityCfg("robot", body_names="right_ankle_roll_link")}
         )
         joint_torques = ObsTerm(func=mdp.joint_torques, noise=Unoise(n_min=-0.01, n_max=0.01))
+        # feet_height = ObsTerm(
+        #     func=mdp.body_height,
+        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link")}
+        # )
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()
@@ -199,7 +203,7 @@ class EventCfg:
     base_external_force_torque = EventTerm(
         func=mdp.apply_external_force_torque,
         mode="interval",
-        interval_range_s=(5.0, 15.0),
+        interval_range_s=(10.0, 30.0),
         params={
             "asset_cfg": SceneEntityCfg("robot", body_names="base"),
             "force_range": (-300.0, 300.0),
@@ -302,6 +306,7 @@ class CurriculumCfg:
     """Curriculum terms for the MDP."""
 
     terrain_levels = CurrTerm(func=mdp.terrain_levels_vel)
+    push_robot_levels = CurrTerm(func=mdp.push_robot_levels)
 
 
 ##
