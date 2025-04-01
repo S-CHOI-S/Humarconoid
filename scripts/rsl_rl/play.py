@@ -47,6 +47,9 @@ from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
 # Import extensions to set up environment tasks
 import humarconoid.tasks  # noqa: F401
 
+# For logging
+import numpy as np
+
 
 def main():
     """Play with RSL-RL agent."""
@@ -101,6 +104,10 @@ def main():
         ppo_runner.alg.actor_critic, normalizer=ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.onnx"
     )
 
+    # reset data logging buffer
+    log_file = "torque_log.npy"
+    buffer = []
+
     # reset environment
     obs, _ = env.get_observations()
     timestep = 0
@@ -113,6 +120,7 @@ def main():
             # env stepping
             obs, _, _, _ = env.step(actions)
 
+            ''' GET ROBOT/SCENE VALUES '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
             # get robot body names
             # print(f"body_names: {env.unwrapped.scene['robot'].data.body_names})
 
@@ -121,6 +129,18 @@ def main():
 
             # get robot joint names
             # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_names}")
+
+            # get robot torques
+            tau = env.unwrapped.scene['robot'].data.applied_torque[0].cpu()
+            # print(f"joint_torque: {env.unwrapped.scene['robot'].data.applied_torque}")
+
+            # data logging (.npy)
+            buffer.append(tau)
+            tau_array = np.array(buffer)
+            np.save(log_file, tau_array)
+            # print(f"Saved {len(buffer)} torque entries to {log_file}")
+
+            ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
         if args_cli.video:
             timestep += 1

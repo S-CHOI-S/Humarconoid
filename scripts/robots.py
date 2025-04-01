@@ -34,7 +34,6 @@ simulation_app = app_launcher.app
 
 """Rest everything follows."""
 
-import gymnasium as gym
 import os
 import torch
 from datetime import datetime

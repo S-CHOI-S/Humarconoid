@@ -52,18 +52,26 @@ def apply_joint_position_noise(
         noise_range (dict[str, tuple[float, float]]): Noise range dictionary for each joint.
         asset_cfg (SceneEntityCfg): Configuration for the asset (robot).
     """
-    # 로봇 객체 가져오기
     asset: Articulation = env.scene[asset_cfg.name]
 
-    # 현재 joint position 가져오기
     joint_pos = asset.data.joint_pos[env_ids].clone()
 
-    # 각 joint별 노이즈 범위 설정
     joint_pos += math_utils.sample_uniform(*noise_range, joint_pos.shape, joint_pos.device)
 
-    # 제한 범위 내로 값 조정 (클램핑)
     joint_pos_limits = asset.data.soft_joint_pos_limits[env_ids]
     joint_pos = joint_pos.clamp_(joint_pos_limits[..., 0], joint_pos_limits[..., 1])
 
-    # 변경된 joint pos를 시뮬레이션에 반영
     asset.write_joint_state_to_sim(joint_pos, asset.data.joint_vel[env_ids], env_ids=env_ids)
+
+
+def randomize_scene_friction(
+    env: ManagerBasedEnv,
+    env_ids: torch.Tensor,
+    friction_range: dict[str, tuple[float, float]],
+):
+    terrain: TerrainImporter = env.scene.terrain
+
+    rand_friction = math_utils.sample_uniform(*friction_range, (2,), torch.device)
+
+    terrain.cfg.physics_material.static_friction = rand_friction[0]
+    terrain.cfg.physics_material.dynamic_friction = rand_friction[1]

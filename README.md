@@ -18,7 +18,7 @@ This repository contains a project developed for training _**humanoid robots**_ 
 - **G1**: 29-DoF G1 robot from Unitree Robotics.
 > Also contains the 'Anymal-D' robot as an example!
 
-**Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real
+**Keywords:** humanoid, reinforcement learning, isaaclab, sim2sim, sim2real  
 **Maintainer, Author:** [Sol Choi](https://github.com/S-CHOI-S)
 
 </br>
@@ -30,7 +30,7 @@ This repository contains a project developed for training _**humanoid robots**_ 
 git clone https://github.com/S-CHOI-S/Humarconoid.git
 ```
 
-**Step 2.** (Optional) Rename all occurrences of humarconoid (in files/directories) to your_fancy_extension_name
+**Step 2.** (Optional) Rename all occurrences of humarconoid (in files/directories) to `your_fancy_extension_name`
 ```
 python scripts/rename_template.py your_fancy_extension_name
 ```
@@ -64,11 +64,15 @@ python scripts/rsl_rl/train.py --task TASK --headless
 >[!Tip]
 > Humarconoid is compatible with `rsl_rl`, `Stable Baselines3`, as well as custom reinforcement learning algorithms.
 
+</br>
+
 ### Play
 **Step 1.** Choose your `TASK` and `LOGDIR` from your log.
 ```
 python scripts/rsl_rl/play.py --task TASK --log_dir LOGDIR --num_envs NUM_ENVS
 ```
+
+</br>
 
 ### Monitor
 You can monitor real-time training logs via TensorBoard!
