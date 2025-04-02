@@ -109,49 +109,31 @@ def push_robot_levels(
     #         "velocity_range": velocity_range
     #     }
     #     print("HERE: 1", env.episode_length_buf, env.max_episode_length / 3)
-    if env.common_step_counter > 5000:
-        cnt = 1
-        if env.common_step_counter // 5000 == 1:
-            cnt = 2
-        elif env.common_step_counter // 5000 == 2:
-            cnt = 5
-        elif env.common_step_counter // 5000 == 3:
-            cnt = 10
-        # elif env.common_step_counter // 2000 == 4:
-        #     cnt = 4
-        # elif env.common_step_counter // 2000 == 5:
-        #     cnt = 5
-        # elif env.common_step_counter // 2000 == 6:
-        #     cnt = 6
-        # elif env.common_step_counter // 2000 == 7:
-        #     cnt = 7
-        # elif env.common_step_counter // 2000 == 8:
-        #     cnt = 8
-        # elif env.common_step_counter // 2000 == 9:
-        #     cnt = 9
-        # elif env.common_step_counter // 2000 >= 10:
-        #     cnt = 10
+    cnt = 1
+    mean_ep_length = torch.mean((env.episode_length_buf > (1 * env.max_episode_length / 3)).float())
+    if mean_ep_length >= 0.5:
+        cnt = min(2.5, 1 + 0.3 * ((mean_ep_length.item() - 0.5) // 0.1))
         term_cfg.params = {
             "velocity_range": {
-                "x": (-0.2 * cnt, -0.2 * cnt),
-                "y": (-0.2 * cnt, -0.2 * cnt),
-                "z": (-0.2 * cnt, -0.2 * cnt),
+                "x": (-0.2 * cnt, 0.2 * cnt),
+                "y": (-0.2 * cnt, 0.2 * cnt),
+                "z": (-0.2 * cnt, 0.2 * cnt),
                 "roll": (-0.05 * cnt, 0.05 * cnt),
                 "pitch": (-0.05 * cnt, 0.05 * cnt),
                 "yaw": (-0.05 * cnt, 0.05 * cnt),
             }
         }
-        # print("HERE: 2", env.common_step_counter, env.max_episode_length / 3)
     else:
         term_cfg.params = {
             "velocity_range": {
-                "x": (0.0, 0.0),
-                "y": (0.0, 0.0),
-                "z": (0.0, 0.0),
-                "roll": (0.0, 0.0),
-                "pitch": (0.0, 0.0),
-                "yaw": (0.0, 0.0),
+                "x": (-0.2 * cnt, 0.2 * cnt),
+                "y": (-0.2 * cnt, 0.2 * cnt),
+                "z": (-0.2 * cnt, 0.2 * cnt),
+                "roll": (-0.05 * cnt, 0.05 * cnt),
+                "pitch": (-0.05 * cnt, 0.05 * cnt),
+                "yaw": (-0.05 * cnt, 0.05 * cnt),
             }
         }
         # print("HERE: 3", env.common_step_counter, env.max_episode_length / 3)
+    # print(f"cnt: {cnt}, {torch.mean((env.episode_length_buf > (env.max_episode_length / 4)).float())}")
     env.event_manager.set_term_cfg("push_robot", term_cfg)
