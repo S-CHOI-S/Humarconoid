@@ -65,7 +65,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         # Rewards
         self.rewards.termination_penalty.weight = -1000.0
 
-        self.rewards.track_lin_vel_xy_exp.weight = 1.25
+        self.rewards.track_lin_vel_xy_exp.weight = 1.0
         self.rewards.track_ang_vel_z_exp.weight = 1.0
         self.rewards.lin_vel_z_l2.weight = -0.2
         self.rewards.ang_vel_xy_l2.weight = -0.1
@@ -86,9 +86,9 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.2
 
-        self.rewards.joint_deviation_hip.weight = -0.5
+        self.rewards.joint_deviation_hip.weight = -0.25
         self.rewards.joint_deviation_ankle.weight = -0.1
-        self.rewards.joint_deviation_knee.weight = -0.05
+        self.rewards.joint_deviation_knee.weight = -0.01
 
         self.rewards.flat_orientation_feet = None
         # self.rewards.flat_orientation_feet.weight = 0.3
