@@ -41,3 +41,4 @@ logs/
 .flake8
 *.zip
 scripts/sse/*
+*.npy
