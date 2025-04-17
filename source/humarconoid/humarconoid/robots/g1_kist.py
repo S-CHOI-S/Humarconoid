@@ -15,7 +15,7 @@
 "* Authors: Sol Choi (Jennifer) *"
 
 import isaaclab.sim as sim_utils
-from isaaclab.actuators import ImplicitActuatorCfg
+from isaaclab.actuators import ImplicitActuatorCfg, DelayedPDActuatorCfg
 from isaaclab.assets.articulation import ArticulationCfg
 
 from humarconoid.robots import HUMARCONOID_EXT_DIR
@@ -51,7 +51,7 @@ G1_KIST_CFG = ArticulationCfg(
     ),
     soft_joint_pos_limit_factor=0.9,
     actuators={
-        "legs": ImplicitActuatorCfg(
+        "legs": DelayedPDActuatorCfg(
             joint_names_expr=[
                 ".*_hip_yaw_joint",
                 ".*_hip_roll_joint",
@@ -80,13 +80,17 @@ G1_KIST_CFG = ArticulationCfg(
                 ".*_knee_joint": 0.01,
                 # "waist_.*_joint": 0.01,
             },
+            min_delay=0,  # physics time steps (min: 2.0*0=0.0ms)
+            max_delay=4,  # physics time steps (max: 2.0*4=8.0ms)
         ),
-        "feet": ImplicitActuatorCfg(
+        "feet": DelayedPDActuatorCfg(
             effort_limit=20,
             joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
             stiffness=40.0,
             damping=2.0,
             armature=0.01,
+            min_delay=0,  # physics time steps (min: 2.0*0=0.0ms)
+            max_delay=4,  # physics time steps (max: 2.0*4=8.0ms)
         ),
         # "arms": ImplicitActuatorCfg(
         #     joint_names_expr=[

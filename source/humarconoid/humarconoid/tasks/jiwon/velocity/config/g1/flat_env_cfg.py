@@ -79,16 +79,16 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
             "robot", joint_names=["^(?!.*_knee_).*"]  # , ".*_knee_joint"]
         )
         self.rewards.action_rate_l2.weight = -0.03
-        self.rewards.feet_air_time = None
-        # self.rewards.feet_air_time.weight = 1.25
-        # self.rewards.feet_air_time.params["threshold"] = 0.4
+        # self.rewards.feet_air_time = None
+        self.rewards.feet_air_time.weight = 1.25
+        self.rewards.feet_air_time.params["threshold"] = 0.4
         self.rewards.flat_orientation_l2.weight = -1.5
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.2
 
         self.rewards.joint_deviation_hip.weight = -0.25
         self.rewards.joint_deviation_ankle.weight = -0.1
-        self.rewards.joint_deviation_knee.weight = -0.01
+        self.rewards.joint_deviation_knee.weight = -0.02
 
         self.rewards.flat_orientation_feet = None
         # self.rewards.flat_orientation_feet.weight = 0.3
@@ -124,11 +124,11 @@ class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
         # remove random pushing
         self.events.base_external_force_torque = None
         self.events.add_joint_noise = None
-        self.events.push_robot = None
-        # self.events.push_robot.params["velocity_range"] = {
-        #     "x": (-0.2, 0.2), "y": (-0.0, 0.0), "z": (-0.0, 0.0),
-        #     "roll": (-0.0, 0.0), "pitch": (-0.0, 0.0), "yaw": (-0.0, 0.0),
-        # }
+        # self.events.push_robot = None
+        self.events.push_robot.params["velocity_range"] = {
+            "x": (-0.5, 0.5), "y": (-0.0, 0.0), "z": (-0.0, 0.0),
+            "roll": (-0.0, 0.0), "pitch": (-0.0, 0.0), "yaw": (-0.0, 0.0),
+        }
         self.curriculum.push_robot_levels = None
 
         # Commands
