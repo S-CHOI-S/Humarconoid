@@ -110,7 +110,7 @@ def push_robot_levels(
     #     }
     #     print("HERE: 1", env.episode_length_buf, env.max_episode_length / 3)
     cnt = 1
-    mean_ep_length = torch.mean((env.episode_length_buf > (1 * env.max_episode_length / 3)).float())
+    mean_ep_length = torch.mean((env.episode_length_buf > (1 * env.max_episode_length / 2)).float())
     if mean_ep_length >= 0.5:
         cnt = min(2.5, 1 + 0.3 * ((mean_ep_length.item() - 0.5) // 0.1))
         term_cfg.params = {

@@ -38,10 +38,10 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
 
         self.max_iterations = 3000
         self.experiment_name = "jiwon_flat"
-        self.policy.actor_hidden_dims = [256, 256, 128]
-        self.policy.critic_hidden_dims = [256, 256, 128]
+        self.policy.actor_hidden_dims = [256, 128, 128]
+        self.policy.critic_hidden_dims = [256, 128, 128]
 
-        # self.algorithm.learning_rate = 3e-4
+        self.algorithm.learning_rate = 1e-6
 
 
 @configclass
