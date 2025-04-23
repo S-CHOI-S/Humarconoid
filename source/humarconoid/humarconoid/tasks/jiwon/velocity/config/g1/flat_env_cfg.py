@@ -79,9 +79,9 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
             "robot", joint_names=["^(?!.*_knee_).*"]  # , ".*_knee_joint"]
         )
         self.rewards.action_rate_l2.weight = -0.03
-        self.rewards.feet_air_time = None
-        # self.rewards.feet_air_time.weight = 1.25
-        # self.rewards.feet_air_time.params["threshold"] = 0.4
+        # self.rewards.feet_air_time = None
+        self.rewards.feet_air_time.weight = 1.25
+        self.rewards.feet_air_time.params["threshold"] = 0.4
         self.rewards.flat_orientation_l2.weight = -1.75
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.25
@@ -95,8 +95,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
 
         self.rewards.feet_safe_contact = None
         # self.rewards.feet_safe_contact.weight = 0.1
-        self.rewards.feet_swing_height = None
-        # self.rewards.feet_swing_height.weight = 0.0075
+        # self.rewards.feet_swing_height = None
+        self.rewards.feet_swing_height.weight = 0.0075
 
         # Curriculums
         self.curriculum.push_robot_levels.params["velocity_range"] = {
@@ -106,9 +106,9 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         }
 
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.8, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.8, 1.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
 
 
 class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):

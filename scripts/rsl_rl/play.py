@@ -105,7 +105,11 @@ def main():
     )
 
     # reset data logging buffer
-    log_file = "torque_log.npy"
+    data_dir = os.path.join(log_dir, "data")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir, exist_ok=True)
+    # create a log file for torque data
+    log_file = os.path.join(data_dir, "torque_log.npy")
     buffer = []
 
     # reset environment
