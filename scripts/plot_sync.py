@@ -34,7 +34,7 @@ fig, axs = plt.subplots(6, 2, figsize=(12, 10), sharex=True)
 lines = []
 
 for i in range(len(labels)):
-    l3, = axs[i // 2, i % 2].plot([], [], label=r'$\tau_{cur}$', linewidth=2)
+    l3, = axs[i // 2, i % 2].plot([], [], label=r'$\tau_{cur}$', linewidth=2, color='#ef7159')
     axs[i // 2, i % 2].set_ylabel(f'{labels[i]}')
     axs[i // 2, i % 2].legend()
     axs[i // 2, i % 2].grid(True)
