@@ -30,7 +30,7 @@ parser.add_argument(
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
 # append RSL-RL cli arguments
-cli_args.add_rsl_rl_args(parser)
+cli_args.add_arc_rl_args(parser)
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 args_cli = parser.parse_args()
@@ -49,7 +49,7 @@ import os
 import time
 import torch
 
-from rsl_rl.runners import OnPolicyRunner
+from humarconoid.arc_rl.runners import OnPolicyRunner
 
 from isaaclab.envs import DirectMARLEnv, multi_agent_to_single_agent
 from isaaclab.utils.assets import retrieve_file_path
@@ -66,20 +66,21 @@ from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
 # For logging
 import numpy as np
 
+
 def main():
     """Play with RSL-RL agent."""
     # parse configuration
     env_cfg = parse_env_cfg(
         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
     )
-    agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_rsl_rl_cfg(args_cli.task, args_cli)
+    agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_arc_rl_cfg(args_cli.task, args_cli)
 
     # specify directory for logging experiments
-    log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
+    log_root_path = os.path.join("logs", "arc_rl", agent_cfg.experiment_name)
     log_root_path = os.path.abspath(log_root_path)
     print(f"[INFO] Loading experiment from directory: {log_root_path}")
     if args_cli.use_pretrained_checkpoint:
-        resume_path = get_published_pretrained_checkpoint("rsl_rl", args_cli.task)
+        resume_path = get_published_pretrained_checkpoint("arc_rl", args_cli.task)
         if not resume_path:
             print("[INFO] Unfortunately a pre-trained checkpoint is currently unavailable for this task.")
             return
@@ -137,7 +138,7 @@ def main():
     )
 
     dt = env.unwrapped.step_dt
-
+    
     # reset data logging buffer
     data_dir = os.path.join(log_dir, "data")
     if not os.path.exists(data_dir):

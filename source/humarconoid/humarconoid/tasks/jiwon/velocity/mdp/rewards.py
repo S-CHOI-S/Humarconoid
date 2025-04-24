@@ -113,18 +113,18 @@ def flat_orientation_body(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
     return torch.sum(torch.square(projected_gravity), dim=1)
 
 
-def get_phase(
-    env: ManagerBasedRLEnv,
-) -> torch.Tensor:
-    period = 0.8
-    offset = 0.5
-    dt = env.cfg.decimation * env.step_dt
-    phase = (env.episode_length_buf * dt) % period / period
-    phase_left = phase
-    phase_right = (phase + offset) % 1
-    leg_phase = torch.cat([phase_left.unsqueeze(1), phase_right.unsqueeze(1)], dim=-1)
+# def get_phase(
+#     env: ManagerBasedRLEnv,
+# ) -> torch.Tensor:
+#     period = 0.8
+#     offset = 0.5
+#     dt = env.cfg.decimation * env.step_dt
+#     phase = (env.episode_length_buf * dt) % period / period
+#     phase_left = phase
+#     phase_right = (phase + offset) % 1
+#     leg_phase = torch.cat([phase_left.unsqueeze(1), phase_right.unsqueeze(1)], dim=-1)
 
-    return leg_phase
+#     return leg_phase
 
 
 # def reward_contact(
@@ -296,7 +296,7 @@ def feet_air_time_balanced_positive_biped(
     # get reward
     reward = torch.min(
         torch.where(
-            single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1),  #  & contact_time_balance.unsqueeze(-1)
+            single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1) & contact_time_balance.unsqueeze(-1),
             in_mode_time,
             0.0,
         ),
@@ -336,3 +336,25 @@ def flat_orientation_feet(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
     reward = 1.0 / (1.0 + penalty_11 + penalty_12)
 
     return reward
+
+
+def symmetric_gait_phase(
+    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg
+) -> torch.Tensor:
+
+    """Get gait phase of the robot.
+    This function computes the gait phase of the robot based on the current episode length and the
+    specified period and offset. The gait phase is represented as a tensor with two columns,
+    representing the left and right leg phases, respectively.
+    """
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+
+    # current step
+    air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
+    contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+
+    gait_phase = env.observation_manager._obs_buffer["critic"][:, -2:]
+    # print(f"{RESET}gait_phase: {gait_phase}")
+
+
+    return torch.zeros(env.num_envs, device=env.device)

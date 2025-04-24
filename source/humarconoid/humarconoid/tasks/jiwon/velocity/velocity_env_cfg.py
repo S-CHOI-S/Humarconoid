@@ -150,10 +150,7 @@ class ObservationsCfg:
             params={"asset_cfg": SceneEntityCfg("robot", body_names="right_ankle_roll_link")}
         )
         joint_torques = ObsTerm(func=mdp.joint_torques, noise=Unoise(n_min=-0.01, n_max=0.01))
-        # feet_height = ObsTerm(
-        #     func=mdp.body_height,
-        #     params={"asset_cfg": SceneEntityCfg("robot", body_names=".*_ankle_roll_link")}
-        # )
+        # gait_phase = ObsTerm(func=mdp.gait_phase)
 
     # observation groups
     policy: PolicyCfg = PolicyCfg()

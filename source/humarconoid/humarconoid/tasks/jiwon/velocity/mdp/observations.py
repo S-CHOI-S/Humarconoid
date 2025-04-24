@@ -10,6 +10,7 @@ from isaaclab.managers.manager_base import ManagerTermBase
 from isaaclab.managers.manager_term_cfg import ObservationTermCfg
 from isaaclab.sensors import Camera, Imu, RayCaster, RayCasterCamera, TiledCamera
 
+import math
 from humarcscripts.color_code import *
 
 if TYPE_CHECKING:
@@ -59,3 +60,22 @@ def body_height(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityC
     body_height = asset.data.body_link_pos_w[:, asset_cfg.body_ids, 2].squeeze(1)
 
     return body_height
+
+
+def gait_phase(env: ManagerBasedRLEnv, period: float = 0.8,
+               asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """
+        Get gait phase of the robot.
+    """
+    if hasattr(env, "episode_length_buf"):
+        time = env.episode_length_buf * env.step_dt
+    else:
+        time = torch.zeros(env.num_envs, device=env.device)
+    phase = time % period / period
+
+    sin_phase = torch.sin(phase * 2 * math.pi)
+    cos_phase = torch.cos(phase * 2 * math.pi)
+
+    gait_phase = torch.stack([sin_phase, cos_phase], dim=-1)
+
+    return gait_phase

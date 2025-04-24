@@ -132,6 +132,11 @@ class JiwonRewards(RewardsCfg):
         },
     )
 
+    # symmetric_gait_phase = RewTerm(
+    #     func=mdp.symmetric_gait_phase,
+    #     weight=0.1,
+    # )
+
 
 @configclass
 class TerminationsCfg:
