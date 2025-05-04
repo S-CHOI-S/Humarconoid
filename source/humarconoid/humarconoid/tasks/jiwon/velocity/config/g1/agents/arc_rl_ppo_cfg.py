@@ -44,7 +44,8 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
         self.policy.critic_hidden_dims = [256, 128, 128]
 
         self.policy.init_noise_std = 0.2
-        self.algorithm.actor_learning_rate = 1e-7
+        self.algorithm.actor_learning_rate = 1.0e-7
+        self.algorithm.critic_learning_rate = 1.0e-4
 
 
 @configclass

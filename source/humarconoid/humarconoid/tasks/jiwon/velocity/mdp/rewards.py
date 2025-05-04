@@ -356,13 +356,26 @@ def symmetric_gait_phase(
     reward = torch.zeros(env.num_envs, device=env.device)
 
     gait_phase = env.observation_manager._obs_buffer["critic"][:, -2:]
+    both_phase_stance = (gait_phase[:, 0] < 0.55) & (gait_phase[:, 1] < 0.55)
 
     for i in range(2):  # left and right leg
         is_stance = gait_phase[:, i] < 0.55
-        contact = (net_forces_w[:, i, 2]) > 10 & (net_forces_w[:, i, 2] < 250)
+        force = net_forces_w[:, i, 2]
+        contact = (force > 10) & (force < 250)
         reward += ~(contact ^ is_stance)
     # print(f"contact force: {net_forces_w[0, 0, 2]}, {net_forces_w[0, 1, 2]}")
-    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
+
+    is_stationary = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) <= 0.2
+    force_left = net_forces_w[:, 0, 2]
+    force_right = net_forces_w[:, 1, 2]
+
+    contact_left = (force_left > 10.0) & (force_left < 250.0)
+    contact_right = (force_right > 10.0) & (force_right < 250.0)
+    both_feet_contact = contact_left & contact_right
+
+    reward *= torch.where(~is_stationary, 1, 0)
+
+    reward += (is_stationary & both_phase_stance & both_feet_contact).float() * 0.12
 
     return reward
 

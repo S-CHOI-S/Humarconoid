@@ -81,8 +81,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.action_rate_l2.weight = -0.075
         # self.rewards.feet_air_time = None
         self.rewards.feet_air_time.weight = 0.75
-        self.rewards.feet_air_time.params["threshold"] = 0.3
-        self.rewards.flat_orientation_l2.weight = -2.0
+        self.rewards.feet_air_time.params["threshold"] = 0.2
+        self.rewards.flat_orientation_l2.weight = -2.25
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.25
 
@@ -99,7 +99,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.feet_swing_height.weight = 0.01
         self.rewards.symmetric_gait_phase.weight = 0.25
 
-        self.rewards.undesired_pairwise_contact.weight = -1.0
+        self.rewards.undesired_pairwise_contact = None
 
         # Curriculums
         # self.curriculum.command_velocity_levels.params
