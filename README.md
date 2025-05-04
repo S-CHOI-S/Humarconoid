@@ -27,7 +27,7 @@ This repository contains a project developed for training _**humanoid robots**_ 
 
 **Step 1.** Clone this git repository
 ```
-git clone https://github.com/S-CHOI-S/Humarconoid.git
+git clone --recursive https://github.com/S-CHOI-S/Humarconoid.git
 ```
 
 **Step 2.** (Optional) Rename all occurrences of humarconoid (in files/directories) to `your_fancy_extension_name`
