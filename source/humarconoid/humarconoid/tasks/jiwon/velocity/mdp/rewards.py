@@ -178,7 +178,7 @@ def reward_feet_swing_height(
     reward[right_air_indices[right_mask]] += torch.norm(right_filtered_positions[right_mask] - 0.08)
 
     # contact = torch.norm(self.contact_forces[:, self.feet_indices, :3], dim=2) > 1.
-    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
 
     return reward
 
@@ -296,7 +296,7 @@ def feet_air_time_balanced_positive_biped(
     # get reward
     reward = torch.min(
         torch.where(
-            single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1) & contact_time_balance.unsqueeze(-1),
+            single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1),  # & contact_time_balance.unsqueeze(-1),
             in_mode_time,
             0.0,
         ),
@@ -304,11 +304,11 @@ def feet_air_time_balanced_positive_biped(
     )[0]
     reward = torch.clamp(reward, max=threshold)
 
-    reward += torch.where(contact_time_balance, 0.1, 0)
+    # reward += torch.where(contact_time_balance, 0.1, 0)
 
     # no reward for zero command
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
 
     return reward
 
@@ -339,7 +339,7 @@ def flat_orientation_feet(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
 
 
 def symmetric_gait_phase(
-    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg
+    env: ManagerBasedRLEnv, command_name: str, sensor_cfg: SceneEntityCfg
 ) -> torch.Tensor:
 
     """Get gait phase of the robot.
@@ -350,11 +350,47 @@ def symmetric_gait_phase(
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
 
     # current step
-    air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
-    contact_time = contact_sensor.data.current_contact_time[:, sensor_cfg.body_ids]
+    # air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
+    net_forces_w = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids]
+
+    reward = torch.zeros(env.num_envs, device=env.device)
 
     gait_phase = env.observation_manager._obs_buffer["critic"][:, -2:]
-    # print(f"{RESET}gait_phase: {gait_phase}")
+
+    for i in range(2):  # left and right leg
+        is_stance = gait_phase[:, i] < 0.55
+        contact = (net_forces_w[:, i, 2]) > 10 & (net_forces_w[:, i, 2] < 250)
+        reward += ~(contact ^ is_stance)
+    # print(f"contact force: {net_forces_w[0, 0, 2]}, {net_forces_w[0, 1, 2]}")
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
+
+    return reward
 
 
-    return torch.zeros(env.num_envs, device=env.device)
+def undesired_pairwise_contact(
+    env: ManagerBasedRLEnv, threshold: float, sensor_cfg: SceneEntityCfg,
+) -> torch.Tensor:
+    """Return 1 if bodyA and bodyB are in contact in each env, 0 otherwise."""
+    contact_sensor = env.scene.sensors[sensor_cfg.name]
+
+    force_matrix = contact_sensor.data.force_matrix_w  # shape: (N, B, M, 3)
+
+    # torch.set_printoptions(threshold=float('inf'))
+    # # print("All sensor body IDs:", sensor_cfg.body_ids)
+    # print("**********" * 5)
+    # print("force matrix:\n", force_matrix[0].shape)  # pairwise_force_matrix[0]
+    # print("force matrix:\n", force_matrix[0])
+    # print(contact_sensor.cfg.__str__())
+    # for name, sensor in env.scene.sensors.items():
+    #     print(f"[Sensor] Name: {name}, Type: {type(sensor)}, Bodies: {sensor.body_names}")
+
+    # print("Sensor bodies:", contact_sensor.data.entity_links_names)  # B
+    # print("Contact targets:", contact_sensor.data.filter_prim_paths_expr_resolved)  # M
+
+    # torch.set_printoptions(profile="default")
+
+    # contact_force = torch.norm(force_matrix[:, sensor_cfg.body_ids[0], sensor_cfg.body_ids[1]], dim=-1)
+    # is_contact = contact_force > threshold
+
+    # 보통 reward에선 페널티로 -1 곱하거나, 단순 binary 반환
+    return torch.zeros(env.num_envs, device=env.device)  # is_contact.float()  # 또는 -is_contact.float() for penalty

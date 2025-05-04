@@ -20,7 +20,7 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 
-from humarconoid import HUMARCONOID_ROOT_DIR
+# from humarconoid import HUMARCONOID_ROOT_DIR
 from humarcscripts.color_code import *
 
 
@@ -46,7 +46,7 @@ def main():
     args = parser.parse_args()
 
     task_folder = task_to_folder(args.task)
-    run_dir_base = os.path.join(HUMARCONOID_ROOT_DIR, "logs", "rsl_rl", task_folder)
+    run_dir_base = os.path.join("../logs", "arc_rl", task_folder)
     if args.load_run is None:
         args.load_run = get_latest_run(run_dir_base)
 

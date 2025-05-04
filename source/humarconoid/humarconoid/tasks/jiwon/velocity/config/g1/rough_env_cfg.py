@@ -1,6 +1,7 @@
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.managers import TerminationTermCfg as DoneTerm
+from isaaclab.sensors import ContactSensorCfg
 from isaaclab.utils import configclass
 
 import humarconoid.tasks.jiwon.velocity.mdp as mdp
@@ -9,7 +10,17 @@ import humarconoid.tasks.jiwon.velocity.mdp as mdp
 # Pre-defined configs
 ##
 from humarconoid.robots import G1_KIST_CFG
-from humarconoid.tasks.jiwon.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
+from humarconoid.tasks.jiwon.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg, MySceneCfg
+
+
+@configclass
+class JiwonScenes(MySceneCfg):
+    contact_feet = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/left_ankle_roll_link",
+                                    filter_prim_paths_expr=["{ENV_REGEX_NS}/Robot/right_ankle_roll_link"],
+                                    history_length=3, track_air_time=True, force_threshold=0.0)
+    # contact_knee = ContactSensorCfg(prim_path="{ENV_REGEX_NS}/Robot/left_knee_link",
+    #                                 filter_prim_paths_expr=["{ENV_REGEX_NS}/Robot/right_knee_link"],
+    #                                 history_length=3, track_air_time=True, force_threshold=0.0)
 
 
 @configclass
@@ -132,10 +143,23 @@ class JiwonRewards(RewardsCfg):
         },
     )
 
-    # symmetric_gait_phase = RewTerm(
-    #     func=mdp.symmetric_gait_phase,
-    #     weight=0.1,
-    # )
+    symmetric_gait_phase = RewTerm(
+        func=mdp.symmetric_gait_phase,
+        weight=0.1,
+        params={
+            "command_name": "base_velocity",
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_ankle_roll_link"),
+        },
+    )
+
+    undesired_pairwise_contact = RewTerm(
+        func=mdp.undesired_pairwise_contact,
+        weight=-1.0,
+        params={
+            "sensor_cfg": SceneEntityCfg("contact_feet"),
+            "threshold": 0.5,
+        },
+    )
 
 
 @configclass
@@ -154,6 +178,7 @@ class TerminationsCfg:
 
 @configclass
 class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+    scene: JiwonScenes = JiwonScenes(num_envs=4096, env_spacing=2.5)
     rewards: JiwonRewards = JiwonRewards()
     terminations: TerminationsCfg = TerminationsCfg()
 
@@ -162,7 +187,10 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         super().__post_init__()
         # Scene
         self.scene.robot = G1_KIST_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
+        self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/pelvis"
+
+        if self.scene.contact_feet is not None:
+            self.scene.contact_feet.update_period = self.sim.dt
 
         # Randomization
         # self.events.push_robot = None

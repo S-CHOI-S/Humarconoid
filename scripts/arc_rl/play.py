@@ -49,7 +49,7 @@ import os
 import time
 import torch
 
-from humarconoid.arc_rl.runners import OnPolicyRunner
+from arc_rl.runners import OnPolicyRunner
 
 from isaaclab.envs import DirectMARLEnv, multi_agent_to_single_agent
 from isaaclab.utils.assets import retrieve_file_path

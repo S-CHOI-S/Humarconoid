@@ -13,7 +13,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.JiwonFlatEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
     },
 )
 
@@ -24,7 +24,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": flat_env_cfg.JiwonFlatEnvCfg_PLAY,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonFlatPPORunnerCfg",
     },
 )
 
@@ -35,7 +35,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.JiwonRoughEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
     },
 )
 
@@ -46,7 +46,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.JiwonRoughEnvCfg_PLAY,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonRoughPPORunnerCfg",
     },
 )
 
@@ -57,7 +57,7 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonArmPPORunnerCfg",
     },
 )
 
@@ -68,6 +68,6 @@ gym.register(
     kwargs={
         "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg_PLAY,
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonArmPPORunnerCfg",
     },
 )

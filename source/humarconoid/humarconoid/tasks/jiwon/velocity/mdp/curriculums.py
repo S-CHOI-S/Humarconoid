@@ -96,7 +96,6 @@ def modify_event_interval(
 def push_robot_levels(
     env: ManagerBasedRLEnv,
     env_ids: Sequence[int],
-    velocity_range: dict[str, tuple[float, float]],
     # episode_length: int,
     # asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ):
@@ -137,3 +136,22 @@ def push_robot_levels(
         # print("HERE: 3", env.common_step_counter, env.max_episode_length / 3)
     # print(f"cnt: {cnt}, {torch.mean((env.episode_length_buf > (env.max_episode_length / 4)).float())}")
     env.event_manager.set_term_cfg("push_robot", term_cfg)
+
+
+def command_velocity_levels(
+    env: ManagerBasedRLEnv,
+    env_ids: Sequence[int],
+    # episode_length: int,
+    # asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+):
+    # obtain term settings
+    cmd_vel = env.command_manager._terms["base_velocity"]
+
+    if env.common_step_counter < 3000:
+        # print(f"HERE: {env.common_step_counter} < 10000")
+        # update term settings
+        for i in range(3):
+            cmd_vel.vel_command_b[:, i] = 0
+        # cmd_vel._update_command()
+
+    # print(f"command_velocity: {cmd_vel.command[0]}")

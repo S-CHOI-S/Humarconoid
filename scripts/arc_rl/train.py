@@ -52,21 +52,6 @@ import platform
 
 from packaging import version
 
-# for distributed training, check minimum supported rsl-rl version
-RSL_RL_VERSION = "2.3.1"
-installed_version = metadata.version("rsl-rl-lib")
-if args_cli.distributed and version.parse(installed_version) < version.parse(RSL_RL_VERSION):
-    if platform.system() == "Windows":
-        cmd = [r".\isaaclab.bat", "-p", "-m", "pip", "install", f"rsl-rl-lib=={RSL_RL_VERSION}"]
-    else:
-        cmd = ["./isaaclab.sh", "-p", "-m", "pip", "install", f"rsl-rl-lib=={RSL_RL_VERSION}"]
-    print(
-        f"Please install the correct version of RSL-RL.\nExisting version is: '{installed_version}'"
-        f" and required version is: '{RSL_RL_VERSION}'.\nTo install the correct version, run:"
-        f"\n\n\t{' '.join(cmd)}\n"
-    )
-    exit(1)
-
 """Rest everything follows."""
 
 import gymnasium as gym
@@ -74,7 +59,7 @@ import os
 import torch
 from datetime import datetime
 
-from humarconoid.arc_rl.runners import OnPolicyRunner
+from arc_rl.runners import OnPolicyRunner
 
 from isaaclab.envs import (
     DirectMARLEnv,
