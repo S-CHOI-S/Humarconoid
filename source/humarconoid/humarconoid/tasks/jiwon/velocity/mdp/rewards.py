@@ -172,10 +172,11 @@ def reward_feet_swing_height(
     # print("left_filtered_positions shape:", left_filtered_positions.shape)
     # print("left_filtered_positions[left_mask] shape:", left_filtered_positions[left_mask].shape)
 
-    reward[left_air_indices[left_mask]] += torch.norm(left_filtered_positions[left_mask] - 0.08)
+    reward[left_air_indices[left_mask]] += torch.norm(left_filtered_positions[left_mask] - 0.20)
+    # print(left_filtered_positions[left_mask])
 
     right_mask = torch.isin(right_air_indices, only_one_air_indices)
-    reward[right_air_indices[right_mask]] += torch.norm(right_filtered_positions[right_mask] - 0.08)
+    reward[right_air_indices[right_mask]] += torch.norm(right_filtered_positions[right_mask] - 0.20)
 
     # contact = torch.norm(self.contact_forces[:, self.feet_indices, :3], dim=2) > 1.
     reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
@@ -304,7 +305,7 @@ def feet_air_time_balanced_positive_biped(
     )[0]
     reward = torch.clamp(reward, max=threshold)
 
-    # reward += torch.where(contact_time_balance, 0.1, 0)
+    reward += torch.where(contact_time_balance, 0.1, 0)
 
     # no reward for zero command
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
@@ -361,7 +362,7 @@ def symmetric_gait_phase(
     for i in range(2):  # left and right leg
         is_stance = gait_phase[:, i] < 0.55
         force = net_forces_w[:, i, 2]
-        contact = (force > 10) & (force < 250)
+        contact = (force > 10) & (force < 200)
         reward += ~(contact ^ is_stance)
     # print(f"contact force: {net_forces_w[0, 0, 2]}, {net_forces_w[0, 1, 2]}")
 
@@ -369,8 +370,8 @@ def symmetric_gait_phase(
     force_left = net_forces_w[:, 0, 2]
     force_right = net_forces_w[:, 1, 2]
 
-    contact_left = (force_left > 10.0) & (force_left < 250.0)
-    contact_right = (force_right > 10.0) & (force_right < 250.0)
+    contact_left = (force_left > 10.0) & (force_left < 200.0)
+    contact_right = (force_right > 10.0) & (force_right < 200.0)
     both_feet_contact = contact_left & contact_right
 
     reward *= torch.where(~is_stationary, 1, 0)

@@ -32,6 +32,10 @@ class JiwonRoughPPORunnerCfg(ArcRlOnPolicyRunnerCfg):
         max_grad_norm=1.0,
     )
 
+    policy.init_noise_std = 0.2
+    algorithm.actor_learning_rate = 1.0e-5
+    algorithm.critic_learning_rate = 1.0e-3  # 5.0e-4
+
 
 @configclass
 class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
@@ -45,7 +49,7 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
 
         self.policy.init_noise_std = 0.2
         self.algorithm.actor_learning_rate = 1.0e-7
-        self.algorithm.critic_learning_rate = 1.0e-4
+        self.algorithm.critic_learning_rate = 1.0e-3  # 5.0e-4
 
 
 @configclass

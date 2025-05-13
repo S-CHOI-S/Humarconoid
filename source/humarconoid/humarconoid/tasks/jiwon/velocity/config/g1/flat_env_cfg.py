@@ -59,16 +59,17 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.observations.policy.joint_pos.noise = Unoise(n_min=-0.02, n_max=0.02)
         ## critic
         self.observations.critic.height_scan = None
+        self.observations.critic.gait_phase = None
 
         # self.actions.joint_pos.joint_names = ["^(?!.*_ankle_roll_).*"]
 
         # Rewards
         self.rewards.termination_penalty.weight = -1000.0
 
-        self.rewards.track_lin_vel_xy_exp.weight = 1.5
-        self.rewards.track_ang_vel_z_exp.weight = 1.0
-        self.rewards.lin_vel_z_l2.weight = -0.2
-        self.rewards.ang_vel_xy_l2.weight = -0.1
+        self.rewards.track_lin_vel_xy_exp.weight = 1.75
+        self.rewards.track_ang_vel_z_exp.weight = 1.25
+        self.rewards.lin_vel_z_l2.weight = -0.5
+        self.rewards.ang_vel_xy_l2.weight = -0.5
         self.rewards.dof_torques_l2 = None
         # self.rewards.dof_torques_l2.weight = -4.0e-6
         # self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
@@ -81,12 +82,12 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.action_rate_l2.weight = -0.075
         # self.rewards.feet_air_time = None
         self.rewards.feet_air_time.weight = 0.75
-        self.rewards.feet_air_time.params["threshold"] = 0.2
-        self.rewards.flat_orientation_l2.weight = -2.25
+        self.rewards.feet_air_time.params["threshold"] = 0.3
+        self.rewards.flat_orientation_l2.weight = -3.0
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.25
 
-        self.rewards.joint_deviation_hip.weight = -0.2
+        self.rewards.joint_deviation_hip.weight = -0.5
         self.rewards.joint_deviation_ankle.weight = -0.5
         self.rewards.joint_deviation_knee.weight = -0.02
 
@@ -96,8 +97,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.feet_safe_contact = None
         # self.rewards.feet_safe_contact.weight = 0.1
         # self.rewards.feet_swing_height = None
-        self.rewards.feet_swing_height.weight = 0.01
-        self.rewards.symmetric_gait_phase.weight = 0.25
+        self.rewards.feet_swing_height.weight = 0.0075
+        self.rewards.symmetric_gait_phase.weight = 0.0  # 0.25
 
         self.rewards.undesired_pairwise_contact = None
 
@@ -106,7 +107,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
 
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (-0.8, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.8, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
 
 

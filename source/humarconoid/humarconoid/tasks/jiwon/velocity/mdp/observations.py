@@ -62,7 +62,7 @@ def body_height(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityC
     return body_height
 
 
-def gait_phase(env: ManagerBasedRLEnv, period: float = 2.5,
+def gait_phase(env: ManagerBasedRLEnv, period: float = 2.0,
                asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """
         Get gait phase of the robot.
@@ -82,5 +82,7 @@ def gait_phase(env: ManagerBasedRLEnv, period: float = 2.5,
     gait_phase = torch.stack([sin_phase, cos_phase], dim=-1)
 
     gait_phase[~is_moving] = 0.0
+
+    # print(f"{YELLOW}gait_phase: {gait_phase[0]}{RESET}")
 
     return gait_phase
