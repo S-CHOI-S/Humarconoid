@@ -356,7 +356,7 @@ def symmetric_gait_phase(
 
     reward = torch.zeros(env.num_envs, device=env.device)
 
-    gait_phase = env.observation_manager._obs_buffer["critic"][:, -2:]
+    gait_phase = env.observation_manager._obs_buffer["policy"][:, -2:]
     both_phase_stance = (gait_phase[:, 0] < 0.55) & (gait_phase[:, 1] < 0.55)
 
     for i in range(2):  # left and right leg

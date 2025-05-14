@@ -276,9 +276,9 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.curriculum.command_velocity_levels.params
 
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.3, 0.3)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
 
 
 @configclass
