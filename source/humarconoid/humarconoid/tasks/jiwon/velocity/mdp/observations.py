@@ -62,10 +62,13 @@ def body_height(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = SceneEntityC
     return body_height
 
 
-def gait_phase(env: ManagerBasedRLEnv, period: float = 2.0,
+def gait_phase(env: ManagerBasedRLEnv, stride_a: float = 20.0e-7, stride_b: float = 2.4,
                asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """
-        Get gait phase of the robot.
+    Computes the gait phase using speed-dependent stride length:
+        L(v) = a + b * v
+        period = L / v
+    Returns sin/cos encoded phase.
     """
     if hasattr(env, "episode_length_buf"):
         time = env.episode_length_buf * env.step_dt
@@ -73,16 +76,37 @@ def gait_phase(env: ManagerBasedRLEnv, period: float = 2.0,
         time = torch.zeros(env.num_envs, device=env.device)
 
     command_vel = env.command_manager.get_command("base_velocity")[:, :2]
-    is_moving = torch.norm(command_vel, dim=1) > 0.2
+    speed = torch.norm(command_vel, dim=1)
 
-    phase = time % period / period
+    is_moving = speed > 0.1
+
+    # 1. 속도 기반 stride length 계산
+    stride_length = stride_a + stride_b * speed  # shape: [num_envs]
+    stride_length *= 1.0  # scale stride length
+
+    # 2. 주기 계산: T = L / v
+    eps = 1e-7
+    period = stride_length / (speed + eps)
+
+    phase = (time % period) / period
     sin_phase = torch.sin(phase * 2 * math.pi)
     cos_phase = torch.cos(phase * 2 * math.pi)
-
     gait_phase = torch.stack([sin_phase, cos_phase], dim=-1)
 
     gait_phase[~is_moving] = 0.0
 
-    # print(f"{YELLOW}gait_phase: {gait_phase[0]}{RESET}")
+    # left_phase = phase
+    # right_phase = (phase + 0.5) % 1
+
+    # if left_phase[0] >= 0.53 and right_phase[0] < 0.53:
+    #     print(f"{YELLOW}gait_phase: \n{RESET} {RED}swing, {GREEN}stance")
+    # if left_phase[0] >= 0.53 and right_phase[0] >= 0.53:
+    #     print(f"{YELLOW}gait_phase: \n{RESET} {RED}swing, {RED}swing")
+    # if left_phase[0] < 0.53 and right_phase[0] >= 0.53:
+    #     print(f"{YELLOW}gait_phase: \n{RESET}{GREEN}stance, {RED}swing")
+    # if left_phase[0] < 0.53 and right_phase[0] < 0.53:
+    #     print(f"{YELLOW}gait_phase: \n{RESET}{GREEN}stance, {GREEN}stance")
+
+    # print(f"{YELLOW}gait_phase: \n{RESET}{}")
 
     return gait_phase

@@ -1,5 +1,5 @@
 from isaaclab.utils import configclass
-from arc_rl.utils import ArcRlOnPolicyRunnerCfg, ArcRlPpoActorCriticCfg, ArcRlAppoAlgorithmCfg
+from arc_rl.utils import ArcRlOnPolicyRunnerCfg, ArcRlPpoActorCriticCfg, ArcRlAppoAlgorithmCfg, ArcRlSymmetryCfg, ArcRlAuxiliaryCfg
 
 
 @configclass
@@ -47,9 +47,24 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
         self.policy.actor_hidden_dims = [256, 128, 128]
         self.policy.critic_hidden_dims = [256, 128, 128]
 
-        self.policy.init_noise_std = 0.2
-        self.algorithm.actor_learning_rate = 1.0e-7
+        self.policy.init_noise_std = 0.4
+        self.algorithm.actor_learning_rate = 1.0e-4
         self.algorithm.critic_learning_rate = 1.0e-3  # 5.0e-4
+
+        # Auxiliary
+        # self.algorithm.auxiliary_cfg = ArcRlAuxiliaryCfg(
+        #     input_dim=50,
+        #     output_dim=3,
+        #     hidden_dims=[32, 32],
+        # )
+
+        # Symmetry
+        # self.algorithm.symmetry_cfg = ArcRlSymmetryCfg(
+        #     use_mirror_loss=True,
+        #     mirror_loss_coeff=0.5,  # 추천: 0.2 ~ 1.0 사이
+        #     use_data_augmentation=False,
+        #     data_augmentation_func=your_symmetry_fn
+        # )
 
 
 @configclass

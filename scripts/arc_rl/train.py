@@ -21,6 +21,7 @@ parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
 parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
 parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
 parser.add_argument("--video_interval", type=int, default=2000, help="Interval between video recordings (in steps).")
+parser.add_argument("--video_interval_ep", type=int, default=100, help="Record video every N training episodes.")
 parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default=None, help="Name of the task.")
 parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
@@ -137,7 +138,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if args_cli.video:
         video_kwargs = {
             "video_folder": os.path.join(log_dir, "videos", "train"),
-            "step_trigger": lambda step: step % args_cli.video_interval == 0,
+            # "step_trigger": lambda step: step % args_cli.video_interval == 0,  # iter for step
+            "episode_trigger": lambda episode: episode % args_cli.video_interval_ep == 0,  # iter for episode
             "video_length": args_cli.video_length,
             "disable_logger": True,
         }

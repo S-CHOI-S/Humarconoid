@@ -79,10 +79,10 @@ class JiwonRewards(RewardsCfg):
         weight=-0.01,
         params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_knee_.*"])},
     )
-    flat_orientation_feet = RewTerm(
-        func=mdp.flat_orientation_feet,
-        weight=1.0,
-    )
+    # flat_orientation_feet = RewTerm(
+    #     func=mdp.flat_orientation_feet,
+    #     weight=1.0,
+    # )
 
     # joint_deviation_arms = RewTerm(
     #     func=mdp.joint_deviation_l1,
@@ -127,22 +127,20 @@ class JiwonRewards(RewardsCfg):
 
     # flat_orientation_body = RewTerm(func=mdp.flat_orientation_body, weight=0.0)
 
-    feet_safe_contact = RewTerm(
-        func=mdp.feet_safe_contact,
-        weight=0.1,
-        params={
-            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
-            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
-        },
-    )
+    # feet_safe_contact = RewTerm(
+    #     func=mdp.feet_safe_contact,
+    #     weight=0.1,
+    #     params={
+    #         "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
+    #         "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
+    #     },
+    # )
 
     feet_swing_height = RewTerm(
         func=mdp.reward_feet_swing_height,
         weight=0.1,
         params={
             "command_name": "base_velocity",
-            "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="left_ankle_roll_link"),
-            "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="right_ankle_roll_link"),
         },
     )
 
@@ -155,14 +153,22 @@ class JiwonRewards(RewardsCfg):
         },
     )
 
-    undesired_pairwise_contact = RewTerm(
-        func=mdp.undesired_pairwise_contact,
-        weight=-1.0,
+    symmetric_leg_phase = RewTerm(
+        func=mdp.symmetric_leg_phase,
+        weight=0.2,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_feet"),
-            "threshold": 0.5,
+            "command_name": "base_velocity",
         },
     )
+
+    # undesired_pairwise_contact = RewTerm(
+    #     func=mdp.undesired_pairwise_contact,
+    #     weight=-1.0,
+    #     params={
+    #         "sensor_cfg": SceneEntityCfg("contact_feet"),
+    #         "threshold": 0.5,
+    #     },
+    # )
 
 
 @configclass
@@ -223,7 +229,7 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # Observations
         ## policy
         self.observations.policy.height_scan = None
-        self.observations.policy.base_lin_vel = None
+        # self.observations.policy.base_lin_vel = None
         self.observations.policy.joint_pos.noise = Unoise(n_min=-0.02, n_max=0.02)
         ## critic
         self.observations.critic.height_scan = None
@@ -260,16 +266,16 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.joint_deviation_ankle.weight = -0.5
         self.rewards.joint_deviation_knee.weight = -0.01
 
-        self.rewards.flat_orientation_feet = None
+        # self.rewards.flat_orientation_feet = None
         # self.rewards.flat_orientation_feet.weight = 0.3
 
-        self.rewards.feet_safe_contact = None
+        # self.rewards.feet_safe_contact = None
         # self.rewards.feet_safe_contact.weight = 0.1
         # self.rewards.feet_swing_height = None
         self.rewards.feet_swing_height.weight = 0.0075
         self.rewards.symmetric_gait_phase.weight = 0.0  # 0.25
 
-        self.rewards.undesired_pairwise_contact = None
+        # self.rewards.undesired_pairwise_contact = None
         self.curriculum.command_velocity_levels = None
 
         # Curriculums

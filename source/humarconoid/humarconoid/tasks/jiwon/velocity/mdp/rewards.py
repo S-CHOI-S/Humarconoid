@@ -10,6 +10,7 @@ from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedRLEnv
 
+import math
 from humarcscripts.color_code import *
 
 
@@ -85,9 +86,9 @@ def track_lin_vel_xy_yaw_frame_exp(
     lin_vel_error = torch.sum(
         torch.square(env.command_manager.get_command(command_name)[:, :2] - vel_yaw[:, :2]), dim=1
     )
-    # print(f"velocity command: {env.command_manager.get_command(command_name)[:, :2]}")
-    # print(f"root lin vel: {asset.data.root_lin_vel_b[:, :2]}")
-    # print(f"track_lin_vel: {torch.exp(-lin_vel_error / std**2)}")
+    # print(f"velocity command: {env.command_manager.get_command(command_name)[0, :2]}")
+    # print(f"root lin vel: {asset.data.root_lin_vel_b[0, :2]}")
+    # print(f"track_lin_vel: {torch.exp(-2 * lin_vel_error[0] / std**2)}")
     return torch.exp(-2 * lin_vel_error / std**2)
 
 
@@ -133,7 +134,7 @@ def flat_orientation_body(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
 #     res = torch.zeros(env.num_envs, dtype=torch.float32)
 #     leg_phase = get_phase(env)
 #     for i in range(self.feet_num):
-#         is_stance = leg_phase[:, i] < 0.55
+#         is_stance = leg_phase[:, i] < 0.53
 
 #         # contact = self.contact_forces[:, self.feet_indices[i], 2] > 1
 #         res += ~(contact ^ is_stance)
@@ -143,43 +144,51 @@ def flat_orientation_body(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
 def reward_feet_swing_height(
     env: ManagerBasedRLEnv,
     command_name: str,
-    sensor_cfg1: SceneEntityCfg,
-    sensor_cfg2: SceneEntityCfg,
     asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
 ) -> torch.Tensor:
     asset = env.scene[asset_cfg.name]
 
-    contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
-    left_feet_contact = contact_sensor1.data.current_air_time[:, sensor_cfg1.body_ids]
-    contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
-    right_feet_contact = contact_sensor2.data.current_air_time[:, sensor_cfg2.body_ids]
+    # contact_sensor1: ContactSensor = env.scene.sensors[sensor_cfg1.name]
+    # left_feet_air = contact_sensor1.data.current_air_time[:, 25]
+    # contact_sensor2: ContactSensor = env.scene.sensors[sensor_cfg2.name]
+    # right_feet_air = contact_sensor2.data.current_air_time[:, 26]
 
-    left_air = left_feet_contact > 0
-    right_air = right_feet_contact > 0
-    only_one_air = left_air ^ right_air
+    # left_air = left_feet_air > 0
+    # right_air = right_feet_air > 0
+    # only_one_air = left_air ^ right_air
 
-    left_air_indices = torch.nonzero(left_air, as_tuple=True)[0]
-    right_air_indices = torch.nonzero(right_air, as_tuple=True)[0]
-    only_one_air_indices = torch.nonzero(only_one_air, as_tuple=True)[0]
+    # left_air_indices = torch.nonzero(left_feet_air, as_tuple=True)[0]
+    # right_air_indices = torch.nonzero(right_feet_air, as_tuple=True)[0]
+    # only_one_air_indices = torch.nonzero(only_one_air, as_tuple=True)[0]
 
-    left_filtered_positions = asset.data.body_link_pos_w[left_air_indices, sensor_cfg1.body_ids, 2]
-    right_filtered_positions = asset.data.body_link_pos_w[right_air_indices, sensor_cfg2.body_ids, 2]
+    left_foot_positions = asset.data.body_link_pos_w[:, 25, 2]
+    right_foot_positions = asset.data.body_link_pos_w[:, 26, 2]
 
-    reward = torch.zeros(env.num_envs, device=left_feet_contact.device)
+    # print(f"left_foot_positions rel: {left_foot_positions}")
+    # print(f"right_foot_positions rel: {right_foot_positions}")
 
-    left_mask = torch.isin(left_air_indices, only_one_air_indices)
+    gait_phase = gait_phase_from_obs(env)
+    left_feet_swing = (gait_phase[:, 0] >= 0.53)
+    right_feet_swing = (gait_phase[:, 1] >= 0.53)
 
-    # print("left_filtered_positions shape:", left_filtered_positions.shape)
-    # print("left_filtered_positions[left_mask] shape:", left_filtered_positions[left_mask].shape)
+    reward = torch.zeros(env.num_envs, device=left_foot_positions.device)
 
-    reward[left_air_indices[left_mask]] += torch.norm(left_filtered_positions[left_mask] - 0.20)
-    # print(left_filtered_positions[left_mask])
+    # print("left_foot_positions shape:", left_foot_positions.shape)
+    # print("left_foot_positions[left_mask] shape:", left_foot_positions[left_mask].shape)
 
-    right_mask = torch.isin(right_air_indices, only_one_air_indices)
-    reward[right_air_indices[right_mask]] += torch.norm(right_filtered_positions[right_mask] - 0.20)
+    # left_error = torch.abs(left_foot_positions[left_feet_swing] - 0.25)
+    # left_mask = left_error <= 0.06
+    # reward[left_feet_swing] += (1.0 - left_error) * left_mask
+    reward[left_feet_swing] += torch.norm(left_foot_positions[left_feet_swing] - 0.17)
+    reward[left_feet_swing] -= 0.1
+    reward[right_feet_swing] += torch.norm(right_foot_positions[right_feet_swing] - 0.17)
+    reward[right_feet_swing] -= 0.1
+    # right_error = torch.abs(right_foot_positions[right_feet_swing] - 0.25)
+    # right_mask = right_error <= 0.06
+    # reward[right_feet_swing] += (1.0 - right_error) * right_mask
 
     # contact = torch.norm(self.contact_forces[:, self.feet_indices, :3], dim=2) > 1.
-    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
 
     return reward
 
@@ -288,16 +297,20 @@ def feet_air_time_balanced_positive_biped(
     contact_time_balance = torch.where(time_diff < 0.1, 1, 0) == 1  # balance_tolerance
     # print(f"contact_time_balance\n: {contact_time_balance[:5]}")
 
-    # if step is long enough
-    exceed_air_time = air_time > 0.8
-    sufficient_air_time = torch.sum(exceed_air_time.int(), dim=1) == 0
+    # # if step is long enough
+    # exceed_air_time = air_time > 0.08
+    # sufficient_air_time = torch.sum(exceed_air_time.int(), dim=1) == 0
+
+    valid_air_time = (air_time >= 0.02) & (air_time <= 0.1)  # shape: [num_envs, 2]
+    sufficient_air_time = torch.all(valid_air_time, dim=1)
+
     # print(f"single_stance\n: {single_stance[:5]}")
     # print(f"sufficient_air_time\n: {sufficient_air_time[:5]}")
 
     # get reward
     reward = torch.min(
         torch.where(
-            single_stance.unsqueeze(-1) & sufficient_air_time.unsqueeze(-1),  # & contact_time_balance.unsqueeze(-1),
+            single_stance.unsqueeze(-1),  # & sufficient_air_time.unsqueeze(-1) & contact_time_balance.unsqueeze(-1),
             in_mode_time,
             0.0,
         ),
@@ -306,10 +319,11 @@ def feet_air_time_balanced_positive_biped(
     reward = torch.clamp(reward, max=threshold)
 
     reward += torch.where(contact_time_balance, 0.1, 0)
+    reward += torch.where(sufficient_air_time & single_stance, air_time.sum(dim=1) - 0.02, 0.0)
 
     # no reward for zero command
     # reward *= torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1
-    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.2, 1, 0)
+    reward *= torch.where(torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) > 0.1, 1, 0)
 
     return reward
 
@@ -339,44 +353,111 @@ def flat_orientation_feet(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
     return reward
 
 
+def gait_phase_from_obs(env: ManagerBasedRLEnv, stride_a: float = 20.0e-7, stride_b: float = 2.4,
+                        asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
+    """
+    Computes the gait phase using speed-dependent stride length:
+        L(v) = a + b * v
+        period = L / v
+    Returns sin/cos encoded phase.
+    """
+    if hasattr(env, "episode_length_buf"):
+        time = env.episode_length_buf * env.step_dt
+    else:
+        time = torch.zeros(env.num_envs, device=env.device)
+
+    command_vel = env.command_manager.get_command("base_velocity")[:, :2]
+    speed = torch.norm(command_vel, dim=1)
+
+    is_moving = speed > 0.1
+
+    # 1. 속도 기반 stride length 계산
+    stride_length = stride_a + stride_b * speed  # shape: [num_envs]
+    stride_length *= 1.0  # scale stride length
+
+    # 2. 주기 계산: T = L / v
+    eps = 1e-7
+    period = stride_length / (speed + eps)
+    offset = 0.5
+
+    phase = (time % period) / period
+    left_phase = phase
+    right_phase = (phase + offset) % 1
+    gait_phase = torch.stack([left_phase, right_phase], dim=-1)
+
+    gait_phase[~is_moving] = 0.0
+
+    # print(f"{YELLOW}gait_phase: \n{RESET}{gait_phase}")
+
+    return gait_phase
+
+
 def symmetric_gait_phase(
     env: ManagerBasedRLEnv, command_name: str, sensor_cfg: SceneEntityCfg
 ) -> torch.Tensor:
+    """
+    Computes a gait symmetry reward.
+    Includes:
+    - phase-contact alignment per leg
+    - left-right phase symmetry (π phase offset)
+    - contact-stance synchronization between both legs
+    - stability bonus when stationary
 
-    """Get gait phase of the robot.
-    This function computes the gait phase of the robot based on the current episode length and the
-    specified period and offset. The gait phase is represented as a tensor with two columns,
-    representing the left and right leg phases, respectively.
+    Returns:
+        torch.Tensor: shape [num_envs], per-environment reward.
     """
     contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
-
-    # current step
-    # air_time = contact_sensor.data.current_air_time[:, sensor_cfg.body_ids]
-    net_forces_w = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids]
+    net_forces_w = contact_sensor.data.net_forces_w[:, sensor_cfg.body_ids]  # shape [num_envs, 2, 3]
 
     reward = torch.zeros(env.num_envs, device=env.device)
 
-    gait_phase = env.observation_manager._obs_buffer["policy"][:, -2:]
-    both_phase_stance = (gait_phase[:, 0] < 0.55) & (gait_phase[:, 1] < 0.55)
+    # 1. Gait phase 가져오기
+    gait_phase = gait_phase_from_obs(env)  # shape: [num_envs, 2]
+    both_phase_stance = (gait_phase[:, 0] < 0.53) & (gait_phase[:, 1] < 0.53)
 
-    for i in range(2):  # left and right leg
-        is_stance = gait_phase[:, i] < 0.55
+    # 2. 좌우 다리 각각의 phase-contact 일치 보상
+    for i in range(2):
+        is_stance = gait_phase[:, i] < 0.53
         force = net_forces_w[:, i, 2]
         contact = (force > 10) & (force < 200)
-        reward += ~(contact ^ is_stance)
-    # print(f"contact force: {net_forces_w[0, 0, 2]}, {net_forces_w[0, 1, 2]}")
 
-    is_stationary = torch.norm(env.command_manager.get_command(command_name)[:, :2], dim=1) <= 0.2
+        mismatch = contact ^ is_stance
+        reward += (~(mismatch)).float()
+        reward -= mismatch.float() * 0.75
+
+    # 3. 정지 상태 판단
+    command_vel = env.command_manager.get_command(command_name)[:, :2]
+    is_stationary = torch.norm(command_vel, dim=1) <= 0.1
+
     force_left = net_forces_w[:, 0, 2]
     force_right = net_forces_w[:, 1, 2]
-
     contact_left = (force_left > 10.0) & (force_left < 200.0)
     contact_right = (force_right > 10.0) & (force_right < 200.0)
     both_feet_contact = contact_left & contact_right
 
-    reward *= torch.where(~is_stationary, 1, 0)
+    # 4. Stationary 보상: 정지 상태에서 두 발 모두 접촉 + stance 위상
+    reward += (is_stationary & both_phase_stance & both_feet_contact).float() * 0.3
 
-    reward += (is_stationary & both_phase_stance & both_feet_contact).float() * 0.12
+    # === 이동 중일 때만 symmetry 보상 적용 ===
+    moving_mask = ~is_stationary
+    if moving_mask.any():
+        sin_phase_left = gait_phase[:, 0]
+        sin_phase_right = gait_phase[:, 1]
+
+        # 좌우 π 위상 차이 유도
+        symmetry_loss = (sin_phase_left + sin_phase_right)**2
+        symmetry_reward = torch.exp(-symmetry_loss)  # [0,1] 범위
+        reward[moving_mask] += symmetry_reward[moving_mask] * 0.35
+
+    # 6. Contact-Stance 동기화 보상 (항상 적용)
+    stance_left = (gait_phase[:, 0] < 0.53).float()
+    stance_right = (gait_phase[:, 1] < 0.53).float()
+    contact_left = contact_left.float()
+    contact_right = contact_right.float()
+
+    sync_error = torch.abs((contact_left - stance_left) - (contact_right - stance_right))
+    sync_contact_reward = torch.exp(-10 * sync_error)  # 더 sharp하게 만듦
+    reward += sync_contact_reward * 0.35
 
     return reward
 
@@ -408,3 +489,109 @@ def undesired_pairwise_contact(
 
     # 보통 reward에선 페널티로 -1 곱하거나, 단순 binary 반환
     return torch.zeros(env.num_envs, device=env.device)  # is_contact.float()  # 또는 -is_contact.float() for penalty
+
+
+def symmetric_leg_phase(
+    env: ManagerBasedRLEnv, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
+) -> torch.Tensor:
+    """
+    Reward for symmetric and wide leg motion using hip pitch joints.
+    - Symmetric if: pos_L ≈ -pos_R and vel_L ≈ -vel_R
+    - Wide if: |pos_L| large (max reward near 0.8 rad)
+
+    Final reward = symmetry_reward * (1 + spread_weight * tanh(spread / scale))
+    """
+    # joint positions and velocities
+    asset = env.scene[asset_cfg.name]
+    joint_pos = asset.data.joint_pos
+    joint_vel = asset.data.joint_vel
+
+    # hip pitch joint indices
+    lhpj_idx = 0
+    rhpj_idx = 1
+
+    pos_L = joint_pos[:, lhpj_idx]
+    pos_R = joint_pos[:, rhpj_idx]
+    vel_L = joint_vel[:, lhpj_idx]
+    vel_R = joint_vel[:, rhpj_idx]
+
+    gait_phase = gait_phase_from_obs(env)  # shape: [num_envs, 2]
+
+    # 이동 중일 때만 적용
+    command_vel = env.command_manager.get_command(command_name)[:, :2]
+    cmd_speed = torch.norm(command_vel, dim=1)
+    is_moving = cmd_speed > 0.1
+
+    left_swing_phase = gait_phase[:, 0] >= 0.53
+    right_swing_phase = gait_phase[:, 1] >= 0.53
+
+    # --- Swing reward ---
+    reward = torch.zeros_like(vel_L)
+
+    left_mask = left_swing_phase & is_moving
+    right_mask = right_swing_phase & is_moving
+
+    reward[left_mask] += (-vel_L[left_mask] * cmd_speed[left_mask]).clamp(min=0.0)
+    reward[right_mask] += (-vel_R[right_mask] * cmd_speed[right_mask]).clamp(min=0.0)
+
+    # --- Double stance position reward ---
+    double_stance = (gait_phase[:, 0] < 0.53) & (gait_phase[:, 1] < 0.53)
+
+    phase_diff = gait_phase[:, 0] - gait_phase[:, 1]
+
+    left_foot_pos_w = asset.data.body_link_state_w[:, 25, :3]     # link position in world frame
+    right_foot_pos_w = asset.data.body_link_state_w[:, 26, :3]   # link position in world frame
+    root_pos_w = asset.data.root_link_state_w[:, :3]         # root position in world frame
+    root_quat_w = asset.data.root_link_state_w[:, 3:7]       # root orientation in world frame
+
+    left_foot_pos_rel = left_foot_pos_w[:, 0] - root_pos_w[:, 0]
+    right_foot_pos_rel = right_foot_pos_w[:, 0] - root_pos_w[:, 0]
+    # left_foot_pos_b = quat_rotate_inverse(root_quat_w, left_foot_pos_rel)
+    # right_foot_pos_b = quat_rotate_inverse(root_quat_w, right_foot_pos_rel)
+
+    # print(f"left_foot_pos_rel: {left_foot_pos_rel}")
+    # print(f"root_pos_w: {root_pos_w}")
+    # print(f"right_foot_pos_rel: {right_foot_pos_rel}")
+
+    case1_mask = double_stance & (phase_diff > 0) & (right_foot_pos_rel > 0)
+    case1_reward = (right_foot_pos_rel - left_foot_pos_rel).clamp(min=-0.075)
+
+    case2_mask = double_stance & (phase_diff < 0) & (left_foot_pos_rel > 0)
+    case2_reward = (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075)
+
+    # 총 리워드
+    position_reward = torch.zeros_like(left_foot_pos_rel)
+
+    case1_moving = case1_mask & is_moving
+    case2_moving = case2_mask & is_moving
+
+    position_reward[case1_moving] += case1_reward[case1_moving] * cmd_speed[case1_moving]
+    position_reward[case2_moving] += case2_reward[case2_moving] * cmd_speed[case2_moving]
+
+    # symmetry error
+    pos_error = torch.abs(pos_L + pos_R)
+    vel_error = torch.abs(vel_L + vel_R)
+
+    # symmetry reward
+    alpha = 10.0
+    beta = 0.25
+    symmetry_error = pos_error + beta * vel_error
+    symmetry_reward = torch.exp(-alpha * symmetry_error)
+
+    # spread reward (soft saturate)
+    spread = torch.abs((pos_L - pos_R) / 2)  # pos_R ≈ -pos_L
+    spread_scale = 1.2 / 2  # tanh saturate 기준 (1.2 rad ≈ 0.96)
+    spread_reward = torch.tanh(spread / spread_scale)
+
+    # pos_error >= 0.2인 경우에는 reward를 0으로 만듦
+    mask = pos_error >= 0.2
+    spread_reward[mask] = 0.0
+
+    # 최종 보상 조합
+    spread_weight = 0.3
+    final_reward = symmetry_reward * (1.0 + spread_weight * spread_reward)
+
+    # 정지 시 0
+    final_reward *= is_moving.float()
+
+    return (reward + position_reward + final_reward) * 10
