@@ -134,7 +134,7 @@ def flat_orientation_body(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
 #     res = torch.zeros(env.num_envs, dtype=torch.float32)
 #     leg_phase = get_phase(env)
 #     for i in range(self.feet_num):
-#         is_stance = leg_phase[:, i] < 0.53
+#         is_stance = leg_phase[:, i] < 0.60
 
 #         # contact = self.contact_forces[:, self.feet_indices[i], 2] > 1
 #         res += ~(contact ^ is_stance)
@@ -168,8 +168,8 @@ def reward_feet_swing_height(
     # print(f"right_foot_positions rel: {right_foot_positions}")
 
     gait_phase = gait_phase_from_obs(env)
-    left_feet_swing = (gait_phase[:, 0] >= 0.53)
-    right_feet_swing = (gait_phase[:, 1] >= 0.53)
+    left_feet_swing = (gait_phase[:, 0] >= 0.60)
+    right_feet_swing = (gait_phase[:, 1] >= 0.60)
 
     reward = torch.zeros(env.num_envs, device=left_foot_positions.device)
 
@@ -413,11 +413,11 @@ def symmetric_gait_phase(
 
     # 1. Gait phase 가져오기
     gait_phase = gait_phase_from_obs(env)  # shape: [num_envs, 2]
-    both_phase_stance = (gait_phase[:, 0] < 0.53) & (gait_phase[:, 1] < 0.53)
+    both_phase_stance = (gait_phase[:, 0] < 0.60) & (gait_phase[:, 1] < 0.60)
 
     # 2. 좌우 다리 각각의 phase-contact 일치 보상
     for i in range(2):
-        is_stance = gait_phase[:, i] < 0.53
+        is_stance = gait_phase[:, i] < 0.60
         force = net_forces_w[:, i, 2]
         contact = (force > 10) & (force < 200)
 
@@ -450,8 +450,8 @@ def symmetric_gait_phase(
     #     reward[moving_mask] += symmetry_reward[moving_mask] * 0.35
 
     # 6. Contact-Stance 동기화 보상 (항상 적용)
-    stance_left = (gait_phase[:, 0] < 0.53).float()
-    stance_right = (gait_phase[:, 1] < 0.53).float()
+    stance_left = (gait_phase[:, 0] < 0.60).float()
+    stance_right = (gait_phase[:, 1] < 0.60).float()
     contact_left = contact_left.float()
     contact_right = contact_right.float()
 
@@ -522,8 +522,8 @@ def symmetric_leg_phase(
     cmd_speed = torch.norm(command_vel, dim=1)
     is_moving = cmd_speed > 0.1
 
-    left_swing_phase = gait_phase[:, 0] >= 0.53
-    right_swing_phase = gait_phase[:, 1] >= 0.53
+    left_swing_phase = gait_phase[:, 0] >= 0.60
+    right_swing_phase = gait_phase[:, 1] >= 0.60
 
     # --- Swing reward ---
     reward = torch.zeros_like(vel_L)
@@ -535,7 +535,7 @@ def symmetric_leg_phase(
     reward[right_mask] += (-vel_R[right_mask]).clamp(min=0.0)
 
     # --- Double stance position reward ---
-    double_stance = (gait_phase[:, 0] < 0.53) & (gait_phase[:, 1] < 0.53)
+    double_stance = (gait_phase[:, 0] < 0.60) & (gait_phase[:, 1] < 0.60)
 
     phase_diff = gait_phase[:, 0] - gait_phase[:, 1]
 

@@ -26,7 +26,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         # self.observations.policy.height_scan = None
         # no terrain curriculum
         self.curriculum.terrain_levels = None
-        
+
         # self.actions.joint_pos.scale = 0.25
 
         # Events

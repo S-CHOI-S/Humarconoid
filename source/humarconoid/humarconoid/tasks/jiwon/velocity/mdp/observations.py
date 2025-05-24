@@ -95,17 +95,18 @@ def gait_phase(env: ManagerBasedRLEnv, stride_a: float = 8.0e-7, stride_b: float
 
     gait_phase[~is_moving] = 0.0
 
-    left_phase = phase
-    right_phase = (phase + 0.5) % 1
+    # left_phase = phase
+    # right_phase = (phase + 0.5) % 1
 
-    if left_phase[0] >= 0.53 and right_phase[0] < 0.53:
-        print(f"{RESET}gait_phase: \n{RESET} {RED}swing, {GREEN}stance")
-    if left_phase[0] >= 0.53 and right_phase[0] >= 0.53:
-        print(f"{RESET}gait_phase: \n{RESET} {RED}swing, {RED}swing")
-    if left_phase[0] < 0.53 and right_phase[0] >= 0.53:
-        print(f"{RESET}gait_phase: \n{RESET}{GREEN}stance, {RED}swing")
-    if left_phase[0] < 0.53 and right_phase[0] < 0.53:
-        print(f"{RESET}gait_phase: \n{RESET}{GREEN}stance, {GREEN}stance")
+    # print(f"{RESET}\nspeed: {speed}")
+    # if left_phase[0] >= 0.60 and right_phase[0] < 0.60:
+    #     print(f"{RESET}gait_phase: \n{RESET} {RED}swing, {GREEN}stance")
+    # if left_phase[0] >= 0.60 and right_phase[0] >= 0.60:
+    #     print(f"{RESET}gait_phase: \n{RESET} {RED}swing, {RED}swing")
+    # if left_phase[0] < 0.60 and right_phase[0] >= 0.60:
+    #     print(f"{RESET}gait_phase: \n{RESET}{GREEN}stance, {RED}swing")
+    # if left_phase[0] < 0.60 and right_phase[0] < 0.60:
+    #     print(f"{RESET}gait_phase: \n{RESET}{GREEN}stance, {GREEN}stance")
 
     # print(f"{YELLOW}gait_phase: \n{RESET}{}")
 
