@@ -26,6 +26,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         # self.observations.policy.height_scan = None
         # no terrain curriculum
         self.curriculum.terrain_levels = None
+        
+        # self.actions.joint_pos.scale = 0.25
 
         # Events
         self.events.add_base_mass.params["asset_cfg"].body_names = ["torso_link"]
@@ -71,8 +73,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.track_lin_vel_xy_exp.weight = 2.0
         self.rewards.track_lin_vel_xy_exp.params["std"] = 0.5
         self.rewards.track_ang_vel_z_exp.weight = 1.0
-        self.rewards.lin_vel_z_l2.weight = -0.5
-        self.rewards.ang_vel_xy_l2.weight = -0.5
+        self.rewards.lin_vel_z_l2.weight = -0.1
+        self.rewards.ang_vel_xy_l2.weight = -0.2
         self.rewards.dof_torques_l2 = None
         # self.rewards.dof_torques_l2.weight = -4.0e-6
         # self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
@@ -103,7 +105,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         # self.rewards.feet_safe_contact = None
         # self.rewards.feet_safe_contact.weight = 0.1
         # self.rewards.feet_swing_height = None
-        self.rewards.feet_swing_height.weight = 0.015
+        self.rewards.feet_swing_height.weight = 0.0075
         self.rewards.symmetric_gait_phase.weight = 0.25  # 0.25
         self.rewards.symmetric_leg_phase.weight = 0.01
 

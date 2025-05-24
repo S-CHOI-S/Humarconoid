@@ -353,7 +353,7 @@ def flat_orientation_feet(env: ManagerBasedRLEnv, asset_cfg: SceneEntityCfg = Sc
     return reward
 
 
-def gait_phase_from_obs(env: ManagerBasedRLEnv, stride_a: float = 20.0e-7, stride_b: float = 2.4,
+def gait_phase_from_obs(env: ManagerBasedRLEnv, stride_a: float = 8.0e-7, stride_b: float = 1.0,
                         asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")) -> torch.Tensor:
     """
     Computes the gait phase using speed-dependent stride length:
@@ -438,16 +438,16 @@ def symmetric_gait_phase(
     # 4. Stationary 보상: 정지 상태에서 두 발 모두 접촉 + stance 위상
     reward += (is_stationary & both_phase_stance & both_feet_contact).float() * 0.3
 
-    # === 이동 중일 때만 symmetry 보상 적용 ===
-    moving_mask = ~is_stationary
-    if moving_mask.any():
-        sin_phase_left = gait_phase[:, 0]
-        sin_phase_right = gait_phase[:, 1]
+    # # === 이동 중일 때만 symmetry 보상 적용 ===
+    # moving_mask = ~is_stationary
+    # if moving_mask.any():
+    #     sin_phase_left = gait_phase[:, 0]
+    #     sin_phase_right = gait_phase[:, 1]
 
-        # 좌우 π 위상 차이 유도
-        symmetry_loss = (sin_phase_left + sin_phase_right)**2
-        symmetry_reward = torch.exp(-symmetry_loss)  # [0,1] 범위
-        reward[moving_mask] += symmetry_reward[moving_mask] * 0.35
+    #     # 좌우 π 위상 차이 유도
+    #     symmetry_loss = (sin_phase_left + sin_phase_right)**2
+    #     symmetry_reward = torch.exp(-symmetry_loss)  # [0,1] 범위
+    #     reward[moving_mask] += symmetry_reward[moving_mask] * 0.35
 
     # 6. Contact-Stance 동기화 보상 (항상 적용)
     stance_left = (gait_phase[:, 0] < 0.53).float()
@@ -531,8 +531,8 @@ def symmetric_leg_phase(
     left_mask = left_swing_phase & is_moving
     right_mask = right_swing_phase & is_moving
 
-    reward[left_mask] += (-vel_L[left_mask] * cmd_speed[left_mask]).clamp(min=0.0)
-    reward[right_mask] += (-vel_R[right_mask] * cmd_speed[right_mask]).clamp(min=0.0)
+    reward[left_mask] += (-vel_L[left_mask]).clamp(min=0.0)
+    reward[right_mask] += (-vel_R[right_mask]).clamp(min=0.0)
 
     # --- Double stance position reward ---
     double_stance = (gait_phase[:, 0] < 0.53) & (gait_phase[:, 1] < 0.53)
@@ -544,8 +544,8 @@ def symmetric_leg_phase(
     root_pos_w = asset.data.root_link_state_w[:, :3]         # root position in world frame
     root_quat_w = asset.data.root_link_state_w[:, 3:7]       # root orientation in world frame
 
-    left_foot_pos_rel = left_foot_pos_w[:, 0] - root_pos_w[:, 0]
-    right_foot_pos_rel = right_foot_pos_w[:, 0] - root_pos_w[:, 0]
+    left_foot_pos_rel = root_pos_w[:, 0] - left_foot_pos_w[:, 0]
+    right_foot_pos_rel = root_pos_w[:, 0] - right_foot_pos_w[:, 0]
     # left_foot_pos_b = quat_rotate_inverse(root_quat_w, left_foot_pos_rel)
     # right_foot_pos_b = quat_rotate_inverse(root_quat_w, right_foot_pos_rel)
 
@@ -553,11 +553,23 @@ def symmetric_leg_phase(
     # print(f"root_pos_w: {root_pos_w}")
     # print(f"right_foot_pos_rel: {right_foot_pos_rel}")
 
-    case1_mask = double_stance & (phase_diff > 0) & (right_foot_pos_rel > 0)
-    case1_reward = (right_foot_pos_rel - left_foot_pos_rel).clamp(min=-0.075)
+    # case1: right foot is in front of left foot
+    case1_mask = double_stance & (phase_diff > 0) & (left_foot_pos_rel > 0)
+    case1_reward = (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
+    # if case1_mask.float() > 0.0:
+    #     print("\ncase1 ===================================")
+    #     print("right_foot_pos_rel:", right_foot_pos_rel[case1_mask])
+    #     print("left_foot_pos_rel:", left_foot_pos_rel[case1_mask])
+    #     print("case1_reward:", (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1))
 
-    case2_mask = double_stance & (phase_diff < 0) & (left_foot_pos_rel > 0)
-    case2_reward = (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075)
+    # case2: left foot is in front of right foot
+    case2_mask = double_stance & (phase_diff < 0) & (right_foot_pos_rel > 0)
+    case2_reward = (right_foot_pos_rel - left_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
+    # if case2_mask.float() > 0.0:
+    #     print("\ncase2 ===================================")
+    #     print("right_foot_pos_rel:", right_foot_pos_rel[case2_mask])
+    #     print("left_foot_pos_rel:", left_foot_pos_rel[case2_mask])
+    #     print("case1_reward:", right_foot_pos_rel[case2_mask] - left_foot_pos_rel[case2_mask])
 
     # 총 리워드
     position_reward = torch.zeros_like(left_foot_pos_rel)
@@ -565,8 +577,8 @@ def symmetric_leg_phase(
     case1_moving = case1_mask & is_moving
     case2_moving = case2_mask & is_moving
 
-    position_reward[case1_moving] += case1_reward[case1_moving] * cmd_speed[case1_moving]
-    position_reward[case2_moving] += case2_reward[case2_moving] * cmd_speed[case2_moving]
+    # position_reward[case1_moving] += case1_reward[case1_moving]  # * cmd_speed[case1_moving]
+    # position_reward[case2_moving] += case2_reward[case2_moving]  # * cmd_speed[case2_moving]
 
     # symmetry error
     pos_error = torch.abs(pos_L + pos_R)
