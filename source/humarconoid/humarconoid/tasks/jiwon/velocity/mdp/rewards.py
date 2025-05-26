@@ -179,9 +179,9 @@ def reward_feet_swing_height(
     # left_error = torch.abs(left_foot_positions[left_feet_swing] - 0.25)
     # left_mask = left_error <= 0.06
     # reward[left_feet_swing] += (1.0 - left_error) * left_mask
-    reward[left_feet_swing] += torch.norm(left_foot_positions[left_feet_swing] - 0.17)
+    reward[left_feet_swing] += torch.norm(left_foot_positions[left_feet_swing] - 0.15)
     reward[left_feet_swing] -= 0.1
-    reward[right_feet_swing] += torch.norm(right_foot_positions[right_feet_swing] - 0.17)
+    reward[right_feet_swing] += torch.norm(right_foot_positions[right_feet_swing] - 0.15)
     reward[right_feet_swing] -= 0.1
     # right_error = torch.abs(right_foot_positions[right_feet_swing] - 0.25)
     # right_mask = right_error <= 0.06
@@ -419,11 +419,27 @@ def symmetric_gait_phase(
     for i in range(2):
         is_stance = gait_phase[:, i] < 0.60
         force = net_forces_w[:, i, 2]
-        contact = (force > 10) & (force < 200)
+        contact = (force > 10) & (force < 180)
 
         mismatch = contact ^ is_stance
         reward += (~(mismatch)).float()
-        reward -= mismatch.float() * 0.75
+        # reward -= mismatch.float() * 0.75
+
+    for i in range(2):
+        is_swing = gait_phase[:, i] >= 0.60
+        force = net_forces_w[:, i, 2]
+        air = (force < 5)
+
+        air_mismatch = air ^ is_swing
+        reward += (~(air_mismatch)).float()
+
+    for i in range(2):
+        is_swing = gait_phase[:, i] >= 0.60
+        force = net_forces_w[:, i, 2]
+        contact = (force > 5)
+
+        swing_contact_violation = is_swing & contact
+        reward -= 0.75 * swing_contact_violation.float()
 
     # 3. 정지 상태 판단
     command_vel = env.command_manager.get_command(command_name)[:, :2]
@@ -431,8 +447,8 @@ def symmetric_gait_phase(
 
     force_left = net_forces_w[:, 0, 2]
     force_right = net_forces_w[:, 1, 2]
-    contact_left = (force_left > 10.0) & (force_left < 200.0)
-    contact_right = (force_right > 10.0) & (force_right < 200.0)
+    contact_left = (force_left > 10.0) & (force_left < 180.0)
+    contact_right = (force_right > 10.0) & (force_right < 180.0)
     both_feet_contact = contact_left & contact_right
 
     # 4. Stationary 보상: 정지 상태에서 두 발 모두 접촉 + stance 위상
@@ -554,8 +570,8 @@ def symmetric_leg_phase(
     # print(f"right_foot_pos_rel: {right_foot_pos_rel}")
 
     # case1: right foot is in front of left foot
-    case1_mask = double_stance & (phase_diff > 0) & (left_foot_pos_rel > 0)
-    case1_reward = (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
+    # case1_mask = double_stance & (phase_diff > 0) & (left_foot_pos_rel > 0)
+    # case1_reward = (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
     # if case1_mask.float() > 0.0:
     #     print("\ncase1 ===================================")
     #     print("right_foot_pos_rel:", right_foot_pos_rel[case1_mask])
@@ -563,8 +579,8 @@ def symmetric_leg_phase(
     #     print("case1_reward:", (left_foot_pos_rel - right_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1))
 
     # case2: left foot is in front of right foot
-    case2_mask = double_stance & (phase_diff < 0) & (right_foot_pos_rel > 0)
-    case2_reward = (right_foot_pos_rel - left_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
+    # case2_mask = double_stance & (phase_diff < 0) & (right_foot_pos_rel > 0)
+    # case2_reward = (right_foot_pos_rel - left_foot_pos_rel).clamp(min=-0.075) * torch.where(root_pos_w[:, 0] >= 0, 1, -1)
     # if case2_mask.float() > 0.0:
     #     print("\ncase2 ===================================")
     #     print("right_foot_pos_rel:", right_foot_pos_rel[case2_mask])
@@ -572,10 +588,10 @@ def symmetric_leg_phase(
     #     print("case1_reward:", right_foot_pos_rel[case2_mask] - left_foot_pos_rel[case2_mask])
 
     # 총 리워드
-    position_reward = torch.zeros_like(left_foot_pos_rel)
+    # position_reward = torch.zeros_like(left_foot_pos_rel)
 
-    case1_moving = case1_mask & is_moving
-    case2_moving = case2_mask & is_moving
+    # case1_moving = case1_mask & is_moving
+    # case2_moving = case2_mask & is_moving
 
     # position_reward[case1_moving] += case1_reward[case1_moving]  # * cmd_speed[case1_moving]
     # position_reward[case2_moving] += case2_reward[case2_moving]  # * cmd_speed[case2_moving]
@@ -592,7 +608,7 @@ def symmetric_leg_phase(
 
     # spread reward (soft saturate)
     spread = torch.abs((pos_L - pos_R) / 2)  # pos_R ≈ -pos_L
-    spread_scale = 1.2 / 2  # tanh saturate 기준 (1.2 rad ≈ 0.96)
+    spread_scale = 0.82 / 2  # tanh saturate 기준 (0.82 rad ≈ 0.96)
     spread_reward = torch.tanh(spread / spread_scale)
 
     # pos_error >= 0.2인 경우에는 reward를 0으로 만듦
@@ -606,4 +622,4 @@ def symmetric_leg_phase(
     # 정지 시 0
     final_reward *= is_moving.float()
 
-    return (reward + position_reward + final_reward) * 10
+    return (reward + final_reward) * 10

@@ -215,11 +215,17 @@
       </material>
     </visual>
     <collision>
+      <origin xyz="0.0385 0.0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.207 0.06 0.01"/> 
+      </geometry>
+    </collision>
+    <!-- <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="meshes_kist/left_ankle_roll_link.STL"/>
       </geometry>
-    </collision>
+    </collision> -->
     <!-- <collision>
       <origin xyz="-0.05 0.025 -0.03" rpy="0 0 0"/>
       <geometry>
@@ -413,11 +419,17 @@
       </material>
     </visual>
     <collision>
+      <origin xyz="0.0385 0.0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.207 0.06 0.01"/> 
+      </geometry>
+    </collision>
+    <!-- <collision>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
         <mesh filename="meshes_kist/right_ankle_roll_link.STL"/>
       </geometry>
-    </collision>
+    </collision> -->
     <!-- <collision>
       <origin xyz="-0.05 0.025 -0.03" rpy="0 0 0"/>
       <geometry>
