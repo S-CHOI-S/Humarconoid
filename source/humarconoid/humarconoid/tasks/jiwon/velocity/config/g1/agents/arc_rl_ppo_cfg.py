@@ -5,7 +5,7 @@ from arc_rl.utils import ArcRlOnPolicyRunnerCfg, ArcRlPpoActorCriticCfg, ArcRlAp
 @configclass
 class JiwonRoughPPORunnerCfg(ArcRlOnPolicyRunnerCfg):
     num_steps_per_env = 24
-    max_iterations = 3000
+    max_iterations = 7500
     save_interval = 50
     experiment_name = "jiwon_rough"
     empirical_normalization = False
@@ -42,7 +42,7 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()
 
-        self.max_iterations = 5000
+        self.max_iterations = 7500
         self.experiment_name = "jiwon_flat"
         self.policy.actor_hidden_dims = [256, 128, 128]
         self.policy.critic_hidden_dims = [256, 128, 128]

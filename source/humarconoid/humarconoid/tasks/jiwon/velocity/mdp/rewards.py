@@ -3,8 +3,9 @@ from __future__ import annotations
 import torch
 from typing import TYPE_CHECKING
 
+from isaaclab.assets import RigidObject
 from isaaclab.managers import SceneEntityCfg
-from isaaclab.sensors import ContactSensor
+from isaaclab.sensors import ContactSensor, RayCaster
 from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 
 if TYPE_CHECKING:
@@ -171,7 +172,7 @@ def reward_feet_swing_height(
     left_feet_swing = (gait_phase[:, 0] >= 0.60)
     right_feet_swing = (gait_phase[:, 1] >= 0.60)
 
-    reward = torch.zeros(env.num_envs, device=left_foot_positions.device)
+    reward = torch.zeros(env.num_envs, device=env.device)
 
     # print("left_foot_positions shape:", left_foot_positions.shape)
     # print("left_foot_positions[left_mask] shape:", left_foot_positions[left_mask].shape)
@@ -179,10 +180,15 @@ def reward_feet_swing_height(
     # left_error = torch.abs(left_foot_positions[left_feet_swing] - 0.25)
     # left_mask = left_error <= 0.06
     # reward[left_feet_swing] += (1.0 - left_error) * left_mask
-    reward[left_feet_swing] += torch.norm(left_foot_positions[left_feet_swing] - 0.15)
-    reward[left_feet_swing] -= 0.1
-    reward[right_feet_swing] += torch.norm(right_foot_positions[right_feet_swing] - 0.15)
-    reward[right_feet_swing] -= 0.1
+    reward[left_feet_swing] -= torch.square(left_foot_positions[left_feet_swing] - 0.15)
+    reward[right_feet_swing] -= torch.square(right_foot_positions[right_feet_swing] - 0.15)
+
+    too_high_left = left_foot_positions[left_feet_swing] > 0.25
+    reward[left_feet_swing][too_high_left] -= 1.0
+
+    too_high_right = right_foot_positions[right_feet_swing] > 0.25
+    reward[right_feet_swing][too_high_right] -= 1.0
+
     # right_error = torch.abs(right_foot_positions[right_feet_swing] - 0.25)
     # right_mask = right_error <= 0.06
     # reward[right_feet_swing] += (1.0 - right_error) * right_mask
@@ -423,6 +429,7 @@ def symmetric_gait_phase(
 
         mismatch = contact ^ is_stance
         reward += (~(mismatch)).float()
+
         # reward -= mismatch.float() * 0.75
 
     for i in range(2):
@@ -433,13 +440,25 @@ def symmetric_gait_phase(
         air_mismatch = air ^ is_swing
         reward += (~(air_mismatch)).float()
 
-    for i in range(2):
-        is_swing = gait_phase[:, i] >= 0.60
-        force = net_forces_w[:, i, 2]
-        contact = (force > 5)
+    mean_ep_length = env.episode_length_buf[0]
+    # print(f"mean_ep_length: {mean_ep_length}")
 
-        swing_contact_violation = is_swing & contact
-        reward -= 0.75 * swing_contact_violation.float()
+    if mean_ep_length > 5000:
+        for i in range(2):
+            is_swing = gait_phase[:, i] >= 0.60
+            force = net_forces_w[:, i, 2]
+            contact = (force > 5)
+
+            swing_contact_violation = is_swing & contact
+            reward -= swing_contact_violation.float()
+
+        for i in range(2):
+            is_stance = gait_phase[:, i] < 0.60
+            force = net_forces_w[:, i, 2]
+            swing = (force <= 10)
+
+            stance_swing_violation = is_stance & swing
+            reward -= stance_swing_violation.float()
 
     # 3. 정지 상태 판단
     command_vel = env.command_manager.get_command(command_name)[:, :2]
@@ -450,6 +469,8 @@ def symmetric_gait_phase(
     contact_left = (force_left > 10.0) & (force_left < 180.0)
     contact_right = (force_right > 10.0) & (force_right < 180.0)
     both_feet_contact = contact_left & contact_right
+
+    # print(f"force_left: {force_left[0]}, force_right: {force_right[0]}")
 
     # 4. Stationary 보상: 정지 상태에서 두 발 모두 접촉 + stance 위상
     reward += (is_stationary & both_phase_stance & both_feet_contact).float() * 0.3
@@ -608,11 +629,11 @@ def symmetric_leg_phase(
 
     # spread reward (soft saturate)
     spread = torch.abs((pos_L - pos_R) / 2)  # pos_R ≈ -pos_L
-    spread_scale = 0.82 / 2  # tanh saturate 기준 (0.82 rad ≈ 0.96)
+    spread_scale = 0.5 / 2  # tanh saturate 기준 (0.82 rad ≈ 0.96)
     spread_reward = torch.tanh(spread / spread_scale)
 
     # pos_error >= 0.2인 경우에는 reward를 0으로 만듦
-    mask = pos_error >= 0.2
+    mask = pos_error >= 0.3
     spread_reward[mask] = 0.0
 
     # 최종 보상 조합
@@ -623,3 +644,56 @@ def symmetric_leg_phase(
     final_reward *= is_moving.float()
 
     return (reward + final_reward) * 10
+
+
+def contact_velocity(
+    env: ManagerBasedRLEnv, sensor_cfg: SceneEntityCfg, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """Penalty for contact velocity of feet."""
+    contact_sensor: ContactSensor = env.scene.sensors[sensor_cfg.name]
+    asset = env.scene[asset_cfg.name]
+
+    # Get the contact forces
+    contact_forces = contact_sensor.data.net_forces_w[:, 25:27]  # shape: (N, B, 3)
+    # Get the linear velocities of the feet
+    feet_velocities = asset.data.body_lin_vel_w[:, 25:27, 2]  # shape: (N, B, 2)
+
+    # Get the gait phase
+    gait_phase = gait_phase_from_obs(env)  # shape: [num_envs, 2]
+
+    penalty = torch.zeros(env.num_envs, device=env.device)
+
+    left_foot = gait_phase[:, 0] >= 0.88  # left foot is almost finished swing phase
+    right_foot = gait_phase[:, 1] >= 0.88  # right foot is almost finished swing phase
+
+    penalty[left_foot] += feet_velocities[left_foot, 0].abs() ** 2  # penalize left foot velocity
+    penalty[right_foot] += feet_velocities[right_foot, 1].abs() ** 2  # penalize right foot velocity
+
+    for i in range(2):
+        collide = contact_forces[:, i, 2] > 1200.0
+        # Penalize the contact forces if they are above a threshold
+        penalty[collide] += 1.0
+
+    return penalty  # shape: (N,)
+
+
+def base_height_l2(
+    env: ManagerBasedRLEnv,
+    min_height: float,
+    asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """Penalize asset height from its target using L2 squared kernel.
+
+    Note:
+        For flat terrain, target height is in the world frame. For rough terrain,
+        sensor readings can adjust the target height to account for the terrain.
+    """
+    # extract the used quantities (to enable type-hinting)
+    asset = env.scene[asset_cfg.name]
+    penalty = torch.zeros(env.num_envs, device=env.device)
+
+    # Compute the height penalty
+    low_height = asset.data.root_pos_w[:, 2] < min_height
+    penalty[low_height] += torch.abs(asset.data.root_pos_w[low_height, 2] - min_height)
+
+    return penalty
