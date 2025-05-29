@@ -182,12 +182,14 @@ def reward_feet_swing_height(
     # reward[left_feet_swing] += (1.0 - left_error) * left_mask
     reward[left_feet_swing] -= torch.square(left_foot_positions[left_feet_swing] - 0.15)
     reward[right_feet_swing] -= torch.square(right_foot_positions[right_feet_swing] - 0.15)
+    # print(f"left_foot_positions[left_feet_swing]: {left_foot_positions[left_feet_swing]}")
+    # print(f"right_foot_positions[right_feet_swing]: {right_foot_positions[right_feet_swing]}")
 
-    too_high_left = left_foot_positions[left_feet_swing] > 0.25
-    reward[left_feet_swing][too_high_left] -= 1.0
+    too_high_left = left_foot_positions[left_feet_swing] > 0.2
+    reward[left_feet_swing][too_high_left] -= 1.0 * (left_foot_positions[left_feet_swing][too_high_left] + 1.2)
 
-    too_high_right = right_foot_positions[right_feet_swing] > 0.25
-    reward[right_feet_swing][too_high_right] -= 1.0
+    too_high_right = right_foot_positions[right_feet_swing] > 0.2
+    reward[right_feet_swing][too_high_right] -= 1.0 * (right_foot_positions[right_feet_swing][too_high_right] + 1.2)
 
     # right_error = torch.abs(right_foot_positions[right_feet_swing] - 0.25)
     # right_mask = right_error <= 0.06
@@ -663,8 +665,8 @@ def contact_velocity(
 
     penalty = torch.zeros(env.num_envs, device=env.device)
 
-    left_foot = gait_phase[:, 0] >= 0.88  # left foot is almost finished swing phase
-    right_foot = gait_phase[:, 1] >= 0.88  # right foot is almost finished swing phase
+    left_foot = gait_phase[:, 0] >= 0.60  # left foot is almost finished swing phase
+    right_foot = gait_phase[:, 1] >= 0.60  # right foot is almost finished swing phase
 
     penalty[left_foot] += feet_velocities[left_foot, 0].abs() ** 2  # penalize left foot velocity
     penalty[right_foot] += feet_velocities[right_foot, 1].abs() ** 2  # penalize right foot velocity
@@ -672,7 +674,7 @@ def contact_velocity(
     for i in range(2):
         collide = contact_forces[:, i, 2] > 1200.0
         # Penalize the contact forces if they are above a threshold
-        penalty[collide] += 1.0
+        penalty[collide] += 5.0
 
     return penalty  # shape: (N,)
 

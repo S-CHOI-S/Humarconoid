@@ -148,8 +148,7 @@ G1_KIST_CFG = ArticulationCfg(
 
 G1_KIST_FLAT_FEET_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        # usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_29dof_rev_1_00/g1_29dof_rev_1_00.usd",
-        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist.usd",
+        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_29dof_rev_1_0_flat/g1_29dof_rev_1_0_flat.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
