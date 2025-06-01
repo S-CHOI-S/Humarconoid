@@ -16,7 +16,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
 
         # Scene
         self.scene.robot = G1_KIST_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        self.scene.num_envs = 8192  # 4096
+        self.scene.num_envs = 4096  # 4096
         self.episode_length_s = 250.0  # 300.0  # max_episode_length = 15000
         # self.sim.dt = 0.002
         # self.decimation = 10
@@ -100,7 +100,7 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
             "robot", joint_names=[".*_hip_roll_.*", ".*_hip_yaw_.*"]
         )
         self.rewards.joint_deviation_ankle.weight = -0.75
-        self.rewards.joint_deviation_knee.weight = -0.125
+        self.rewards.joint_deviation_knee.weight = -0.075
 
         # self.rewards.flat_orientation_feet = None
         # self.rewards.flat_orientation_feet.weight = 0.3
@@ -108,10 +108,10 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         # self.rewards.feet_safe_contact = None
         # self.rewards.feet_safe_contact.weight = 0.1
         # self.rewards.feet_swing_height = None
-        self.rewards.feet_swing_height.weight = 0.005
+        self.rewards.feet_swing_height.weight = 0.3
         self.rewards.symmetric_gait_phase.weight = 0.5  # 0.25
         self.rewards.symmetric_leg_phase.weight = 0.02
-        self.rewards.contact_velocity.weight = -3.0
+        self.rewards.contact_velocity.weight = -2.0
 
         # self.rewards.undesired_pairwise_contact = None
 
@@ -145,9 +145,9 @@ class JiwonFlatEnvCfg_PLAY(JiwonFlatEnvCfg):
         self.curriculum.push_robot_levels = None
 
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
-        self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.5, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
         # self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.0)
         # self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
         # self.commands.base_velocity.ranges.ang_vel_z = (-0.0, 0.0)
