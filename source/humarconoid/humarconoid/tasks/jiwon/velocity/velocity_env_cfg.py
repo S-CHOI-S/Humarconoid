@@ -5,7 +5,7 @@ from dataclasses import MISSING
 
 import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg, AssetBaseCfg
-from isaaclab.envs import ManagerBasedRLEnvCfg
+# from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import CurriculumTermCfg as CurrTerm
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ObservationGroupCfg as ObsGroup
@@ -19,6 +19,7 @@ from isaaclab.terrains import TerrainImporterCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
+from humarconoid.envs import ARCManagerBasedRLEnvCfg
 import humarconoid.tasks.jiwon.velocity.mdp as mdp
 
 ##
@@ -303,13 +304,20 @@ class CurriculumCfg:
     command_velocity_levels = CurrTerm(func=mdp.command_velocity_levels)
 
 
+@configclass
+class ConstraintCfg:
+    """Constraint terms for the MDP."""
+    # No constraints defined for this environment
+    pass
+
+
 ##
 # Environment configuration
 ##
 
 
 @configclass
-class LocomotionVelocityRoughEnvCfg(ManagerBasedRLEnvCfg):
+class LocomotionVelocityRoughEnvCfg(ARCManagerBasedRLEnvCfg):
     """Configuration for the locomotion velocity-tracking environment."""
 
     # Scene settings
@@ -323,6 +331,7 @@ class LocomotionVelocityRoughEnvCfg(ManagerBasedRLEnvCfg):
     terminations: TerminationsCfg = TerminationsCfg()
     events: EventCfg = EventCfg()
     curriculum: CurriculumCfg = CurriculumCfg()
+    constraints: ConstraintCfg = ConstraintCfg()
 
     def __post_init__(self):
         """Post initialization."""
