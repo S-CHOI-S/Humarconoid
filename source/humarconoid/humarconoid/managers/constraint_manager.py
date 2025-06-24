@@ -48,7 +48,7 @@ class ConstraintManager(ManagerBase):
 
         # compute combined vector for cstrnt group
         self._group_cstrnt_dim: dict[str, tuple[int, ...] | list[tuple[int, ...]]] = dict()
-        self._cstrnt_term_threshold_values: dict[str, torch.Tensor] = {}
+        # self._cstrnt_term_threshold_values: dict[str, torch.Tensor] = {}
         for group_name, group_term_dims in self._group_cstrnt_term_dim.items():
             # if terms are concatenated, compute the combined shape into a single tuple
             # otherwise, keep the list of shapes as is
@@ -71,7 +71,7 @@ class ConstraintManager(ManagerBase):
 
     def __str__(self) -> str:
         """Returns: A string representation for the constraint manager."""
-        msg = f"<ObservationManager> contains {len(self._group_cstrnt_term_names)} groups.\n"
+        msg = f"<ConstraintManager> contains {len(self._group_cstrnt_term_names)} groups.\n"
 
         # add info for each group
         for group_name, group_dim in self._group_cstrnt_dim.items():
@@ -110,6 +110,7 @@ class ConstraintManager(ManagerBase):
         Returns:
             The active terms.
         """
+        print("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\")
         terms = []
 
         if self._cstrnt_buffer is None:
@@ -301,6 +302,42 @@ class ConstraintManager(ManagerBase):
             return group_cstrnt
 
     """
+    Operations - Term settings.
+    """
+
+    def set_term_cfg(self, term_name: str, cfg: TerminationTermCfg):
+        """Sets the configuration of the specified term into the manager.
+
+        Args:
+            term_name: The name of the termination term.
+            cfg: The configuration for the termination term.
+
+        Raises:
+            ValueError: If the term name is not found.
+        """
+        if term_name not in self._term_names:
+            raise ValueError(f"Termination term '{term_name}' not found.")
+        # set the configuration
+        self._term_cfgs[self._term_names.index(term_name)] = cfg
+
+    def get_term_cfg(self, term_name: str) -> TerminationTermCfg:
+        """Gets the configuration for the specified term.
+
+        Args:
+            term_name: The name of the termination term.
+
+        Returns:
+            The configuration of the termination term.
+
+        Raises:
+            ValueError: If the term name is not found.
+        """
+        if term_name not in self._term_names:
+            raise ValueError(f"Termination term '{term_name}' not found.")
+        # return the configuration
+        return self._term_cfgs[self._term_names.index(term_name)]
+
+    """
     Helper functions.
     """
 
@@ -383,10 +420,10 @@ class ConstraintManager(ManagerBase):
                 self._group_cstrnt_term_cfgs[group_name].append(term_cfg)
 
                 # register externally-set threshold
-                if term_cfg.threshold is not None:
-                    self._cstrnt_term_threshold_values[f"{group_name}/{term_name}"] = torch.tensor(
-                        term_cfg.threshold, dtype=torch.float, device=self._env.device
-                    )
+                # if term_cfg.threshold is not None:
+                #     self._cstrnt_term_threshold_values[f"{group_name}/{term_name}"] = torch.tensor(
+                #         term_cfg.threshold, dtype=torch.float, device=self._env.device
+                #     )
 
                 # call function the first time to fill up dimensions
                 cstrnt_dims = tuple(term_cfg.func(self._env, **term_cfg.params).shape)
@@ -475,19 +512,19 @@ class ConstraintManager(ManagerBase):
             # add history buffers for each group
             self._group_cstrnt_term_history_buffer[group_name] = group_entry_history_buffer
 
-    def set_threshold(self, group_name: str, term_name: str, threshold: float | torch.Tensor):
-        key = f"{group_name}/{term_name}"
-        if isinstance(threshold, (float, int)):
-            threshold = torch.tensor(threshold, dtype=torch.float, device=self._env.device)
-        elif isinstance(threshold, torch.Tensor):
-            threshold = threshold.to(self._env.device).float()
-        else:
-            raise TypeError(f"Unsupported type for threshold: {type(threshold)}")
+    # def set_threshold(self, group_name: str, term_name: str, threshold: float | torch.Tensor):
+    #     key = f"{group_name}/{term_name}"
+    #     if isinstance(threshold, (float, int)):
+    #         threshold = torch.tensor(threshold, dtype=torch.float, device=self._env.device)
+    #     elif isinstance(threshold, torch.Tensor):
+    #         threshold = threshold.to(self._env.device).float()
+    #     else:
+    #         raise TypeError(f"Unsupported type for threshold: {type(threshold)}")
 
-        self._cstrnt_term_threshold_values[key] = threshold
+    #     self._cstrnt_term_threshold_values[key] = threshold
 
-    def get_threshold(self, group_name: str, term_name: str) -> torch.Tensor | None:
-        return self._cstrnt_term_threshold_values.get(f"{group_name}/{term_name}", None)
+    # def get_threshold(self, group_name: str, term_name: str) -> torch.Tensor | None:
+    #     return self._cstrnt_term_threshold_values.get(f"{group_name}/{term_name}", None)
 
     def get_group_threshold_tensor(self, group_name: str) -> torch.Tensor:
         """
@@ -501,6 +538,7 @@ class ConstraintManager(ManagerBase):
         Returns:
             Concatenated threshold tensor (1D).
         """
+        print("///////////////////////////////////////////////////////////////////////")
         if group_name not in self._group_cstrnt_term_names:
             raise ValueError(f"Group '{group_name}' not found in constraint manager.")
 

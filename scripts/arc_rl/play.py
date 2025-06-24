@@ -61,6 +61,12 @@ from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, expor
 import humarconoid.tasks  # noqa: F401
 from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
 
+from humarconoid.envs import (
+    ARCManagerBasedRLEnvCfg,
+)
+
+from arc_rl.utils import ArcRlOnPolicyRunnerCfg, ArcRlVecEnvWrapper
+
 # PLACEHOLDER: Extension template (do not remove this comment)
 
 # For logging
@@ -73,7 +79,7 @@ def main():
     env_cfg = parse_env_cfg(
         args_cli.task, device=args_cli.device, num_envs=args_cli.num_envs, use_fabric=not args_cli.disable_fabric
     )
-    agent_cfg: RslRlOnPolicyRunnerCfg = cli_args.parse_arc_rl_cfg(args_cli.task, args_cli)
+    agent_cfg: ArcRlOnPolicyRunnerCfg | RslRlOnPolicyRunnerCfg = cli_args.parse_arc_rl_cfg(args_cli.task, args_cli)
 
     # specify directory for logging experiments
     log_root_path = os.path.join("logs", "arc_rl", agent_cfg.experiment_name)
@@ -110,8 +116,8 @@ def main():
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
-    # wrap around environment for rsl-rl
-    env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
+    # wrap around environment for arc-rl
+    env = ArcRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
     print(f"[INFO]: Loading model checkpoint from: {resume_path}")
     # load previously trained model
@@ -138,7 +144,7 @@ def main():
     )
 
     dt = env.unwrapped.step_dt
-    
+
     # reset data logging buffer
     data_dir = os.path.join(log_dir, "data")
     if not os.path.exists(data_dir):
@@ -171,7 +177,7 @@ def main():
             # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_names}")
 
             # get robot torques
-            tau = env.unwrapped.scene['robot'].data.applied_torque[0].cpu()
+            tau = env.unwrapped.scene['robot'].data.applied_torque[15].cpu()
             # print(f"joint_torque: {env.unwrapped.scene['robot'].data.applied_torque}")
 
             # data logging (.npy)

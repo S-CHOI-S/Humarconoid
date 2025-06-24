@@ -18,8 +18,10 @@ from isaaclab.utils.noise import NoiseCfg
 
 from isaaclab.managers.scene_entity_cfg import SceneEntityCfg
 
-if TYPE_CHECKING:
-    from isaaclab.managers.manager_term_cfg import ManagerTermBaseCfg
+from isaaclab.managers.manager_term_cfg import ManagerTermBaseCfg
+
+# if TYPE_CHECKING:
+#     from isaaclab.managers.manager_term_cfg import ManagerTermBaseCfg
 
 ##
 # Constraint manager

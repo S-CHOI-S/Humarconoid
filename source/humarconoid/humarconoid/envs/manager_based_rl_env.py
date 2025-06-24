@@ -21,11 +21,12 @@ from isaaclab.ui.widgets import ManagerLiveVisualizer
 from isaaclab.envs.common import VecEnvStepReturn
 from isaaclab.envs.manager_based_env import ManagerBasedEnv
 
+# humarconoid
 from .manager_based_rl_env_cfg import ARCManagerBasedRLEnvCfg
 from humarconoid.managers import ConstraintManager
 
 
-class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
+class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
     """The superclass for the manager-based workflow reinforcement learning-based environments.
 
     This class inherits from :class:`ManagerBasedEnv` and implements the core functionality for
@@ -147,15 +148,26 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
     def setup_manager_visualizers(self):
         """Creates live visualizers for manager terms."""
 
-        self.manager_visualizers = {
-            "action_manager": ManagerLiveVisualizer(manager=self.action_manager),
-            "observation_manager": ManagerLiveVisualizer(manager=self.observation_manager),
-            "command_manager": ManagerLiveVisualizer(manager=self.command_manager),
-            "termination_manager": ManagerLiveVisualizer(manager=self.termination_manager),
-            "reward_manager": ManagerLiveVisualizer(manager=self.reward_manager),
-            "curriculum_manager": ManagerLiveVisualizer(manager=self.curriculum_manager),
-            # "constraint_manager": ManagerLiveVisualizer(manager=self.constraint_manager),
-        }
+        if self.cfg.constraints is not None:
+            # if constraints are defined, we add the constraint manager visualizer
+            self.manager_visualizers = {
+                "action_manager": ManagerLiveVisualizer(manager=self.action_manager),
+                "observation_manager": ManagerLiveVisualizer(manager=self.observation_manager),
+                "command_manager": ManagerLiveVisualizer(manager=self.command_manager),
+                "termination_manager": ManagerLiveVisualizer(manager=self.termination_manager),
+                "reward_manager": ManagerLiveVisualizer(manager=self.reward_manager),
+                "curriculum_manager": ManagerLiveVisualizer(manager=self.curriculum_manager),
+                "constraint_manager": ManagerLiveVisualizer(manager=self.constraint_manager),
+            }
+        else:
+            self.manager_visualizers = {
+                "action_manager": ManagerLiveVisualizer(manager=self.action_manager),
+                "observation_manager": ManagerLiveVisualizer(manager=self.observation_manager),
+                "command_manager": ManagerLiveVisualizer(manager=self.command_manager),
+                "termination_manager": ManagerLiveVisualizer(manager=self.termination_manager),
+                "reward_manager": ManagerLiveVisualizer(manager=self.reward_manager),
+                "curriculum_manager": ManagerLiveVisualizer(manager=self.curriculum_manager),
+            }
 
     """
     Operations - MDP
@@ -180,6 +192,7 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         Returns:
             A tuple containing the observations, rewards, resets (terminated and truncated) and extras.
         """
+        # print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
         # process actions
         self.action_manager.process_action(action.to(self.device))
 
@@ -395,6 +408,10 @@ class ManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # -- termination manager
         info = self.termination_manager.reset(env_ids)
         self.extras["log"].update(info)
+        # -- constraint manager
+        if self.constraint_manager is not None:
+            info = self.constraint_manager.reset(env_ids)
+            self.extras["log"].update(info)
         # -- recorder manager
         info = self.recorder_manager.reset(env_ids)
         self.extras["log"].update(info)

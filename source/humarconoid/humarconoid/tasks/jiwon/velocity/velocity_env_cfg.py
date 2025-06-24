@@ -20,6 +20,9 @@ from isaaclab.utils import configclass
 from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 from humarconoid.envs import ARCManagerBasedRLEnvCfg
+from humarconoid.managers import ConstraintGroupCfg as CstrntGroup
+from humarconoid.managers import ConstraintTermCfg as CstrntTerm
+
 import humarconoid.tasks.jiwon.velocity.mdp as mdp
 
 ##
@@ -308,8 +311,21 @@ class CurriculumCfg:
 class ConstraintCfg:
     """Constraint terms for the MDP."""
     # No constraints defined for this environment
-    pass
+    # pass
 
+    @configclass
+    class CostCfg(CstrntGroup):
+        """Constraints for policy group."""
+
+        joint_pos = CstrntTerm(func=mdp.joint_pos_constraint, threshold=0.5, description="Joint position constraint")
+        joint_vel = CstrntTerm(func=mdp.joint_pos_constraint, threshold=0.5, description="Joint velocity constraint")
+
+        def __post_init__(self):
+            self.enable_corruption = True
+            self.concatenate_terms = True
+
+    # constraint groups
+    constraint: CostCfg = CostCfg()
 
 ##
 # Environment configuration

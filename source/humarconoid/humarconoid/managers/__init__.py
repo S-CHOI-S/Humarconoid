@@ -1,5 +1,5 @@
 from .manager_term_cfg import (
-    # ConstraintGroupCfg,
+    ConstraintGroupCfg,
     ConstraintTermCfg,
 )
 

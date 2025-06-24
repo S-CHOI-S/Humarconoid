@@ -41,7 +41,7 @@ def get_latest_run(run_dir):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task", type=str, default='Jiwon-Flat-Play', help="Name of the task.")
+    parser.add_argument("--task", type=str, default='Jiwon-Rough-Play', help="Name of the task.")
     parser.add_argument("--load_run", type=str, default=None, help="Name of the run folder to resume from.")
     args = parser.parse_args()
 

@@ -30,7 +30,7 @@ gym.register(
 
 gym.register(
     id="Jiwon-Rough",
-    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    entry_point="humarconoid.envs:ARCManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": rough_env_cfg.JiwonRoughEnvCfg,
