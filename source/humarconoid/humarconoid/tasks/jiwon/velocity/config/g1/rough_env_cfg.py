@@ -218,7 +218,7 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # post init of parent
         super().__post_init__()
         # Scene
-        self.scene.robot = G1_KIST_FLAT_FEET_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = G1_KIST_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/pelvis"
         self.scene.num_envs = 4096
         self.episode_length_s = 250.0  # max_episode_length = 15000
@@ -276,9 +276,9 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # Rewards
         self.rewards.termination_penalty.weight = -300.0
 
-        self.rewards.track_lin_vel_xy_exp.weight = 2.5
+        self.rewards.track_lin_vel_xy_exp.weight = 2.75
         self.rewards.track_lin_vel_xy_exp.params["std"] = 0.5
-        self.rewards.track_ang_vel_z_exp.weight = 2.75
+        self.rewards.track_ang_vel_z_exp.weight = 3.0
         self.rewards.lin_vel_z_l2.weight = -0.0
         self.rewards.ang_vel_xy_l2.weight = -0.05
         # self.rewards.dof_torques_l2 = None
@@ -286,15 +286,15 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
         #     "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
         # )
-        self.rewards.dof_acc_l2.weight = -2.75e-7
+        self.rewards.dof_acc_l2.weight = -5.0e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*"]  # "^(?!.*_knee_).*"]
         )
-        self.rewards.action_rate_l2.weight = -0.15
+        self.rewards.action_rate_l2.weight = -0.3
         # self.rewards.feet_air_time = None
         self.rewards.feet_air_time.weight = 0.25
         self.rewards.feet_air_time.params["threshold"] = 0.4
-        self.rewards.flat_orientation_l2.weight = -1.5
+        self.rewards.flat_orientation_l2.weight = -3.0
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.4
 
@@ -302,7 +302,7 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.joint_deviation_hip.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_roll_.*", ".*_hip_yaw_.*"]
         )
-        self.rewards.joint_deviation_ankle.weight = -0.75
+        self.rewards.joint_deviation_ankle.weight = -1.0
         # self.rewards.joint_deviation_hip.params["asset_cfg"] = SceneEntityCfg(
         #     "robot", joint_names=[".*_ankle_roll_.*"]
         # )

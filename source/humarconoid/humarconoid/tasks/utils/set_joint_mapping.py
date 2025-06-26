@@ -20,7 +20,7 @@ from humarconoid.robots import HUMARCONOID_EXT_DIR
 
 
 def load_from_yaml(robot_name):
-    file_path = f"{HUMARCONOID_EXT_DIR}/KIST_HUMANOID_TORSO/{robot_name}.yaml"
+    file_path = f"{HUMARCONOID_EXT_DIR}/KAPEX/{robot_name}.yaml"
     with open(file_path) as file:
         data = yaml.safe_load(file)
 

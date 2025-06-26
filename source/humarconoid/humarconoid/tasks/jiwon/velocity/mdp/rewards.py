@@ -427,7 +427,7 @@ def symmetric_gait_phase(
     for i in range(2):
         is_stance = gait_phase[:, i] < 0.60
         force = net_forces_w[:, i, 2]
-        contact = (force > 10) & (force < 180)
+        contact = (force > 10) & (force < 150.0)
 
         mismatch = contact ^ is_stance
         reward += (~(mismatch)).float()
@@ -468,8 +468,8 @@ def symmetric_gait_phase(
 
     force_left = net_forces_w[:, 0, 2]
     force_right = net_forces_w[:, 1, 2]
-    contact_left = (force_left > 10.0) & (force_left < 180.0)
-    contact_right = (force_right > 10.0) & (force_right < 180.0)
+    contact_left = (force_left > 10.0) & (force_left < 150.0)
+    contact_right = (force_right > 10.0) & (force_right < 150.0)
     both_feet_contact = contact_left & contact_right
 
     # print(f"force_left: {force_left[0]}, force_right: {force_right[0]}")

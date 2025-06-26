@@ -59,8 +59,8 @@ G1_KIST_CFG = ArticulationCfg(
                 ".*_knee_joint",
                 # "waist_.*_joint",
             ],
-            effort_limit=300,
-            velocity_limit=100.0,
+            effort_limit=100,  # 300.0
+            velocity_limit=15,  # 100.0
             stiffness={
                 ".*_hip_yaw_joint": 100.0,
                 ".*_hip_roll_joint": 100.0,
@@ -148,7 +148,7 @@ G1_KIST_CFG = ArticulationCfg(
 
 G1_KIST_FLAT_FEET_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist_flat_feet.usd",
+        usd_path=f"{HUMARCONOID_EXT_DIR}/G1/g1_kist_flat_feet_camera.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -184,8 +184,8 @@ G1_KIST_FLAT_FEET_CFG = ArticulationCfg(
                 ".*_knee_joint",
                 # "waist_.*_joint",
             ],
-            effort_limit=300,
-            velocity_limit=100.0,
+            effort_limit=100,  # 300.0
+            velocity_limit=15,  # 100.0
             stiffness={
                 ".*_hip_yaw_joint": 100.0,
                 ".*_hip_roll_joint": 100.0,

@@ -29,6 +29,7 @@ parser.add_argument(
     help="Use the pre-trained checkpoint from Nucleus.",
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
+parser.add_argument("--robot_id", type=int, default=1, help="Id of the robot.")
 # append RSL-RL cli arguments
 cli_args.add_arc_rl_args(parser)
 # append AppLauncher cli args
@@ -177,7 +178,7 @@ def main():
             # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_names}")
 
             # get robot torques
-            tau = env.unwrapped.scene['robot'].data.applied_torque[15].cpu()
+            tau = env.unwrapped.scene['robot'].data.applied_torque[args_cli.robot_id-1].cpu()
             # print(f"joint_torque: {env.unwrapped.scene['robot'].data.applied_torque}")
 
             # data logging (.npy)

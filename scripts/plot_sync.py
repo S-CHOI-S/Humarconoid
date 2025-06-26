@@ -43,6 +43,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--task", type=str, default='Jiwon-Rough-Play', help="Name of the task.")
     parser.add_argument("--load_run", type=str, default=None, help="Name of the run folder to resume from.")
+    # parser.add_argument("--robot_id", type=str, default=None, help="Id of the robot.")
     args = parser.parse_args()
 
     task_folder = task_to_folder(args.task)
