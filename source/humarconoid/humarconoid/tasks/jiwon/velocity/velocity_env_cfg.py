@@ -296,6 +296,12 @@ class TerminationsCfg:
         func=mdp.illegal_contact,
         params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names="base"), "threshold": 1.0},
     )
+    base_height = DoneTerm(
+        func=mdp.root_height_below_minimum,
+        params={
+            "minimum_height": 0.2,
+        },
+    )
 
 
 @configclass

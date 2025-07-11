@@ -1,6 +1,6 @@
 import gymnasium as gym
 
-from . import agents, arm_env_cfg, flat_env_cfg, rough_env_cfg
+from . import agents, wholebody_env_cfg, flat_env_cfg, rough_env_cfg
 
 ##
 # Register Gym environments.
@@ -51,23 +51,23 @@ gym.register(
 )
 
 gym.register(
-    id="Jiwon-Arm",
+    id="Jiwon-Wholebody",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg,
-        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+        "env_cfg_entry_point": wholebody_env_cfg.JiwonWholebodyEnvCfg,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonWholebodyPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonWholebodyPPORunnerCfg",
     },
 )
 
 gym.register(
-    id="Jiwon-Arm-Play",
+    id="Jiwon-Wholebody-Play",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,
     kwargs={
-        "env_cfg_entry_point": arm_env_cfg.JiwonArmEnvCfg_PLAY,
-        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonArmPPORunnerCfg",
-        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonArmPPORunnerCfg",
+        "env_cfg_entry_point": wholebody_env_cfg.JiwonWholebodyEnvCfg_PLAY,
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:JiwonWholebodyPPORunnerCfg",
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:JiwonWholebodyPPORunnerCfg",
     },
 )

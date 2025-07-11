@@ -169,7 +169,7 @@ def main():
 
             ''' GET ROBOT/SCENE VALUES '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
             # get robot body names
-            # print(f"body_names: {env.unwrapped.scene['robot'].data.body_names})
+            # print(f"body_names: {env.unwrapped.scene['robot'].data.body_names}")
 
             # get robot joint pos
             # print(f"joint_pos: {env.unwrapped.scene['robot'].data.joint_pos}")

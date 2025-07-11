@@ -178,8 +178,8 @@ class JiwonRewards(RewardsCfg):
         },
     )
 
-    base_height_l2 = RewTerm(
-        func=mdp.base_height_l2,
+    base_height_l2_g1 = RewTerm(
+        func=mdp.base_height_l2_g1,
         weight=-0.25,
         params={
             "min_height": 0.70,
@@ -203,7 +203,7 @@ class TerminationsCfg:
     base_height = DoneTerm(
         func=mdp.root_height_below_minimum,
         params={
-            "minimum_height": 0.65,
+            "minimum_height": 0.2,
         },
     )
 
@@ -267,6 +267,7 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.observations.policy.gait_phase = None
         ## critic
         self.observations.critic.height_scan = None
+        self.observations.policy.base_lin_vel = None
         self.observations.critic.projected_gravity_feet1 = None
         self.observations.critic.projected_gravity_feet2 = None
         # self.observations.critic.gait_phase = None
@@ -278,23 +279,23 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
 
         self.rewards.track_lin_vel_xy_exp.weight = 2.75
         self.rewards.track_lin_vel_xy_exp.params["std"] = 0.5
-        self.rewards.track_ang_vel_z_exp.weight = 3.0
+        self.rewards.track_ang_vel_z_exp.weight = 3.25
         self.rewards.lin_vel_z_l2.weight = -0.0
-        self.rewards.ang_vel_xy_l2.weight = -0.05
+        self.rewards.ang_vel_xy_l2.weight = -0.075
         # self.rewards.dof_torques_l2 = None
         self.rewards.dof_torques_l2 = None  # -1.5e-7
         # self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
         #     "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
         # )
-        self.rewards.dof_acc_l2.weight = -5.0e-7
+        self.rewards.dof_acc_l2.weight = -1.25e-6
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*"]  # "^(?!.*_knee_).*"]
         )
-        self.rewards.action_rate_l2.weight = -0.3
+        self.rewards.action_rate_l2.weight = -0.325
         # self.rewards.feet_air_time = None
         self.rewards.feet_air_time.weight = 0.25
         self.rewards.feet_air_time.params["threshold"] = 0.4
-        self.rewards.flat_orientation_l2.weight = -3.0
+        self.rewards.flat_orientation_l2.weight = -4.0
         self.rewards.dof_pos_limits.weight = -1.0
         self.rewards.feet_slide.weight = -0.4
 
@@ -318,8 +319,8 @@ class JiwonRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.symmetric_gait_phase.weight = 0.5
         self.rewards.symmetric_leg_phase.weight = 0.02
         self.rewards.contact_velocity.weight = 0.0  # -0.75
-        self.rewards.base_height_l2.weight = -0.0
-        self.rewards.base_height_l2.params["min_height"] = 0.50
+        self.rewards.base_height_l2_g1.weight = -0.0
+        self.rewards.base_height_l2_g1.params["min_height"] = 0.50
 
         self.rewards.undesired_contacts = None
 

@@ -15,9 +15,14 @@ from isaaclab.sensors import ContactSensor
 from isaaclab.utils import configclass
 from isaaclab.utils.math import quat_rotate_inverse, yaw_quat
 
+from isaaclab.envs.mdp import UniformVelocityCommandCfg
+
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv
 
+@configclass
+class UniformLevelVelocityCommandCfg(UniformVelocityCommandCfg):
+    limit_ranges: UniformVelocityCommandCfg.Ranges = MISSING
 
 class UniformVelocityCommandZ(CommandTerm):
     """Command generator that generates a velocity command in the z direction (vertical) only.

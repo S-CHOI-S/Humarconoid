@@ -19,17 +19,17 @@ from isaaclab.managers import CommandManager, CurriculumManager, RewardManager, 
 from isaaclab.ui.widgets import ManagerLiveVisualizer
 
 from isaaclab.envs.common import VecEnvStepReturn
-from isaaclab.envs.manager_based_env import ManagerBasedEnv
+from humarconoid.envs.manager_based_env import ARCManagerBasedEnv
 
 # humarconoid
 from .manager_based_rl_env_cfg import ARCManagerBasedRLEnvCfg
-from humarconoid.managers import ConstraintManager
+from humarconoid.managers import ARCConstraintManager
 
 
-class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
+class ARCManagerBasedRLEnv(ARCManagerBasedEnv, gym.Env):
     """The superclass for the manager-based workflow reinforcement learning-based environments.
 
-    This class inherits from :class:`ManagerBasedEnv` and implements the core functionality for
+    This class inherits from :class:`ARCManagerBasedEnv` and implements the core functionality for
     reinforcement learning-based environments. It is designed to be used with any RL
     library. The class is designed to be used with vectorized environments, i.e., the
     environment is expected to be run in parallel with multiple sub-environments. The
@@ -90,7 +90,7 @@ class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         self.metadata["render_fps"] = 1 / self.step_dt
 
         print("[INFO]: Completed setting up the environment...")
-
+        
     """
     Properties.
     """
@@ -133,7 +133,7 @@ class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         # prepare the custom managers
         # -- constraint manager
         if self.cfg.constraints is not None:
-            self.constraint_manager = ConstraintManager(cfg=self.cfg.constraints, env=self)
+            self.constraint_manager = ARCConstraintManager(cfg=self.cfg.constraints, env=self)
             print("[INFO] Constraint Manager: ", self.constraint_manager)
         else:
             self.constraint_manager = None
@@ -176,7 +176,7 @@ class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
     def step(self, action: torch.Tensor) -> VecEnvStepReturn:
         """Execute one time-step of the environment's dynamics and reset terminated environments.
 
-        Unlike the :class:`ManagerBasedEnv.step` class, the function performs the following operations:
+        Unlike the :class:`ARCManagerBasedEnv.step` class, the function performs the following operations:
 
         1. Process the actions.
         2. Perform physics stepping.
@@ -192,7 +192,7 @@ class ARCManagerBasedRLEnv(ManagerBasedEnv, gym.Env):
         Returns:
             A tuple containing the observations, rewards, resets (terminated and truncated) and extras.
         """
-        # print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
+        print("/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/")
         # process actions
         self.action_manager.process_action(action.to(self.device))
 

@@ -2,6 +2,7 @@ from isaaclab.utils import configclass
 from arc_rl.utils import (
     ArcRlOnPolicyRunnerCfg,
     ArcRlPpoActorCriticCfg,
+    ArcRlPpoAlgorithmCfg,
     ArcRlAppoAlgorithmCfg,
     ArcRlMipoAlgorithmCfg,
 )
@@ -91,11 +92,16 @@ class JiwonFlatPPORunnerCfg(JiwonRoughPPORunnerCfg):
 
 
 @configclass
-class JiwonArmPPORunnerCfg(JiwonRoughPPORunnerCfg):
+class JiwonWholebodyPPORunnerCfg(JiwonRoughPPORunnerCfg):
     def __post_init__(self):
         super().__post_init__()
+        
+        self.experiment_name = "jiwon_wholebody"
 
-        self.max_iterations = 30000
-        self.experiment_name = "jiwon_arm"
-        self.policy.actor_hidden_dims = [256, 256, 128]
-        self.policy.critic_hidden_dims = [256, 256, 128]
+        self.policy.init_noise_std = 0.4
+        self.policy.actor_hidden_dims = [512, 512, 512]
+        self.policy.critic_hidden_dims = [512, 512, 512]
+        
+        self.algorithm.value_loss_coef = 0.5
+        self.algorithm.actor_learning_rate = 1.0e-3
+        self.algorithm.critic_learning_rate = 1.0e-3  # 5.0e-4

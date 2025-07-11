@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv
 
 
-class ConstraintManager(ManagerBase):
+class ARCConstraintManager(ManagerBase):
 
     def __init__(self, cfg: object, env: ManagerBasedEnv):
         """Initialize constraint manager.

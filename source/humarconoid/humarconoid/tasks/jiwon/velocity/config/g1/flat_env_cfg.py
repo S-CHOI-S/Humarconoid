@@ -112,8 +112,8 @@ class JiwonFlatEnvCfg(JiwonRoughEnvCfg):
         self.rewards.symmetric_gait_phase.weight = 0.5  # 0.25
         self.rewards.symmetric_leg_phase.weight = 0.02
         self.rewards.contact_velocity.weight = -1.25
-        self.rewards.base_height_l2.weight = -0.25
-        self.rewards.base_height_l2.params["min_height"] = 0.675
+        self.rewards.base_height_l2_g1.weight = -0.25
+        self.rewards.base_height_l2_g1.params["min_height"] = 0.675
 
         # self.rewards.undesired_pairwise_contact = None
 
