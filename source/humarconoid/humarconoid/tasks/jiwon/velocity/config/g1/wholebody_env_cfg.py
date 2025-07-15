@@ -41,6 +41,10 @@ class JiwonWholebodyRewards(JiwonRewards):
     )
     
     alive = RewTerm(func=mdp.is_alive, weight=0.15)
+    
+    energy = RewTerm(func=mdp.energy, weight=-2e-5)
+    
+    flat_orientation_torso = RewTerm(func=mdp.flat_orientation_body, weight=-1.0)
 
 
 @configclass
@@ -64,13 +68,13 @@ class JiwonWholebodyEnvCfg(JiwonRoughEnvCfg):
         self.rewards.track_lin_vel_xy_exp.weight = 3.75
         self.rewards.track_ang_vel_z_exp.weight = 4.5
         
-        self.rewards.dof_acc_l2.weight = -1.5e-06
-        self.rewards.action_rate_l2.weight = -0.5
+        self.rewards.dof_acc_l2.weight = -2e-06
+        self.rewards.action_rate_l2.weight = -0.75
         
-        self.rewards.feet_air_time.weight = 0.2
+        self.rewards.feet_air_time.weight = 0.15
 
-        self.rewards.joint_deviation_hip.weight = -1.0
-        self.rewards.joint_deviation_knee.weight = -0.1
+        self.rewards.joint_deviation_hip.weight = -1.25
+        self.rewards.joint_deviation_knee.weight = -0.2
 
         self.rewards.symmetric_gait_phase.weight = 1.0
         self.rewards.symmetric_leg_phase.weight = 0.04
@@ -78,7 +82,11 @@ class JiwonWholebodyEnvCfg(JiwonRoughEnvCfg):
         self.rewards.joint_deviation_arms.weight = -0.3
         self.rewards.joint_deviation_waists.weight = -1.0
         
-        self.rewards.alive.weight = 0.25
+        self.rewards.alive.weight = 0.3
+        
+        self.rewards.energy.weight = -2.5e-07
+        
+        self.rewards.flat_orientation_torso.weight = -0.01
         
 
 class JiwonWholebodyEnvCfg_PLAY(JiwonWholebodyEnvCfg):
@@ -110,6 +118,6 @@ class JiwonWholebodyEnvCfg_PLAY(JiwonWholebodyEnvCfg):
         self.curriculum.push_robot_levels = None
 
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (-0.5, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_x = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
