@@ -59,8 +59,8 @@ class KapexRewardsCfg(RewardsCfg):
         func=mdp.feet_slide,
         weight=-0.25,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg[6-7]"),
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*_Leg[6-7]"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*_Leg6"),
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*_Leg6"),
         },
     )
 
@@ -68,7 +68,7 @@ class KapexRewardsCfg(RewardsCfg):
     dof_pos_limits = RewTerm(
         func=mdp.joint_pos_limits,
         weight=-1.0,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[1-7]", "WJ[1-3]"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=".*")},
     )
 
     # # 7. [Penalty] Leg Joint Limits
@@ -86,11 +86,11 @@ class KapexRewardsCfg(RewardsCfg):
     # )
 
     # 9. [Penalty] Deviation from default of the joints that are not essential for locomotion
-    joint_deviation_torso = RewTerm(
-        func=mdp.joint_deviation_l1,
-        weight=-0.5,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
-    )
+    # joint_deviation_torso = RewTerm(
+    #     func=mdp.joint_deviation_l1,
+    #     weight=-0.5,
+    #     params={"asset_cfg": SceneEntityCfg("robot", joint_names=["WJ[1-3]"])},
+    # )
 
     # 10. [Penalty] Deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
@@ -103,7 +103,7 @@ class KapexRewardsCfg(RewardsCfg):
     joint_deviation_ankle = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.00,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ[6-7]"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*LJ6"])},
     )
 
     # # 11. [Reward] Heel-Toe Air Time
@@ -153,7 +153,7 @@ class TerminationsCfg:
     # 2. Base Link Contact
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
-        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["Waist3"]), "threshold": 1.0},
+        params={"sensor_cfg": SceneEntityCfg("contact_forces", body_names=["base_link"]), "threshold": 1.0},
     )
 
 
@@ -194,7 +194,7 @@ class KapexRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         self.rewards.dof_acc_l2.weight = -1.25e-7
         self.rewards.dof_acc_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-4]"])
         self.rewards.dof_torques_l2.weight = -1.5e-7
-        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-7]"])
+        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=[".*LJ[1-6]"])
 
         ## Reshape Rewards
         self.rewards.track_lin_vel_xy_exp.weight = 1.0
@@ -211,7 +211,7 @@ class KapexRoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # self.rewards.leg_crossing_detection.weight = 0
         self.rewards.termination_penalty.weight = -200.0
         self.rewards.feet_slide.weight = -0.25
-        self.rewards.joint_deviation_torso.weight = -0.25
+        # self.rewards.joint_deviation_torso.weight = -0.25
         self.rewards.joint_deviation_hip.weight = -0.1
         # self.rewards.heel_toe_air_time.weight = 1.5
         # self.rewards.reference_motion.weight = 0.25

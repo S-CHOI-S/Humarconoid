@@ -58,6 +58,7 @@ from isaaclab.utils.dict import print_dict
 from isaaclab.utils.pretrained_checkpoint import get_published_pretrained_checkpoint
 
 from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlVecEnvWrapper, export_policy_as_jit, export_policy_as_onnx
+from arc_rl.utils import export_critic_as_jit, export_critic_as_onnx
 
 import humarconoid.tasks  # noqa: F401
 from isaaclab_tasks.utils import get_checkpoint_path, parse_env_cfg
@@ -140,8 +141,14 @@ def main():
     # export policy to onnx/jit
     export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
     export_policy_as_jit(policy_nn, ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.pt")
+    export_critic_as_jit(
+        policy_nn, ppo_runner.privileged_obs_normalizer, path=export_model_dir, filename="critic.pt"
+    )
     export_policy_as_onnx(
         policy_nn, normalizer=ppo_runner.obs_normalizer, path=export_model_dir, filename="policy.onnx"
+    )
+    export_critic_as_onnx(
+        policy_nn, normalizer=ppo_runner.privileged_obs_normalizer, path=export_model_dir, filename="critic.onnx"
     )
 
     dt = env.unwrapped.step_dt

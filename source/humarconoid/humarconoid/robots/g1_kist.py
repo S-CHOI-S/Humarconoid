@@ -382,9 +382,11 @@ G1_KIST_WHOLEBODY_CFG = ArticulationCfg(
             "right_hip_pitch_joint": -0.1,
             ".*_knee_joint": 0.3,
             ".*_ankle_pitch_joint": -0.2,
+            
             ".*_shoulder_pitch_joint": 0.3,
             "left_shoulder_roll_joint": 0.25,
             "right_shoulder_roll_joint": -0.25,
+            
             ".*_elbow_joint": 0.97,
             "left_wrist_roll_joint": 0.15,
             "right_wrist_roll_joint": -0.15,
@@ -504,8 +506,7 @@ body_names:
     36. 'right_wrist_yaw_link'  
     37. 'left_rubber_hand'  
     38. 'right_rubber_hand'
-    
-    
+
 joint_names:
     0. left_hip_pitch_joint  
     1. right_hip_pitch_joint  

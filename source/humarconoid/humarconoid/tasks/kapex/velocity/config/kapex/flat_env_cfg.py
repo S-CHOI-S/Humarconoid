@@ -10,6 +10,8 @@ class KapexFlatEnvCfg(KapexRoughEnvCfg):
         # post init of parent
         super().__post_init__()
 
+        self.episode_length_s = 200.0
+
         # change terrain to flat
         self.scene.terrain.terrain_type = "plane"
         self.scene.terrain.terrain_generator = None
@@ -22,6 +24,16 @@ class KapexFlatEnvCfg(KapexRoughEnvCfg):
 
         # Observations
         self.observations.policy.base_lin_vel = None
+        self.observations.critic.base_lin_vel = None
+
+        # Events
+        self.events.push_robot = None
+
+        # Terminations
+        self.terminations.base_contact.params = {
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=["^(?!.*_Leg6).*"]),
+            "threshold": 1.0,
+        }
 
         # Randomization
         self.events.add_base_mass.params = {
@@ -43,8 +55,8 @@ class KapexFlatEnvCfg(KapexRoughEnvCfg):
         }
 
         # Reshape Rewards
-        self.rewards.track_lin_vel_xy_exp.weight = 1.0
-        self.rewards.track_ang_vel_z_exp.weight = 0.5
+        self.rewards.track_lin_vel_xy_exp.weight = 1.75
+        self.rewards.track_ang_vel_z_exp.weight = 1.0
         self.rewards.lin_vel_z_l2.weight = -0.1
         self.rewards.ang_vel_xy_l2.weight = -0.05
         self.rewards.dof_torques_l2 = None
@@ -55,11 +67,11 @@ class KapexFlatEnvCfg(KapexRoughEnvCfg):
         self.rewards.flat_orientation_l2.weight = -3.0
         self.rewards.dof_pos_limits.weight = -1
         # self.rewards.leg_crossing_detection.weight = 0
-        self.rewards.termination_penalty.weight = -200.0
+        self.rewards.termination_penalty.weight = -500.0
         self.rewards.feet_slide.weight = -0.25
-        self.rewards.joint_deviation_torso.weight = -1.0
+        # self.rewards.joint_deviation_torso.weight = -1.0
         self.rewards.joint_deviation_hip.weight = -0.3
-        self.rewards.joint_deviation_ankle.weight = -0.1
+        self.rewards.joint_deviation_ankle.weight = -0.3
 
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.0)

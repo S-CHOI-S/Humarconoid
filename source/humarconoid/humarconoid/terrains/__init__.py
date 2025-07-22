@@ -6,6 +6,6 @@
 """Pre-defined terrain configurations for the terrain generator."""
 
 from .noise import *  # noqa: F401
-from .rough_slope import ROUGH_SLOPE_TERRAINS_CFG  # noqa: F401
+from .rough_slope import ROUGH_SLOPE_TERRAINS_CFG, ROUGH_SLOPE_TERRAINS_WHOLEBODY_CFG  # noqa: F401
 from .slope import SLOPE_TERRAINS_CFG  # noqa: F401
 from .cobblestone import COBBLESTONE_ROAD_CFG  # noqa: F401
