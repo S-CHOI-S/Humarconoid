@@ -185,6 +185,12 @@ class JointPositionAction(JointAction):
 
         num_joints = self._asset.num_joints
 
+        # mean_ep_length = torch.mean((self.env.episode_length_buf > (1 * self.env.max_episode_length / 2)).float())
+        # if mean_ep_length < 0.5:
+        #     # set position targets
+        #     self._asset.set_joint_position_target(self.processed_actions, joint_ids=self._joint_ids)
+
+        # else:
         full_action = torch.zeros(self.num_envs, num_joints, device=self.device)
 
         if isinstance(self._joint_ids, slice):

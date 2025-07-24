@@ -60,7 +60,7 @@ import os
 import torch
 from datetime import datetime
 
-from arc_rl.runners import OnPolicyRunner
+from arc_rl.runners import OnPolicyRunnerFactory
 
 from isaaclab.envs import (
     DirectMARLEnv,
@@ -157,7 +157,7 @@ def main(env_cfg: ARCManagerBasedRLEnvCfg | ManagerBasedRLEnvCfg | DirectRLEnvCf
     env = ArcRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
 
     # create runner from rsl-rl
-    runner = OnPolicyRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
+    runner = OnPolicyRunnerFactory(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
     # write git state to logs
     runner.add_git_repo_to_log(__file__)
     # load the checkpoint

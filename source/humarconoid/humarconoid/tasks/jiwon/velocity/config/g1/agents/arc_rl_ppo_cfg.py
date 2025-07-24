@@ -5,7 +5,10 @@ from arc_rl.utils import (
     ArcRlPpoAlgorithmCfg,
     ArcRlAppoAlgorithmCfg,
     ArcRlMipoAlgorithmCfg,
+    ArcRlAuxiliaryCfg
 )
+
+import humarconoid.tasks.jiwon.velocity.mdp as mdp
 
 
 @configclass
@@ -99,9 +102,17 @@ class JiwonWholebodyPPORunnerCfg(JiwonRoughPPORunnerCfg):
         self.experiment_name = "jiwon_wholebody"
 
         self.policy.init_noise_std = 0.4
-        self.policy.actor_hidden_dims = [512, 512, 512]
-        self.policy.critic_hidden_dims = [512, 512, 512]
+        self.policy.actor_hidden_dims = [512, 512, 256]
+        self.policy.critic_hidden_dims = [512, 512, 256]
 
-        self.algorithm.value_loss_coef = 0.5
+        self.algorithm.value_loss_coef = 0.25
         self.algorithm.actor_learning_rate = 1.0e-4
-        self.algorithm.critic_learning_rate = 1.0e-3  # 5.0e-4
+        self.algorithm.critic_learning_rate = 1.0e-4  # 5.0e-4
+
+        # # Auxiliary
+        # self.algorithm.auxiliary_cfg = ArcRlAuxiliaryCfg(
+        #     input_dim=59,
+        #     output_dim=3,
+        #     hidden_dims=[64, 32],
+        #     linvel_fcn=mdp.base_lin_vel__()
+        # )

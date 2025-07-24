@@ -382,11 +382,11 @@ G1_KIST_WHOLEBODY_CFG = ArticulationCfg(
             "right_hip_pitch_joint": -0.1,
             ".*_knee_joint": 0.3,
             ".*_ankle_pitch_joint": -0.2,
-            
+
             ".*_shoulder_pitch_joint": 0.3,
             "left_shoulder_roll_joint": 0.25,
             "right_shoulder_roll_joint": -0.25,
-            
+
             ".*_elbow_joint": 0.97,
             "left_wrist_roll_joint": 0.15,
             "right_wrist_roll_joint": -0.15,
@@ -430,10 +430,10 @@ G1_KIST_WHOLEBODY_CFG = ArticulationCfg(
         ),
         "torso": ImplicitActuatorCfg(
             joint_names_expr=["waist_.*_joint"],
-            effort_limit_sim=200,
+            effort_limit_sim=300,  # 200,
             velocity_limit_sim=15.0,
             stiffness={
-                "waist_.*_joint": 200.0,
+                "waist_.*_joint": 2000.0,  # 200.0,
             },
             damping={
                 "waist_.*_joint": 5.0,
@@ -454,7 +454,7 @@ G1_KIST_WHOLEBODY_CFG = ArticulationCfg(
             ],
             effort_limit_sim=100,
             velocity_limit_sim=10.0,
-            stiffness=40.0,
+            stiffness=60.0,  # 40.0,
             damping=10.0,
             armature={
                 ".*_shoulder_.*": 0.01,
