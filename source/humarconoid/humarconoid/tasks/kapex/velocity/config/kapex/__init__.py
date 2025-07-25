@@ -12,6 +12,7 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": stand_env_cfg.KapexStandEnvCfg,
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:KapexStandPPORunnerCfg",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KapexStandPPORunnerCfg",
     },
 )
@@ -22,6 +23,7 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": stand_env_cfg.KapexStandEnvCfg_PLAY,
+        "arc_rl_cfg_entry_point": f"{agents.__name__}.arc_rl_ppo_cfg:KapexStandPPORunnerCfg",
         "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:KapexStandPPORunnerCfg",
     },
 )

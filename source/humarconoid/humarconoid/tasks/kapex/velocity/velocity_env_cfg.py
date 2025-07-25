@@ -59,7 +59,7 @@ class MySceneCfg(InteractiveSceneCfg):
     robot: ArticulationCfg = MISSING
     # sensors
     height_scanner = RayCasterCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/base",
+        prim_path="{ENV_REGEX_NS}/Robot/base_link",
         offset=RayCasterCfg.OffsetCfg(pos=(0.0, 0.0, 20.0)),
         attach_yaw_only=True,
         pattern_cfg=patterns.GridPatternCfg(resolution=0.1, size=[1.6, 1.0]),
@@ -170,7 +170,7 @@ class EventCfg:
         func=mdp.randomize_rigid_body_mass,
         mode="reset",
         params={
-            "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+            "asset_cfg": SceneEntityCfg("robot", body_names="base_link"),
             "mass_distribution_params": (-2.0, 2.0),
             "operation": "add",
         },
@@ -180,7 +180,7 @@ class EventCfg:
     #     func=mdp.apply_external_force_torque,
     #     mode="reset",
     #     params={
-    #         "asset_cfg": SceneEntityCfg("robot", body_names="base"),
+    #         "asset_cfg": SceneEntityCfg("robot", body_names="base_link"),
     #         "force_range": (0.0, 0.0),
     #         "torque_range": (-0.0, 0.0),
     #     },
@@ -255,58 +255,6 @@ class RewardsCfg:
     flat_orientation_l2 = RewTerm(func=mdp.flat_orientation_l2, weight=0.0)
     dof_pos_limits = RewTerm(func=mdp.joint_pos_limits, weight=0.0)
 
-    # heel_toe_air_time = RewTerm(
-    #     func=mdp.heel_toe_air_time_positive_biped,
-    #     weight=1.0,
-    #     params={
-    #         "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
-    #         "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
-    #         "command_name": "base_velocity",
-    #     },
-    # )
-
-    # contact_motion = RewTerm(
-    #     func=mdp.feet_contact_number,
-    #     weight=0.05,
-    #     params={
-    #         "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
-    #         "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
-    #         "command_name": "base_velocity",
-    #     },
-    # )
-
-    # feet_distance = RewTerm(
-    #     func=mdp.feet_distance,
-    #     weight=0.05,
-    #     params={
-    #         "sensor_cfg1": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
-    #         "sensor_cfg2": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
-    #         "command_name": "base_velocity",
-    #     },
-    # )
-
-    # foot_clearance = RewTerm(
-    #     func=mdp.foot_clearance,
-    #     weight=0.1,
-    #     params={
-    #         "command_name": "base_velocity",
-    #     },
-    # )
-
-    # action_rate_l2_leg = RewTerm(
-    #     func=mdp.action_rate_l2_leg,
-    #     weight=0.001,
-    # )
-    # leg_crossing_detection = RewTerm(
-    #     func=mdp.leg_crossing_detection,
-    #     weight=0.1,
-    #     params={
-    #         "left_sensor_cfg": SceneEntityCfg("contact_forces", body_names="Left_Leg[6-7]"),
-    #         "right_sensor_cfg": SceneEntityCfg("contact_forces", body_names="Right_Leg[6-7]"),
-    #         "command_name": "base_velocity",
-    #     },
-    # )
-
 
 @configclass
 class TerminationsCfg:
@@ -357,7 +305,7 @@ class LocomotionVelocityRoughEnvCfg(ManagerBasedRLEnvCfg):
         self.sim.render_interval = self.decimation
         self.sim.disable_contact_processing = True
         self.sim.physics_material = self.scene.terrain.physics_material
-        self.sim.physx.gpu_max_rigid_patch_count = 250000  # increase GPU rigid patch count for large environments
+        self.sim.physx.gpu_max_rigid_patch_count = 10 * 2**15  # increase GPU rigid patch count for large environments
         # update sensor update periods
         # we tick all the sensors based on the smallest update period (physics update period)
         if self.scene.height_scanner is not None:

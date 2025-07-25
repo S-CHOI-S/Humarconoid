@@ -22,6 +22,14 @@ class JiwonWholebodyRewards(JiwonRewards):
 
     flat_orientation_torso = RewTerm(func=mdp.flat_orientation_body, weight=-1.0)
 
+    orthogonal_velocity_penalty = RewTerm(func=mdp.orthogonal_velocity_penalty, weight=-0.5)
+
+    track_torso_lin_vel_xy_exp = RewTerm(
+        func=mdp.track_torso_lin_vel_xy_yaw_frame_exp,
+        weight=1.0,
+        params={"command_name": "base_velocity", "std": 0.5},
+    )
+
 
 @configclass
 class JiwonWholebodyCurriculum(CurriculumCfg):
@@ -103,17 +111,17 @@ class JiwonWholebodyEnvCfg(JiwonRoughEnvCfg):
         self.scene.terrain.max_init_terrain_level = 0
 
         # Rewards
-        self.rewards.track_lin_vel_xy_exp.weight = 2.75
-        self.rewards.track_ang_vel_z_exp.weight = 3.25
+        self.rewards.track_lin_vel_xy_exp.weight = 3.0
+        self.rewards.track_ang_vel_z_exp.weight = 3.75
         self.rewards.lin_vel_z_l2.weight = -0.0
-        self.rewards.ang_vel_xy_l2.weight = -0.075
+        self.rewards.ang_vel_xy_l2.weight = -0.15
 
         self.rewards.dof_acc_l2.weight = -1.25e-06
         self.rewards.action_rate_l2.weight = -0.325
 
         self.rewards.feet_air_time.weight = 0.25
 
-        self.rewards.flat_orientation_l2.weight = -4.0
+        self.rewards.flat_orientation_l2.weight = -5.0
 
         self.rewards.dof_pos_limits.weight = -1.0
 
@@ -123,14 +131,18 @@ class JiwonWholebodyEnvCfg(JiwonRoughEnvCfg):
 
         self.rewards.joint_deviation_hip.weight = -1.0  # -0.5
         self.rewards.joint_deviation_ankle.weight = -1.0
-        self.rewards.joint_deviation_knee.weight = -0.04
+        self.rewards.joint_deviation_knee.weight = -0.03
 
-        self.rewards.symmetric_gait_phase.weight = 0.5
+        self.rewards.symmetric_gait_phase.weight = 0.75
         self.rewards.symmetric_leg_phase.weight = 0.02
 
         # self.rewards.energy = None
         self.rewards.energy.weight = -1.0e-07
-        self.rewards.flat_orientation_torso.weight = -0.5
+        self.rewards.flat_orientation_torso.weight = -3.0
+
+        self.rewards.orthogonal_velocity_penalty.weight = -1.0
+
+        self.rewards.track_torso_lin_vel_xy_exp.weight = 2.0
 
         # Curriculum
         # self.curriculum.command_velocity_levels

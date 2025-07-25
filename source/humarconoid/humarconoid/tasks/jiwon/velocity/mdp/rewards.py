@@ -94,6 +94,35 @@ def track_lin_vel_xy_yaw_frame_exp(
     return torch.exp(-2 * lin_vel_error / std**2)
 
 
+def track_torso_lin_vel_xy_yaw_frame_exp(
+    env, std: float, command_name: str, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
+) -> torch.Tensor:
+    """Reward tracking of linear velocity commands (xy axes) in the gravity aligned robot frame using exponential kernel."""
+    # extract the used quantities (to enable type-hinting)
+    asset = env.scene[asset_cfg.name]
+    torso_quat_w = asset.data.body_quat_w[:, 11, :]
+    torso_vel_w = asset.data.body_lin_vel_w[:, 11, :]
+    vel_yaw = quat_rotate_inverse(yaw_quat(torso_quat_w), torso_vel_w)
+    lin_vel_error = torch.sum(
+        torch.square(env.command_manager.get_command(command_name)[:, :2] - vel_yaw[:, :2]), dim=1
+    )
+    return torch.exp(-2 * lin_vel_error / std**2)
+
+
+def orthogonal_velocity_penalty(env, std=0.25, command_name="base_velocity"):
+    cmd = env.command_manager.get_command(command_name)[:, :2]
+    vel = quat_rotate_inverse(yaw_quat(env.scene["robot"].data.root_quat_w),
+                              env.scene["robot"].data.root_lin_vel_w[:, :3])[:, :2]
+
+    cmd_norm = torch.norm(cmd, dim=1, keepdim=True).clamp(min=1e-8)
+    cmd_dir = cmd / cmd_norm
+
+    proj = torch.sum(vel * cmd_dir, dim=1, keepdim=True) * cmd_dir
+    orth = vel - proj
+    orth_error = torch.sum(torch.square(orth), dim=1)
+    return torch.exp(-orth_error / std**2)
+
+
 def track_ang_vel_z_world_exp(
     env, command_name: str, std: float, asset_cfg: SceneEntityCfg = SceneEntityCfg("robot")
 ) -> torch.Tensor:
